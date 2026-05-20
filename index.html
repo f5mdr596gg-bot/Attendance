@@ -49,7 +49,6 @@ body{font-family:'Cairo',sans-serif;background:#f0f4f8;color:#1e293b;min-height:
 .bg{background:linear-gradient(135deg,#047857,#059669);color:#fff;box-shadow:0 4px 14px rgba(5,150,105,.22)}
 .bg:hover{transform:translateY(-1px)}
 .bo{background:#fff;border:1.5px solid var(--border);color:var(--muted);font-size:13px}
-.bo:hover{border-color:var(--blue);color:var(--blue)}
 .brow{display:flex;gap:9px}
 .brow .btn{flex:1}
 .bxs{padding:7px 12px;width:auto;border:none;border-radius:8px;font-family:Cairo,sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
@@ -65,9 +64,8 @@ body{font-family:'Cairo',sans-serif;background:#f0f4f8;color:#1e293b;min-height:
 #amap{height:260px;width:100%}
 .mhint{position:absolute;top:7px;right:7px;z-index:500;background:rgba(255,255,255,.9);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;color:var(--muted);font-weight:600;pointer-events:none}
 .sr{display:flex;gap:7px;margin-bottom:9px}
-.sr input{flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:Cairo,sans-serif;font-size:12px;background:#fafcff;outline:none;transition:.2s}
-.sr input:focus{border-color:var(--blue)}
-.sbtn{padding:9px 12px;background:var(--blue);color:#fff;border:none;border-radius:9px;font-family:Cairo,sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.sr input{flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:Cairo,sans-serif;font-size:12px;background:#fafcff;outline:none}
+.sbtn{padding:9px 12px;background:var(--blue);color:#fff;border:none;border-radius:9px;font-family:Cairo,sans-serif;font-size:12px;font-weight:700;cursor:pointer}
 .rrow{display:flex;align-items:center;gap:11px;margin-bottom:13px}
 .rrow label{font-size:11px;font-weight:800;color:var(--muted);white-space:nowrap}
 input[type=range]{flex:1;accent-color:var(--blue);cursor:pointer}
@@ -104,7 +102,7 @@ input[type=range]{flex:1;accent-color:var(--blue);cursor:pointer}
 .sn{font-size:26px;font-weight:900;line-height:1}
 .sl2{font-size:10px;color:var(--muted);font-weight:700;margin-top:4px}
 .fb{display:flex;gap:7px;margin-bottom:13px;flex-wrap:wrap}
-.fb button{padding:6px 12px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-family:Cairo,sans-serif;font-size:11px;font-weight:700;cursor:pointer;color:var(--muted);transition:.2s}
+.fb button{padding:6px 12px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-family:Cairo,sans-serif;font-size:11px;font-weight:700;cursor:pointer;color:var(--muted)}
 .fb button.on{background:var(--blu);border-color:var(--blue);color:var(--blue)}
 .to{border-radius:11px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow)}
 .tb3{display:flex;align-items:center;justify-content:space-between;padding:11px 15px;background:#f8fafc;border-bottom:1px solid var(--border);gap:7px;flex-wrap:wrap}
@@ -140,11 +138,6 @@ tr:hover td{background:#f8fafc}
 .loading{text-align:center;padding:30px;color:var(--muted);font-size:13px}
 .spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin-left:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:480px){
-  .sg{grid-template-columns:repeat(3,1fr)}
-  .sn{font-size:20px}
-  .tab{font-size:11px;padding:14px 10px}
-}
 </style>
 </head>
 <body>
@@ -200,7 +193,7 @@ tr:hover td{background:#f8fafc}
       <input id="s-num" class="inp inp-c inp-big" type="text" inputmode="numeric" maxlength="12" placeholder="أدخل رقمك" oninput="this.value=this.value.replace(/\D/g,'')" onkeydown="if(event.key==='Enter')doSub()"></div>
       <button class="btn bg" onclick="doSub()">✅ تسجيل الحضور</button>
     </div>
-    <div id="s-closed" style="display:none" class="closed"><div class="closed-ic">🔒</div><h3>التسجيل موقوف</h3><p>أوقف المشرف التسجيل مؤقتاً.<br>يرجى المحاولة لاحقاً.</p></div>
+    <div id="s-closed" style="display:none" class="closed"><div class="closed-ic">🔒</div><h3>التسجيل موقوف</h3><p>أوقف المشرف التسجيل مؤقتاً.</p></div>
   </div></div>
 </div>
 
@@ -222,17 +215,17 @@ tr:hover td{background:#f8fafc}
       </div>
     </div>
     <div style="overflow-x:auto"><table>
-      <thead><tr><th>#</th><th>الرقم الأكاديمي</th><th>الفعالية</th><th>التاريخ</th><th>الوقت</th><th>IP</th><th>الحالة</th></tr></thead>
+      <thead><tr><th>#</th><th>الرقم الأكاديمي</th><th>الفعالية</th><th>الوقت</th><th>IP</th><th>الحالة</th></tr></thead>
       <tbody id="tbody"></tbody>
     </table></div>
   </div>
 </div>
 
-<!-- QR OVERLAY -->
+<!-- QR -->
 <div class="qrov" id="qrov">
   <div class="qrbox">
     <div class="qr-dark">
-      <div class="qr-white"><img id="qrimg" src="" alt="QR" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=error'"></div>
+      <div class="qr-white"><img id="qrimg" src="" alt="QR"></div>
       <div class="qr-meta"><strong id="qr-nm"></strong><br><span id="qr-rng"></span><div class="qr-chip"><div class="pls"></div>مقيّد بالموقع الجغرافي</div></div>
     </div>
     <div class="brow">
@@ -249,83 +242,80 @@ tr:hover td{background:#f8fafc}
 <div class="ov" id="m-dup"><div class="md"><div class="md-ic">⚠️</div><h3 style="color:var(--gold)">رقم مسجّل مسبقاً</h3><p>هذا الرقم الأكاديمي سبق تسجيله في هذه الفعالية.</p><div class="md-act"><button class="btn bo" onclick="hideM('m-dup')">حسناً</button></div></div></div>
 <div class="ov" id="m-del"><div class="md"><div class="md-ic">🗑️</div><h3>حذف الفعالية؟</h3><p>سيتم حذف الفعالية وجميع سجلاتها.</p><div class="md-act"><button class="btn bo" onclick="hideM('m-del')">إلغاء</button><button class="btn" id="m-del-ok" style="background:var(--red);color:#fff;flex:1">حذف</button></div></div></div>
 <div class="ov" id="m-clr"><div class="md"><div class="md-ic">🗑️</div><h3>حذف جميع السجلات؟</h3><p>سيتم حذف كل بيانات الحضور.</p><div class="md-act"><button class="btn bo" onclick="hideM('m-clr')">إلغاء</button><button class="btn" onclick="doClear()" style="background:var(--red);color:#fff;flex:1">حذف نهائي</button></div></div></div>
-<div class="ov" id="m-err"><div class="md"><div class="md-ic">❌</div><h3>خطأ في الاتصال</h3><p id="m-err-p">تعذّر الاتصال بقاعدة البيانات. تحقق من الإنترنت.</p><div class="md-act"><button class="btn bo" onclick="hideM('m-err')">حسناً</button></div></div></div>
+<div class="ov" id="m-err"><div class="md"><div class="md-ic">❌</div><h3>خطأ في الاتصال</h3><p id="m-err-p">تعذّر الاتصال بقاعدة البيانات.</p><div class="md-act"><button class="btn bo" onclick="hideM('m-err')">حسناً</button></div></div></div>
 
 <script>
-// ══ FIREBASE CONFIG ══════════════════════════════
+// ══ FIREBASE ══════════════════════════════════════
 firebase.initializeApp({
-  apiKey: "AIzaSyDEuTcHorgbRaZaJWz7SsB1lLDS129HTc8",
-  authDomain: "attendance-system-48933.firebaseapp.com",
-  databaseURL: "https://attendance-system-48933-default-rtdb.firebaseio.com",
-  projectId: "attendance-system-48933",
-  storageBucket: "attendance-system-48933.firebasestorage.app",
-  messagingSenderId: "663442932094",
-  appId: "1:663442932094:web:ed43fa69f8820c57b5f32f"
+  apiKey:"AIzaSyDEuTcHorgbRaZaJWz7SsB1lLDS129HTc8",
+  authDomain:"attendance-system-48933.firebaseapp.com",
+  databaseURL:"https://attendance-system-48933-default-rtdb.firebaseio.com",
+  projectId:"attendance-system-48933",
+  storageBucket:"attendance-system-48933.firebasestorage.app",
+  messagingSenderId:"663442932094",
+  appId:"1:663442932094:web:ed43fa69f8820c57b5f32f"
 });
 var db = firebase.database();
 
-// ══ DEVICE FINGERPRINT — stable, no localStorage needed ══
-function getDID(){
-  // Compute a deterministic fingerprint from device properties
-  // This is the same every time on the same device
-  var parts=[
-    screen.width,screen.height,screen.colorDepth,
-    navigator.language,
-    navigator.hardwareConcurrency||0,
+// ══ DEVICE FINGERPRINT ════════════════════════════
+// Computed from stable device properties — survives page refresh
+function getFingerprint(){
+  var raw=[
+    screen.width, screen.height, screen.colorDepth,
+    navigator.language || '',
+    navigator.hardwareConcurrency || 0,
     new Date().getTimezoneOffset(),
-    navigator.platform||'',
-    (typeof Intl!=='undefined'?Intl.DateTimeFormat().resolvedOptions().timeZone:'')
+    navigator.platform || '',
+    (typeof Intl!=='undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : '')
   ].join('|');
-  var h=0;
-  for(var i=0;i<parts.length;i++){h=((h<<5)-h)+parts.charCodeAt(i);h|=0;}
-  var fp='fp'+Math.abs(h).toString(36);
-  // Also try to persist to localStorage as fallback
-  try{
-    var stored=localStorage.getItem('att_did7');
-    if(!stored){localStorage.setItem('att_did7',fp);}
-    else{fp=stored;}
-  }catch(e){}
-  return fp;
+  var h = 0;
+  for(var i=0; i<raw.length; i++){
+    h = ((h<<5)-h) + raw.charCodeAt(i);
+    h = h|0;
+  }
+  return 'fp' + Math.abs(h).toString(36);
 }
-// Local lock stored in ALL available storage types
+
+// Triple-layer local lock (localStorage + sessionStorage + cookie)
 function isLockedLocally(evtId){
-  var k='lk_'+evtId;
-  try{if(localStorage.getItem(k)==='1') return true;}catch(e){}
-  try{if(sessionStorage.getItem(k)==='1') return true;}catch(e){}
-  try{if(document.cookie.indexOf(k+'=1')!==-1) return true;}catch(e){}
+  var k = 'lk_'+evtId;
+  try{ if(localStorage.getItem(k)==='1') return true; }catch(e){}
+  try{ if(sessionStorage.getItem(k)==='1') return true; }catch(e){}
+  try{ if(document.cookie.indexOf(k+'=1')!==-1) return true; }catch(e){}
   return false;
 }
 function lockLocally(evtId){
-  var k='lk_'+evtId;
-  try{localStorage.setItem(k,'1');}catch(e){}
-  try{sessionStorage.setItem(k,'1');}catch(e){}
-  try{document.cookie=k+'=1;path=/;max-age=31536000';}catch(e){}
+  var k = 'lk_'+evtId;
+  try{ localStorage.setItem(k,'1'); }catch(e){}
+  try{ sessionStorage.setItem(k,'1'); }catch(e){}
+  try{ document.cookie = k+'=1;path=/;max-age=31536000'; }catch(e){}
 }
 
-// ══ UTILS ════════════════════════════════════════
-function today(){ return new Date().toISOString().slice(0,10) }
-function nowt(){ return new Date().toTimeString().slice(0,5) }
-function nowdt(){ return new Date().toLocaleString('ar-SA') }
-function dist(a1,o1,a2,o2){
-  var R=6371000,f=Math.PI/180;
-  var x=Math.sin((a2-a1)*f/2),y=Math.sin((o2-o1)*f/2);
-  return R*2*Math.atan2(Math.sqrt(x*x+Math.cos(a1*f)*Math.cos(a2*f)*y*y),Math.sqrt(1-(x*x+Math.cos(a1*f)*Math.cos(a2*f)*y*y)));
+// ══ UTILS ═════════════════════════════════════════
+function today(){ return new Date().toISOString().slice(0,10); }
+function nowTime(){ return new Date().toTimeString().slice(0,5); }
+function nowDT(){ return new Date().toLocaleString('ar-SA'); }
+function calcDist(la1,lo1,la2,lo2){
+  var R=6371000, f=Math.PI/180;
+  var x=Math.sin((la2-la1)*f/2), y=Math.sin((lo2-lo1)*f/2);
+  var a=x*x + Math.cos(la1*f)*Math.cos(la2*f)*y*y;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
-function fdist(d){ return d<1000?Math.round(d)+' م':(d/1000).toFixed(1)+' كم' }
-function showM(id){ document.getElementById(id).classList.add('on') }
-function hideM(id){ document.getElementById(id).classList.remove('on') }
+function fmtDist(d){ return d<1000 ? Math.round(d)+' م' : (d/1000).toFixed(1)+' كم'; }
+function showM(id){ document.getElementById(id).classList.add('on'); }
+function hideM(id){ document.getElementById(id).classList.remove('on'); }
 function setSt(id,cls,ic,tx){
   var el=document.getElementById(id);
   el.className='st '+cls;
   el.children[0].textContent=ic;
   el.children[1].textContent=tx;
 }
-function errMsg(e){ showM('m-err'); document.getElementById('m-err-p').textContent=e||'تعذّر الاتصال بقاعدة البيانات.' }
+function errMsg(msg){ document.getElementById('m-err-p').textContent=msg||'تعذّر الاتصال.'; showM('m-err'); }
 
 // ══ TABS ══════════════════════════════════════════
 function goTab(n,btn){
-  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on')});
-  document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on')});
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('on'); });
+  document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('on'); });
   document.getElementById('vw-'+n).classList.add('on');
   btn.classList.add('on');
   if(n==='admin'){ if(!amap) setTimeout(initMap,200); loadEvts(); }
@@ -335,42 +325,53 @@ function goTab(n,btn){
 
 // ══ MAP ═══════════════════════════════════════════
 var amap=null, pin=null, circ=null, pLat=null, pLng=null, pRad=300;
+
 function initMap(){
   try{
-    amap=L.map('amap').setView([24.7136,46.6753],12);
+    amap = L.map('amap').setView([24.7136,46.6753],12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:19}).addTo(amap);
-    amap.on('click',function(e){setPin(e.latlng.lat,e.latlng.lng)});
+    amap.on('click',function(e){ setPin(e.latlng.lat,e.latlng.lng); });
   }catch(e){}
 }
 function setPin(lat,lng){
   pLat=lat; pLng=lng;
-  if(pin) try{amap.removeLayer(pin)}catch(e){}
-  if(circ) try{amap.removeLayer(circ)}catch(e){}
-  var ic=L.divIcon({html:'<div style="background:#1a56db;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div>',iconSize:[14,14],iconAnchor:[7,7],className:''});
-  pin=L.marker([lat,lng],{icon:ic}).addTo(amap);
-  circ=L.circle([lat,lng],{radius:pRad,color:'#1a56db',fillColor:'#1a56db',fillOpacity:.1,weight:2,dashArray:'5 4'}).addTo(amap);
+  if(pin) try{ amap.removeLayer(pin); }catch(e){}
+  if(circ) try{ amap.removeLayer(circ); }catch(e){}
+  var ic = L.divIcon({html:'<div style="background:#1a56db;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div>',iconSize:[14,14],iconAnchor:[7,7],className:''});
+  pin = L.marker([lat,lng],{icon:ic}).addTo(amap);
+  circ = L.circle([lat,lng],{radius:pRad,color:'#1a56db',fillColor:'#1a56db',fillOpacity:.1,weight:2,dashArray:'5 4'}).addTo(amap);
   document.getElementById('crd-txt').innerHTML='<span style="color:var(--blue);font-weight:700">📍 '+lat.toFixed(5)+' , '+lng.toFixed(5)+'</span>';
   setSt('mst','so','✅','تم تحديد الموقع — '+lat.toFixed(4)+', '+lng.toFixed(4));
 }
-function updR(v){ pRad=parseInt(v); document.getElementById('rval').textContent=v+' م'; if(circ) try{circ.setRadius(pRad)}catch(e){} }
+function updR(v){
+  pRad=parseInt(v);
+  document.getElementById('rval').textContent=v+' م';
+  if(circ) try{ circ.setRadius(pRad); }catch(e){}
+}
 function doSearch(){
-  var q=document.getElementById('msearch').value.trim(); if(!q) return;
+  var q=document.getElementById('msearch').value.trim();
+  if(!q) return;
   fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(q)+'&limit=1&accept-language=ar')
-    .then(function(r){return r.json()}).then(function(d){
-      if(!d||!d.length){alert('لم يُعثر على الموقع');return}
-      amap.setView([d[0].lat,d[0].lon],16); setPin(parseFloat(d[0].lat),parseFloat(d[0].lon));
-    }).catch(function(){alert('تعذّر البحث')});
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(!d||!d.length){ alert('لم يُعثر على الموقع'); return; }
+      amap.setView([d[0].lat,d[0].lon],16);
+      setPin(parseFloat(d[0].lat),parseFloat(d[0].lon));
+    }).catch(function(){ alert('تعذّر البحث'); });
 }
 function myLoc(){
-  if(!navigator.geolocation){alert('GPS غير متاح');return}
-  navigator.geolocation.getCurrentPosition(function(p){ amap.setView([p.coords.latitude,p.coords.longitude],17); setPin(p.coords.latitude,p.coords.longitude); },function(){alert('تعذّر تحديد الموقع')});
+  if(!navigator.geolocation){ alert('GPS غير متاح'); return; }
+  navigator.geolocation.getCurrentPosition(function(p){
+    amap.setView([p.coords.latitude,p.coords.longitude],17);
+    setPin(p.coords.latitude,p.coords.longitude);
+  },function(){ alert('تعذّر تحديد الموقع'); });
 }
 
 // ══ CREATE EVENT ══════════════════════════════════
 function doCreate(){
   var name=document.getElementById('a-name').value.trim();
-  if(!name){alert('يرجى إدخال اسم الفعالية');return}
-  if(pLat===null){alert('يرجى تحديد الموقع على الخريطة أولاً');return}
+  if(!name){ alert('يرجى إدخال اسم الفعالية'); return; }
+  if(pLat===null){ alert('يرجى تحديد الموقع على الخريطة أولاً'); return; }
   var btn=document.getElementById('create-btn');
   btn.disabled=true; btn.textContent='⏳ جاري الحفظ...';
   var evt={name:name,lat:pLat,lng:pLng,radius:pRad,created:today(),active:true};
@@ -379,13 +380,13 @@ function doCreate(){
     btn.disabled=false; btn.textContent='📲 إنشاء الفعالية وباركودها';
     document.getElementById('a-name').value='';
     pLat=null; pLng=null;
-    if(pin) try{amap.removeLayer(pin);pin=null}catch(e){}
-    if(circ) try{amap.removeLayer(circ);circ=null}catch(e){}
+    if(pin) try{ amap.removeLayer(pin); pin=null; }catch(e){}
+    if(circ) try{ amap.removeLayer(circ); circ=null; }catch(e){}
     document.getElementById('crd-txt').textContent='لم يتم تحديد الموقع بعد';
     setSt('mst','si','🗺️','اضغط على الخريطة لتحديد المركز');
     loadEvts();
     showQR(evt);
-  }).catch(function(e){ btn.disabled=false; btn.textContent='📲 إنشاء الفعالية وباركودها'; errMsg('فشل حفظ الفعالية: '+e.message); });
+  }).catch(function(e){ btn.disabled=false; btn.textContent='📲 إنشاء الفعالية وباركودها'; errMsg('فشل الحفظ: '+e.message); });
 }
 
 // ══ QR ════════════════════════════════════════════
@@ -398,69 +399,64 @@ function showQR(evt){
   document.getElementById('qrov').classList.add('on');
 }
 
-// ══ LOAD EVENTS ═══════════════════════════════════
+// ══ EVENTS LIST ═══════════════════════════════════
 function loadEvts(){
   var w=document.getElementById('evts-wrap');
   w.innerHTML='<div class="loading"><div class="spinner"></div> جاري التحميل...</div>';
   db.ref('events').once('value').then(function(snap){
-    var evts=[]; snap.forEach(function(c){ var e=c.val(); e.id=c.key; evts.push(e); });
-    renderEvts(evts);
-  }).catch(function(){ w.innerHTML='<p style="text-align:center;color:var(--red);padding:16px;font-size:12px">⚠️ تعذّر تحميل الفعاليات</p>'; });
-}
-
-function renderEvts(evts){
-  var w=document.getElementById('evts-wrap');
-  if(!evts.length){ w.innerHTML='<p style="text-align:center;color:var(--muted);font-size:12px;padding:16px">لا توجد فعاليات — أنشئ فعالية أولاً</p>'; return; }
-  // Get record counts
-  db.ref('records').once('value').then(function(snap){
-    var counts={};
-    snap.forEach(function(c){ var r=c.val(); counts[r.evtId]=(counts[r.evtId]||0)+1; });
-    w.innerHTML=evts.map(function(ev){
-      var cnt=counts[ev.id]||0;
-      var isOn=ev.active!==false;
-      var evJ=JSON.stringify(ev).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
-      return '<div class="ec" style="border-right:4px solid '+(isOn?'var(--green)':'var(--red)')+'">'+
-        '<div class="eh"><div>'+
-          '<div class="en">'+ev.name+'</div>'+
-          '<div class="em">📅 '+ev.created+' | 📍 نطاق '+ev.radius+'م</div>'+
-          '<div class="trow">'+
-            '<label class="tgl"><input type="checkbox" '+(isOn?'checked':'')+' onchange="togEvt(\''+ev.id+'\',this.checked)"><div class="tt"></div><div class="tb2"></div></label>'+
-            '<span class="tlbl '+(isOn?'ton':'toff')+'" id="tl-'+ev.id+'">'+(isOn?'مفعّل':'موقوف')+'</span>'+
-          '</div></div>'+
-          '<span class="ecnt">👤 '+cnt+'</span>'+
-        '</div>'+
-        '<div class="ea">'+
-          '<button class="bxs xb" onclick=\'showQR(JSON.parse(decodeURIComponent("'+encodeURIComponent(JSON.stringify(ev))+'")))\'>📲 الباركود</button>'+
-          '<button class="bxs xg" onclick="xEvt(\''+ev.id+'\',\''+ev.name.replace(/'/g,"\\'")+'\')" >📥 Excel</button>'+
-          '<button class="bxs xr" onclick="delEvt(\''+ev.id+'\')">🗑️ حذف</button>'+
-        '</div></div>';
-    }).join('');
-  });
+    var evts=[];
+    snap.forEach(function(c){ var e=c.val(); e.id=c.key; evts.push(e); });
+    if(!evts.length){ w.innerHTML='<p style="text-align:center;color:var(--muted);font-size:12px;padding:16px">لا توجد فعاليات — أنشئ فعالية أولاً</p>'; return; }
+    db.ref('records').once('value').then(function(rs){
+      var counts={};
+      rs.forEach(function(c){ var r=c.val(); counts[r.evtId]=(counts[r.evtId]||0)+1; });
+      w.innerHTML=evts.map(function(ev){
+        var cnt=counts[ev.id]||0;
+        var isOn=ev.active!==false;
+        var evJ=JSON.stringify(ev).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+        return '<div class="ec" style="border-right:4px solid '+(isOn?'var(--green)':'var(--red)')+'">'+
+          '<div class="eh"><div>'+
+            '<div class="en">'+ev.name+'</div>'+
+            '<div class="em">📅 '+ev.created+' | 📍 نطاق '+ev.radius+'م</div>'+
+            '<div class="trow">'+
+              '<label class="tgl">'+
+                '<input type="checkbox" '+(isOn?'checked':'')+' onchange="togEvt(\''+ev.id+'\',this.checked)">'+
+                '<div class="tt"></div><div class="tb2"></div>'+
+              '</label>'+
+              '<span class="tlbl '+(isOn?'ton':'toff')+'" id="tl-'+ev.id+'">'+(isOn?'مفعّل':'موقوف')+'</span>'+
+            '</div></div>'+
+            '<span class="ecnt">👤 '+cnt+'</span>'+
+          '</div>'+
+          '<div class="ea">'+
+            '<button class="bxs xb" onclick=\'showQR(JSON.parse(decodeURIComponent("'+encodeURIComponent(JSON.stringify(ev))+'")))\'>📲 الباركود</button>'+
+            '<button class="bxs xg" onclick="xEvt(\''+ev.id+'\',\''+ev.name.replace(/'/g,"\\'")+'\')">📥 Excel</button>'+
+            '<button class="bxs xr" onclick="delEvt(\''+ev.id+'\')">🗑️ حذف</button>'+
+          '</div></div>';
+      }).join('');
+    });
+  }).catch(function(){ document.getElementById('evts-wrap').innerHTML='<p style="color:var(--red);text-align:center;padding:16px;font-size:12px">⚠️ تعذّر التحميل</p>'; });
 }
 
 function togEvt(id,val){
-  db.ref('events/'+id).update({active:val}).then(function(){
-    var lbl=document.getElementById('tl-'+id);
-    if(lbl){ lbl.textContent=val?'مفعّل':'موقوف'; lbl.className='tlbl '+(val?'ton':'toff'); }
-    var card=lbl&&lbl.closest('.ec');
-    if(card){ card.style.borderRight='4px solid '+(val?'var(--green)':'var(--red)'); }
-  }).catch(function(e){ errMsg(e.message); });
+  db.ref('events/'+id).update({active:val}).catch(function(e){ errMsg(e.message); });
+  var lbl=document.getElementById('tl-'+id);
+  if(lbl){ lbl.textContent=val?'مفعّل':'موقوف'; lbl.className='tlbl '+(val?'ton':'toff'); }
+  var card=lbl&&lbl.closest('.ec');
+  if(card){ card.style.borderRight='4px solid '+(val?'var(--green)':'var(--red)'); }
 }
-
 function delEvt(id){
   document.getElementById('m-del-ok').onclick=function(){
     db.ref('events/'+id).remove();
-    db.ref('records').orderByChild('evtId').equalTo(id).once('value').then(function(snap){
-      snap.forEach(function(c){c.ref.remove()});
-    });
+    db.ref('records').orderByChild('evtId').equalTo(id).once('value').then(function(s){ s.forEach(function(c){ c.ref.remove(); }); });
     db.ref('devices/'+id).remove();
     hideM('m-del'); loadEvts();
   };
   showM('m-del');
 }
 
-// ══ GEO CHECK ════════════════════════════════════
+// ══ GEO CHECK ═════════════════════════════════════
 var aCfg=null;
+
 function startGeo(){
   if(!aCfg) return;
   document.getElementById('s-name').textContent=aCfg.name;
@@ -468,16 +464,15 @@ function startGeo(){
   document.getElementById('s-form').style.display='none';
   document.getElementById('s-closed').style.display='none';
 
-  // ★ Check local lock FIRST — instant, no network needed
+  // Layer 1: local lock
   if(isLockedLocally(aCfg.id)){
-    setSt('s-gst','sf','📵','هذا الجهاز سبق تسجيل الحضور في هذه الفعالية');
-    document.getElementById('s-sub').textContent='تم التسجيل مسبقاً من هذا الجهاز';
+    setSt('s-gst','sf','📵','تم التسجيل مسبقاً من هذا الجهاز');
+    document.getElementById('s-sub').textContent='هذا الجهاز سبق تسجيله';
     showM('m-dev'); return;
   }
 
   setSt('s-gst','sl','⏳','جاري التحقق...');
 
-  // Check active status from Firebase
   db.ref('events/'+aCfg.id).once('value').then(function(snap){
     var ev=snap.val();
     if(ev && ev.active===false){
@@ -486,27 +481,28 @@ function startGeo(){
       document.getElementById('s-closed').style.display='block';
       return;
     }
-    // Check device
-    db.ref('devices/'+aCfg.id+'/'+getDID()).once('value').then(function(ds){
+    // Layer 2: Firebase device check (uses fingerprint — stable across refreshes)
+    db.ref('devices/'+aCfg.id+'/'+getFingerprint()).once('value').then(function(ds){
       if(ds.val()){
-        setSt('s-gst','sf','📵','هذا الجهاز سبق تسجيل الحضور');
-        document.getElementById('s-sub').textContent='تم التسجيل مسبقاً من هذا الجهاز';
+        lockLocally(aCfg.id); // sync local lock
+        setSt('s-gst','sf','📵','تم التسجيل مسبقاً من هذا الجهاز');
+        document.getElementById('s-sub').textContent='هذا الجهاز سبق تسجيله';
         showM('m-dev'); return;
       }
-      // Check geo
-      if(!navigator.geolocation){setSt('s-gst','sf','⚠️','GPS غير متاح');return}
+      // Layer 3: geo check
+      if(!navigator.geolocation){ setSt('s-gst','sf','⚠️','GPS غير متاح'); return; }
       setSt('s-gst','sl','⏳','جاري تحديد موقعك...');
       navigator.geolocation.getCurrentPosition(function(pos){
-        var d=dist(pos.coords.latitude,pos.coords.longitude,aCfg.lat,aCfg.lng);
+        var d=calcDist(pos.coords.latitude,pos.coords.longitude,aCfg.lat,aCfg.lng);
         if(d<=aCfg.radius){
-          setSt('s-gst','so','📍','أنت داخل النطاق — على بُعد '+fdist(d));
-          document.getElementById('s-sub').textContent='نطاق '+aCfg.radius+'م · '+fdist(d)+' من المركز';
+          setSt('s-gst','so','📍','أنت داخل النطاق — على بُعد '+fmtDist(d));
+          document.getElementById('s-sub').textContent='نطاق '+aCfg.radius+'م · '+fmtDist(d)+' من المركز';
           document.getElementById('s-form').style.display='block';
-          setTimeout(function(){document.getElementById('s-num').focus()},200);
+          setTimeout(function(){ document.getElementById('s-num').focus(); },200);
         } else {
-          setSt('s-gst','sf','🚫','خارج النطاق — على بُعد '+fdist(d));
+          setSt('s-gst','sf','🚫','خارج النطاق — على بُعد '+fmtDist(d));
           document.getElementById('s-sub').textContent='لا يمكن التسجيل من موقعك';
-          document.getElementById('m-geo-p').textContent='موقعك على بُعد '+fdist(d)+'. النطاق المسموح: '+aCfg.radius+'م فقط.';
+          document.getElementById('m-geo-p').textContent='موقعك على بُعد '+fmtDist(d)+'. النطاق المسموح: '+aCfg.radius+'م فقط.';
           showM('m-geo');
         }
       },function(){ setSt('s-gst','sf','⚠️','تعذّر تحديد الموقع — فعّل GPS'); },{enableHighAccuracy:true,timeout:14000});
@@ -518,43 +514,53 @@ function startGeo(){
 function doSub(){
   var num=document.getElementById('s-num').value.trim();
   var inp=document.getElementById('s-num');
-  if(!num||num.length<4){inp.style.borderColor='var(--red)';inp.focus();return}
+  if(!num||num.length<4){ inp.style.borderColor='var(--red)'; inp.focus(); return; }
   inp.style.borderColor='var(--blue)';
   inp.disabled=true;
 
-  // ★ STEP 1: Lock locally immediately
-  lockLocally(aCfg.id);
+  var fp=getFingerprint();
 
-  // ★ STEP 2: Recheck Firebase device lock (catches cases where localStorage was cleared)
-  db.ref('devices/'+aCfg.id+'/'+getDID()).once('value').then(function(ds){
-    if(ds.val()){
-      inp.disabled=false;
-      showM('m-dev'); return;
-    }
+  // Re-check local lock
+  if(isLockedLocally(aCfg.id)){ inp.disabled=false; showM('m-dev'); return; }
 
-    // ★ STEP 3: Check for duplicate academic number in same event
+  // Re-check Firebase device (fingerprint)
+  db.ref('devices/'+aCfg.id+'/'+fp).once('value').then(function(ds){
+    if(ds.val()){ lockLocally(aCfg.id); inp.disabled=false; showM('m-dev'); return; }
+
+    // Check duplicate academic number
     db.ref('records').orderByChild('evtId').equalTo(aCfg.id).once('value').then(function(snap){
       var dup=false;
       snap.forEach(function(c){ if(c.val().num===num) dup=true; });
-      if(dup){
-        inp.disabled=false; showM('m-dup'); return;
-      }
+      if(dup){ inp.disabled=false; showM('m-dup'); return; }
 
-      // ★ STEP 4: Fetch IP then save record AND lock device atomically
+      // Lock locally immediately
+      lockLocally(aCfg.id);
+
+      // Fetch IP then save everything atomically
       fetch('https://api.ipify.org?format=json')
-        .then(function(r){return r.json()})
-        .catch(function(){return {ip:'غير متاح'}})
+        .then(function(r){ return r.json(); })
+        .catch(function(){ return {ip:'غير متاح'}; })
         .then(function(ipData){
-          var rec={num:num,evtId:aCfg.id,evtName:aCfg.name,date:today(),time:nowt(),dt:nowdt(),ip:ipData.ip||'غير متاح',did:getDID()};
+          var recKey = db.ref('records').push().key;
+          var rec={
+            num:num,
+            evtId:aCfg.id,
+            evtName:aCfg.name,
+            date:today(),
+            time:nowTime(),
+            dt:nowDT(),
+            ip:ipData.ip||'غير متاح',
+            fp:fp
+          };
           var updates={};
-          updates['records/'+db.ref('records').push().key]=rec;
-          updates['devices/'+aCfg.id+'/'+getDID()]=true;
+          updates['records/'+recKey] = rec;
+          updates['devices/'+aCfg.id+'/'+fp] = true;
           db.ref().update(updates).then(function(){
-        document.getElementById('ok-n').textContent=num;
-        showM('m-ok');
-        inp.value=''; inp.disabled=false;
-        document.getElementById('s-form').style.display='none';
-        setSt('s-gst','so','✅','تم تسجيل الحضور — الرقم: '+num);
+            document.getElementById('ok-n').textContent=num;
+            showM('m-ok');
+            inp.value=''; inp.disabled=false;
+            document.getElementById('s-form').style.display='none';
+            setSt('s-gst','so','✅','تم تسجيل الحضور — الرقم: '+num);
           }).catch(function(e){ inp.disabled=false; errMsg(e.message); });
         });
     }).catch(function(e){ inp.disabled=false; errMsg(e.message); });
@@ -569,122 +575,150 @@ function loadRecs(){
   Promise.all([
     db.ref('events').once('value'),
     db.ref('records').once('value')
-  ]).then(function(results){
+  ]).then(function(res){
     allEvts=[];
-    results[0].forEach(function(c){ var e=c.val(); e.id=c.key; allEvts.push(e); });
+    res[0].forEach(function(c){ var e=c.val(); e.id=c.key; allEvts.push(e); });
     allRecs=[];
-    results[1].forEach(function(c){ var r=c.val(); r.id=c.key; allRecs.push(r); });
+    res[1].forEach(function(c){ var r=c.val(); r.id=c.key; allRecs.push(r); });
     renderRecs();
-  }).catch(function(){ document.getElementById('tbody').innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--red);padding:20px">⚠️ تعذّر التحميل</td></tr>'; });
+  }).catch(function(){
+    document.getElementById('tbody').innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--red);padding:20px">⚠️ تعذّر التحميل</td></tr>';
+  });
 }
 
 function renderRecs(){
   var td=today();
-  var filtered=filt==='all'?allRecs:allRecs.filter(function(r){return r.evtId===filt});
-  document.getElementById('r-tot').textContent=allRecs.length;
-  document.getElementById('r-evn').textContent=function(){var s={};allRecs.forEach(function(r){s[r.evtId]=1});return Object.keys(s).length}();
-  document.getElementById('r-tod').textContent=allRecs.filter(function(r){return r.date===td}).length;
+  var filtered = filt==='all' ? allRecs : allRecs.filter(function(r){ return r.evtId===filt; });
 
+  document.getElementById('r-tot').textContent=allRecs.length;
+  document.getElementById('r-evn').textContent=(function(){ var s={}; allRecs.forEach(function(r){ s[r.evtId]=1; }); return Object.keys(s).length; })();
+  document.getElementById('r-tod').textContent=allRecs.filter(function(r){ return r.date===td; }).length;
+
+  // Filter buttons
   var bar=document.getElementById('fbar');
   bar.innerHTML='<button class="'+(filt==='all'?'on':'')+'" onclick="setF(\'all\')">الكل ('+allRecs.length+')</button>'+
     allEvts.map(function(e){
-      var c=allRecs.filter(function(r){return r.evtId===e.id}).length;
+      var c=allRecs.filter(function(r){ return r.evtId===e.id; }).length;
       return '<button class="'+(filt===e.id?'on':'')+'" onclick="setF(\''+e.id+'\')">'+e.name+' ('+c+')</button>';
     }).join('');
 
-  var lbl=filt==='all'?'جميع السجلات':function(){var e=allEvts.filter(function(e){return e.id===filt})[0];return e?e.name:''}();
+  var lbl = filt==='all' ? 'جميع السجلات' : (function(){ var e=allEvts.filter(function(e){ return e.id===filt; })[0]; return e?e.name:''; })();
   document.getElementById('tbl-lbl').textContent='📋 '+lbl;
 
   var tb=document.getElementById('tbody');
-  if(!filtered.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)">لا توجد سجلات</td></tr>';return}
+  if(!filtered.length){
+    tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)">لا توجد سجلات</td></tr>';
+    return;
+  }
   var rev=[].concat(filtered).reverse();
   tb.innerHTML=rev.map(function(r,i){
-    return '<tr><td style="color:var(--muted);font-size:10px">'+(filtered.length-i)+'</td>'+
+    return '<tr>'+
+      '<td style="color:var(--muted);font-size:10px">'+(filtered.length-i)+'</td>'+
       '<td><strong style="font-size:13px;letter-spacing:1px">'+r.num+'</strong></td>'+
       '<td><span class="bdg bb">'+r.evtName+'</span></td>'+
-      '<td style="font-size:10px;color:var(--muted)">'+r.date+'</td>'+
-      '<td style="font-size:10px;color:var(--muted)">'+r.time+'</td>'+
+      '<td style="font-size:10px;color:var(--muted)">'+r.date+' '+r.time+'</td>'+
       '<td style="font-size:10px;color:var(--muted);direction:ltr">'+(r.ip||'—')+'</td>'+
-      '<td><span class="bdg bg2">✓</span></td></tr>';
+      '<td><span class="bdg bg2">✓</span></td>'+
+    '</tr>';
   }).join('');
 }
 
 function setF(id){ filt=id; renderRecs(); }
 
 // ══ EXPORT ════════════════════════════════════════
-function mkSheet(wb,recs,name){
-  // Sort by datetime ascending so first registrant appears first
-  var sorted=[].concat(recs).sort(function(a,b){ return (a.dt||'').localeCompare(b.dt||''); });
-  var data=sorted.map(function(r,i){return{
-    '#':i+1,
-    'الرقم الأكاديمي':r.num,
-    'اسم الفعالية':r.evtName,
-    'التاريخ':r.date,
-    'الوقت':r.time,
-    'التاريخ والوقت الكامل':r.dt||'غير متاح',
-    'عنوان IP':r.ip||'غير متاح',
-    'بصمة الجهاز':r.did||'غير متاح',
-    'الترتيب':i===0?'🥇 الأول':i===1?'🥈 الثاني':i===2?'🥉 الثالث':(i+1)+''
-  }});
-  var ws=XLSX.utils.json_to_sheet(data,{header:['#','الرقم الأكاديمي','اسم الفعالية','التاريخ','الوقت','التاريخ والوقت الكامل','عنوان IP','بصمة الجهاز','الترتيب']});
-  ws['!cols']=[{wch:5},{wch:18},{wch:28},{wch:12},{wch:10},{wch:26},{wch:18},{wch:20},{wch:12}];
-  XLSX.utils.book_append_sheet(wb,ws,name.slice(0,28));
+function buildSheet(wb, recs, sheetName){
+  // Sort by datetime (ascending) so first registrant is row 1
+  var sorted=[].concat(recs).sort(function(a,b){
+    return (a.dt||'').localeCompare(b.dt||'');
+  });
+  var data=sorted.map(function(r,i){
+    return {
+      'الترتيب'       : i===0?'🥇 الأول' : i===1?'🥈 الثاني' : i===2?'🥉 الثالث' : (i+1)+'',
+      'الرقم الأكاديمي': r.num,
+      'اسم الفعالية'   : r.evtName,
+      'التاريخ'        : r.date,
+      'الوقت'          : r.time,
+      'التاريخ والوقت' : r.dt||'',
+      'عنوان IP'       : r.ip||'غير متاح',
+      'بصمة الجهاز'    : r.fp||'غير متاح'
+    };
+  });
+  var headers=['الترتيب','الرقم الأكاديمي','اسم الفعالية','التاريخ','الوقت','التاريخ والوقت','عنوان IP','بصمة الجهاز'];
+  var ws=XLSX.utils.json_to_sheet(data,{header:headers});
+  ws['!cols']=[{wch:12},{wch:18},{wch:28},{wch:12},{wch:8},{wch:26},{wch:18},{wch:20}];
+  XLSX.utils.book_append_sheet(wb, ws, sheetName.slice(0,28));
 }
 
 function doExcel(){
-  var filtered=filt==='all'?allRecs:allRecs.filter(function(r){return r.evtId===filt});
-  if(!filtered.length){alert('لا توجد بيانات');return}
+  if(!allRecs.length){ alert('لا توجد بيانات — افتح تبويب السجلات أولاً'); return; }
+  var filtered = filt==='all' ? allRecs : allRecs.filter(function(r){ return r.evtId===filt; });
+  if(!filtered.length){ alert('لا توجد بيانات للفعالية المحددة'); return; }
   var wb=XLSX.utils.book_new();
   if(filt==='all'){
-    var ids={};
-    filtered.forEach(function(r){if(!ids[r.evtId])ids[r.evtId]=[];ids[r.evtId].push(r)});
-    Object.keys(ids).forEach(function(eid){
-      var ev=allEvts.filter(function(e){return e.id===eid})[0];
-      mkSheet(wb,ids[eid],ev?ev.name:eid);
+    // One sheet per event
+    var groups={};
+    filtered.forEach(function(r){ if(!groups[r.evtId]) groups[r.evtId]=[]; groups[r.evtId].push(r); });
+    Object.keys(groups).forEach(function(eid){
+      var ev=allEvts.filter(function(e){ return e.id===eid; })[0];
+      buildSheet(wb, groups[eid], ev?ev.name:eid);
     });
   } else {
-    var ev=allEvts.filter(function(e){return e.id===filt})[0];
-    mkSheet(wb,filtered,ev?ev.name:'فعالية');
+    var ev=allEvts.filter(function(e){ return e.id===filt; })[0];
+    buildSheet(wb, filtered, ev?ev.name:'فعالية');
   }
-  XLSX.writeFile(wb,'كشف_الحضور_'+today()+'.xlsx');
+  XLSX.writeFile(wb, 'كشف_الحضور_'+today()+'.xlsx');
 }
 
+// Export single event from admin panel (reads Firebase directly)
 function xEvt(id,name){
   db.ref('records').orderByChild('evtId').equalTo(id).once('value').then(function(snap){
-    var recs=[]; snap.forEach(function(c){recs.push(c.val())});
-    if(!recs.length){alert('لا توجد سجلات');return}
-    var wb=XLSX.utils.book_new(); mkSheet(wb,recs,name);
-    XLSX.writeFile(wb,'كشف_'+name.slice(0,18)+'_'+today()+'.xlsx');
-  });
+    var recs=[];
+    snap.forEach(function(c){ recs.push(c.val()); });
+    if(!recs.length){ alert('لا توجد سجلات لهذه الفعالية'); return; }
+    var wb=XLSX.utils.book_new();
+    buildSheet(wb, recs, name);
+    XLSX.writeFile(wb, 'كشف_'+name.slice(0,18)+'_'+today()+'.xlsx');
+  }).catch(function(e){ errMsg(e.message); });
 }
 
 function doCSV(){
-  var filtered=filt==='all'?allRecs:allRecs.filter(function(r){return r.evtId===filt});
-  if(!filtered.length){alert('لا توجد بيانات');return}
-  var rows=[['الرقم الأكاديمي','اسم الفعالية','التاريخ','الوقت']].concat(filtered.map(function(r){return[r.num,'"'+r.evtName+'"',r.date,r.time]}));
-  var blob=new Blob(['\uFEFF'+rows.map(function(r){return r.join(',')}).join('\n')],{type:'text/csv;charset=utf-8'});
-  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='كشف_'+today()+'.csv';a.click();
+  if(!allRecs.length){ alert('لا توجد بيانات — افتح تبويب السجلات أولاً'); return; }
+  var filtered = filt==='all' ? allRecs : allRecs.filter(function(r){ return r.evtId===filt; });
+  if(!filtered.length){ alert('لا توجد بيانات'); return; }
+  var rows=[['الترتيب','الرقم الأكاديمي','اسم الفعالية','التاريخ','الوقت','التاريخ والوقت','عنوان IP','بصمة الجهاز']];
+  var sorted=[].concat(filtered).sort(function(a,b){ return (a.dt||'').localeCompare(b.dt||''); });
+  sorted.forEach(function(r,i){
+    rows.push([
+      i===0?'الأول':i===1?'الثاني':i===2?'الثالث':(i+1)+'',
+      r.num, '"'+r.evtName+'"', r.date, r.time, '"'+(r.dt||'')+'"', r.ip||'', r.fp||''
+    ]);
+  });
+  var blob=new Blob(['\uFEFF'+rows.map(function(r){ return r.join(','); }).join('\n')],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='كشف_'+today()+'.csv'; a.click();
 }
 
 function doClear(){
-  if(filt==='all'){
-    db.ref('records').remove();
-    db.ref('devices').remove();
-  } else {
-    db.ref('records').orderByChild('evtId').equalTo(filt).once('value').then(function(snap){snap.forEach(function(c){c.ref.remove()})});
-    db.ref('devices/'+filt).remove();
-  }
+  var toDelete = filt==='all' ? allRecs : allRecs.filter(function(r){ return r.evtId===filt; });
+  toDelete.forEach(function(r){ db.ref('records/'+r.id).remove(); });
+  if(filt!=='all') db.ref('devices/'+filt).remove();
+  else db.ref('devices').remove();
   hideM('m-clr');
-  setTimeout(loadRecs, 500);
+  setTimeout(loadRecs, 600);
 }
 
 // ══ BOOT ══════════════════════════════════════════
 (function(){
   var p=new URLSearchParams(location.search);
   if(p.get('m')==='s'){
-    aCfg={id:p.get('id'),name:p.get('n')||'فعالية',lat:parseFloat(p.get('la')),lng:parseFloat(p.get('lo')),radius:parseInt(p.get('r'))||300};
-    document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on')});
-    document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on')});
+    aCfg={
+      id     : p.get('id'),
+      name   : p.get('n')||'فعالية',
+      lat    : parseFloat(p.get('la')),
+      lng    : parseFloat(p.get('lo')),
+      radius : parseInt(p.get('r'))||300
+    };
+    document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('on'); });
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('on'); });
     document.getElementById('vw-student').classList.add('on');
     document.querySelectorAll('.tab')[1].classList.add('on');
     startGeo();
