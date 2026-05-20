@@ -222,7 +222,7 @@ tr:hover td{background:#f8fafc}
       </div>
     </div>
     <div style="overflow-x:auto"><table>
-      <thead><tr><th>#</th><th>الرقم الأكاديمي</th><th>الفعالية</th><th>التاريخ</th><th>الوقت</th><th>الحالة</th></tr></thead>
+      <thead><tr><th>#</th><th>الرقم الأكاديمي</th><th>الفعالية</th><th>التاريخ</th><th>الوقت</th><th>IP</th><th>الحالة</th></tr></thead>
       <tbody id="tbody"></tbody>
     </table></div>
   </div>
@@ -264,17 +264,43 @@ firebase.initializeApp({
 });
 var db = firebase.database();
 
-// ══ DEVICE ID ════════════════════════════════════
-var K_DID = 'att_did6';
+// ══ DEVICE FINGERPRINT — stable, no localStorage needed ══
 function getDID(){
-  var id = localStorage.getItem(K_DID);
-  if(!id){ id = Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2); localStorage.setItem(K_DID,id); }
-  return id;
+  // Compute a deterministic fingerprint from device properties
+  // This is the same every time on the same device
+  var parts=[
+    screen.width,screen.height,screen.colorDepth,
+    navigator.language,
+    navigator.hardwareConcurrency||0,
+    new Date().getTimezoneOffset(),
+    navigator.platform||'',
+    (typeof Intl!=='undefined'?Intl.DateTimeFormat().resolvedOptions().timeZone:'')
+  ].join('|');
+  var h=0;
+  for(var i=0;i<parts.length;i++){h=((h<<5)-h)+parts.charCodeAt(i);h|=0;}
+  var fp='fp'+Math.abs(h).toString(36);
+  // Also try to persist to localStorage as fallback
+  try{
+    var stored=localStorage.getItem('att_did7');
+    if(!stored){localStorage.setItem('att_did7',fp);}
+    else{fp=stored;}
+  }catch(e){}
+  return fp;
 }
-// Local lock — instant check without Firebase (prevents re-submit on refresh)
-function isLocked(evtId){ var k='lk_'+evtId; return localStorage.getItem(k)==='1'||sessionStorage.getItem(k)==='1'||document.cookie.indexOf(k+'=1')!==-1; }
-function isLockedLocally(evtId){ return isLocked(evtId); }
-function lockLocally(evtId){ var k='lk_'+evtId; try{localStorage.setItem(k,'1')}catch(e){} try{sessionStorage.setItem(k,'1')}catch(e){} try{document.cookie=k+'=1;path=/;max-age=31536000'}catch(e){} }
+// Local lock stored in ALL available storage types
+function isLockedLocally(evtId){
+  var k='lk_'+evtId;
+  try{if(localStorage.getItem(k)==='1') return true;}catch(e){}
+  try{if(sessionStorage.getItem(k)==='1') return true;}catch(e){}
+  try{if(document.cookie.indexOf(k+'=1')!==-1) return true;}catch(e){}
+  return false;
+}
+function lockLocally(evtId){
+  var k='lk_'+evtId;
+  try{localStorage.setItem(k,'1');}catch(e){}
+  try{sessionStorage.setItem(k,'1');}catch(e){}
+  try{document.cookie=k+'=1;path=/;max-age=31536000';}catch(e){}
+}
 
 // ══ UTILS ════════════════════════════════════════
 function today(){ return new Date().toISOString().slice(0,10) }
@@ -496,37 +522,43 @@ function doSub(){
   inp.style.borderColor='var(--blue)';
   inp.disabled=true;
 
-  // ★ Lock this device locally RIGHT NOW before any async call
-  // This prevents re-submission even if the user refreshes instantly
+  // ★ STEP 1: Lock locally immediately
   lockLocally(aCfg.id);
 
-  // Check for duplicate number in same event
-  db.ref('records').orderByChild('evtId').equalTo(aCfg.id).once('value').then(function(snap){
-    var dup=false;
-    snap.forEach(function(c){ if(c.val().num===num) dup=true; });
-    if(dup){
-      // Duplicate ID — unlock locally so they can try different number
-      localStorage.removeItem('lock_'+aCfg.id);
-      inp.disabled=false; showM('m-dup'); return;
+  // ★ STEP 2: Recheck Firebase device lock (catches cases where localStorage was cleared)
+  db.ref('devices/'+aCfg.id+'/'+getDID()).once('value').then(function(ds){
+    if(ds.val()){
+      inp.disabled=false;
+      showM('m-dev'); return;
     }
 
-    // Save record + lock in Firebase
-    var rec={num:num,evtId:aCfg.id,evtName:aCfg.name,date:today(),time:nowt(),dt:nowdt()};
-    db.ref('records').push(rec).then(function(){
-      db.ref('devices/'+aCfg.id+'/'+getDID()).set(true); // also lock in Firebase
-      document.getElementById('ok-n').textContent=num;
-      showM('m-ok');
-      inp.value=''; inp.disabled=false;
-      document.getElementById('s-form').style.display='none';
-      setSt('s-gst','so','✅','تم تسجيل الحضور — الرقم: '+num);
-    }).catch(function(e){
-      // If Firebase fails, keep local lock but show error
-      inp.disabled=false; errMsg(e.message);
-    });
-  }).catch(function(e){
-    localStorage.removeItem('lock_'+aCfg.id); // unlock on error
-    inp.disabled=false; errMsg(e.message);
-  });
+    // ★ STEP 3: Check for duplicate academic number in same event
+    db.ref('records').orderByChild('evtId').equalTo(aCfg.id).once('value').then(function(snap){
+      var dup=false;
+      snap.forEach(function(c){ if(c.val().num===num) dup=true; });
+      if(dup){
+        inp.disabled=false; showM('m-dup'); return;
+      }
+
+      // ★ STEP 4: Fetch IP then save record AND lock device atomically
+      fetch('https://api.ipify.org?format=json')
+        .then(function(r){return r.json()})
+        .catch(function(){return {ip:'غير متاح'}})
+        .then(function(ipData){
+          var rec={num:num,evtId:aCfg.id,evtName:aCfg.name,date:today(),time:nowt(),dt:nowdt(),ip:ipData.ip||'غير متاح',did:getDID()};
+          var updates={};
+          updates['records/'+db.ref('records').push().key]=rec;
+          updates['devices/'+aCfg.id+'/'+getDID()]=true;
+          db.ref().update(updates).then(function(){
+        document.getElementById('ok-n').textContent=num;
+        showM('m-ok');
+        inp.value=''; inp.disabled=false;
+        document.getElementById('s-form').style.display='none';
+        setSt('s-gst','so','✅','تم تسجيل الحضور — الرقم: '+num);
+          }).catch(function(e){ inp.disabled=false; errMsg(e.message); });
+        });
+    }).catch(function(e){ inp.disabled=false; errMsg(e.message); });
+  }).catch(function(e){ inp.disabled=false; errMsg(e.message); });
 }
 
 // ══ RECORDS ═══════════════════════════════════════
@@ -572,6 +604,7 @@ function renderRecs(){
       '<td><span class="bdg bb">'+r.evtName+'</span></td>'+
       '<td style="font-size:10px;color:var(--muted)">'+r.date+'</td>'+
       '<td style="font-size:10px;color:var(--muted)">'+r.time+'</td>'+
+      '<td style="font-size:10px;color:var(--muted);direction:ltr">'+(r.ip||'—')+'</td>'+
       '<td><span class="bdg bg2">✓</span></td></tr>';
   }).join('');
 }
@@ -580,9 +613,17 @@ function setF(id){ filt=id; renderRecs(); }
 
 // ══ EXPORT ════════════════════════════════════════
 function mkSheet(wb,recs,name){
-  var data=recs.map(function(r,i){return{'#':i+1,'الرقم الأكاديمي':r.num,'اسم الفعالية':r.evtName,'التاريخ':r.date,'الوقت':r.time}});
-  var ws=XLSX.utils.json_to_sheet(data,{header:['#','الرقم الأكاديمي','اسم الفعالية','التاريخ','الوقت']});
-  ws['!cols']=[{wch:5},{wch:18},{wch:30},{wch:14},{wch:10}];
+  var data=recs.map(function(r,i){return{
+    '#':i+1,
+    'الرقم الأكاديمي':r.num,
+    'اسم الفعالية':r.evtName,
+    'التاريخ':r.date,
+    'الوقت':r.time,
+    'عنوان IP':r.ip||'غير متاح',
+    'بصمة الجهاز':r.did||'غير متاح'
+  }});
+  var ws=XLSX.utils.json_to_sheet(data,{header:['#','الرقم الأكاديمي','اسم الفعالية','التاريخ','الوقت','عنوان IP','بصمة الجهاز']});
+  ws['!cols']=[{wch:5},{wch:18},{wch:30},{wch:14},{wch:10},{wch:18},{wch:20}];
   XLSX.utils.book_append_sheet(wb,ws,name.slice(0,28));
 }
 
