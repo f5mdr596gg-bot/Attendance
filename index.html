@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام تسجيل حضور الفعاليات</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;background:#f0f4f8;color:#1e293b;min-height:100vh}
+:root{
+  --navy:#0d2240;--blue:#1a56db;--blu:#e8f0fe;
+  --green:#059669;--grn:#d1fae5;
+  --red:#dc2626;--redd:#fee2e2;
+  --gold:#d97706;--gld:#fef3c7;
+  --muted:#64748b;--border:#dde4ee;
+  --shadow:0 2px 14px rgba(13,34,64,.08);
+}
+
+/* TOP */
+.top{background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:sticky;top:0;z-index:300;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.brand{display:flex;align-items:center;gap:10px;padding:13px 0}
+.brand-ic{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#1a56db,#60a5fa);display:flex;align-items:center;justify-content:center;font-size:17px}
+.brand-t{color:#fff;font-size:14px;font-weight:900;line-height:1.2}
+.brand-s{color:rgba(255,255,255,.4);font-size:10px}
+.tabs{display:flex}
+.tab{background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,.45);font-family:Cairo,sans-serif;font-size:12px;font-weight:700;padding:15px 13px;cursor:pointer;transition:.2s}
+.tab.on{color:#fff;border-bottom-color:#60a5fa}
+
+/* VIEWS */
+.view{display:none;max-width:600px;margin:0 auto;padding:22px 14px 70px}
+.view.on{display:block}
+
+/* CARD */
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden}
+.ch{padding:14px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.chi{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.cb{padding:18px}
+
+/* FIELDS */
+.fl{margin-bottom:13px}
+.fl label{display:block;font-size:11px;font-weight:800;color:#475569;margin-bottom:5px}
+.fl label em{color:var(--red)}
+.inp{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-family:Cairo,sans-serif;font-size:14px;color:#1e293b;background:#fafcff;outline:none;transition:.2s;direction:rtl}
+.inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.09)}
+.inp-c{direction:ltr;text-align:center}
+.inp-big{font-size:26px!important;font-weight:900!important;letter-spacing:4px;padding:14px!important;border-color:var(--blue)!important;background:#f0f6ff!important}
+.inp-big::placeholder{font-size:13px;letter-spacing:1px;color:#94a3b8}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+
+/* BUTTONS */
+.btn{width:100%;padding:12px;border:none;border-radius:10px;font-family:Cairo,sans-serif;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s}
+.bp{background:linear-gradient(135deg,#1648c0,#1a56db);color:#fff;box-shadow:0 4px 14px rgba(26,86,219,.22)}
+.bp:hover{transform:translateY(-1px)}
+.bg{background:linear-gradient(135deg,#047857,#059669);color:#fff;box-shadow:0 4px 14px rgba(5,150,105,.22)}
+.bg:hover{transform:translateY(-1px)}
+.bo{background:#fff;border:1.5px solid var(--border);color:var(--muted);font-size:13px}
+.bo:hover{border-color:var(--blue);color:var(--blue)}
+.brow{display:flex;gap:9px}
+.brow .btn{flex:1}
+.bxs{padding:7px 12px;width:auto;border:none;border-radius:8px;font-family:Cairo,sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.xb{background:var(--blu);color:var(--blue)}
+.xg{background:#065f46;color:#a7f3d0}
+.xr{background:#7f1d1d;color:#fca5a5}
+
+/* STATUS */
+.st{display:flex;align-items:center;gap:9px;padding:10px 13px;border-radius:9px;font-size:12px;font-weight:600;margin-bottom:12px}
+.si{background:#f8fafc;border:1.5px dashed var(--border);color:var(--muted)}
+.sl{background:var(--gld);border:1.5px solid #fcd34d;color:var(--gold)}
+.so{background:var(--grn);border:1.5px solid #6ee7b7;color:var(--green)}
+.sf{background:var(--redd);border:1.5px solid #fca5a5;color:var(--red)}
+
+/* MAP */
+.mw{border-radius:11px;overflow:hidden;border:1.5px solid var(--border);margin-bottom:11px;position:relative}
+#amap{height:260px;width:100%}
+.mhint{position:absolute;top:7px;right:7px;z-index:500;background:rgba(255,255,255,.9);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;color:var(--muted);font-weight:600;pointer-events:none}
+.sr{display:flex;gap:7px;margin-bottom:9px}
+.sr input{flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:Cairo,sans-serif;font-size:12px;background:#fafcff;outline:none;transition:.2s}
+.sr input:focus{border-color:var(--blue)}
+.sbtn{padding:9px 12px;background:var(--blue);color:#fff;border:none;border-radius:9px;font-family:Cairo,sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.rrow{display:flex;align-items:center;gap:11px;margin-bottom:13px}
+.rrow label{font-size:11px;font-weight:800;color:var(--muted);white-space:nowrap}
+input[type=range]{flex:1;accent-color:var(--blue);cursor:pointer}
+.rv{min-width:60px;text-align:center;background:var(--blu);border:1px solid #bfdbfe;border-radius:7px;padding:4px 8px;font-size:12px;font-weight:800;color:var(--blue)}
+.crd{display:flex;align-items:center;gap:7px;padding:8px 12px;background:#f8fafc;border:1px solid var(--border);border-radius:9px;margin-bottom:11px;font-size:12px;color:var(--muted)}
+
+/* EVENTS LIST */
+.ec{background:#fff;border:1px solid var(--border);border-radius:12px;padding:13px 15px;margin-bottom:11px;box-shadow:var(--shadow);transition:.2s}
+.eh{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:8px}
+.en{font-size:14px;font-weight:800}
+.em{font-size:11px;color:var(--muted);margin-top:2px}
+.ea{display:flex;gap:6px;flex-wrap:wrap}
+.ecnt{display:inline-flex;align-items:center;gap:4px;background:var(--blu);border:1px solid #bfdbfe;border-radius:20px;padding:2px 9px;font-size:11px;color:var(--blue);font-weight:700}
+
+/* TOGGLE */
+.trow{display:flex;align-items:center;gap:7px;margin-top:5px}
+.tgl{position:relative;width:40px;height:22px;cursor:pointer;flex-shrink:0}
+.tgl input{opacity:0;width:0;height:0;position:absolute}
+.tt{position:absolute;inset:0;background:#cbd5e1;border-radius:22px;transition:.25s}
+.tgl input:checked + .tt{background:var(--green)}
+.tb{position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:.25s}
+.tgl input:checked ~ .tb{transform:translateX(18px)}
+.tlbl{font-size:11px;font-weight:800}
+.ton{color:var(--green)} .toff{color:var(--red)}
+
+/* QR OVERLAY */
+.qrov{display:none;position:fixed;inset:0;background:rgba(10,20,40,.85);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.qrov.on{display:flex}
+.qrbox{background:#fff;border-radius:18px;padding:26px 22px;max-width:320px;width:92%;text-align:center;animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
+.qr-dark{background:linear-gradient(160deg,#0d2240,#1a3560);border-radius:12px;padding:22px 18px;display:flex;flex-direction:column;align-items:center;margin-bottom:13px}
+.qr-white{background:#fff;padding:11px;border-radius:9px;box-shadow:0 6px 22px rgba(0,0,0,.35)}
+.qr-white img{display:block;width:180px;height:180px}
+.qr-meta{margin-top:13px;color:rgba(255,255,255,.7);font-size:12px;line-height:1.8;text-align:center}
+.qr-meta strong{color:#fff;font-size:14px}
+.qr-chip{display:inline-flex;align-items:center;gap:5px;margin-top:7px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.3);border-radius:20px;padding:3px 10px;font-size:11px;color:#93c5fd;font-weight:700}
+.pls{width:6px;height:6px;border-radius:50%;background:#34d399;animation:pls 2s infinite}
+@keyframes pls{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
+
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:16px}
+.sc{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 10px;text-align:center;box-shadow:var(--shadow)}
+.sn{font-size:26px;font-weight:900;line-height:1}
+.sl2{font-size:10px;color:var(--muted);font-weight:700;margin-top:4px}
+
+/* FILTERS */
+.fb{display:flex;gap:7px;margin-bottom:13px;flex-wrap:wrap}
+.fb button{padding:6px 12px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-family:Cairo,sans-serif;font-size:11px;font-weight:700;cursor:pointer;color:var(--muted);transition:.2s}
+.fb button.on{background:var(--blu);border-color:var(--blue);color:var(--blue)}
+
+/* TABLE */
+.to{border-radius:11px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow)}
+.tb2{display:flex;align-items:center;justify-content:space-between;padding:11px 15px;background:#f8fafc;border-bottom:1px solid var(--border);gap:7px;flex-wrap:wrap}
+.tbb{display:flex;gap:6px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead{background:#f1f5f9}
+th{padding:9px 11px;text-align:right;font-weight:800;color:var(--muted);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+td{padding:10px 11px;border-bottom:1px solid #f1f5f9}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8fafc}
+.bdg{display:inline-flex;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700}
+.bg2{background:var(--grn);color:var(--green)}
+.bb{background:var(--blu);color:var(--blue)}
+
+/* STUDENT */
+.shdr{background:linear-gradient(135deg,#0d2240,#1a3560);border-radius:13px;padding:22px 18px;text-align:center;margin-bottom:16px;color:#fff}
+.shdr-ic{font-size:40px;margin-bottom:7px}
+.shdr h2{font-size:19px;font-weight:900}
+.shdr p{font-size:11px;color:rgba(255,255,255,.5);margin-top:3px}
+.closed{text-align:center;padding:30px 16px}
+.closed-ic{font-size:56px;margin-bottom:12px}
+.closed h3{font-size:18px;font-weight:900;color:var(--red);margin-bottom:7px}
+.closed p{font-size:12px;color:var(--muted);line-height:1.8}
+
+/* MODAL */
+.ov{display:none;position:fixed;inset:0;background:rgba(10,20,40,.78);z-index:600;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.ov.on{display:flex}
+.md{background:#fff;border-radius:18px;padding:32px 26px;text-align:center;max-width:320px;width:92%;box-shadow:0 20px 50px rgba(0,0,0,.2);animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.md-ic{font-size:52px;margin-bottom:11px}
+.md h3{font-size:18px;font-weight:900;margin-bottom:6px}
+.md p{font-size:12px;color:var(--muted);line-height:1.8}
+.md-act{display:flex;gap:9px;margin-top:18px}
+.md-act .btn{flex:1}
+
+.sec{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin:4px 0 11px;display:flex;align-items:center;gap:7px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
+
+@media(max-width:480px){
+  .f2{grid-template-columns:1fr}
+  .sg{grid-template-columns:repeat(3,1fr)}
+  .sn{font-size:20px}
+  .tab{font-size:11px;padding:14px 10px}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="brand">
+    <div class="brand-ic">🎯</div>
+    <div><div class="brand-t">نظام الحضور الذكي</div><div class="brand-s">تسجيل الفعاليات</div></div>
+  </div>
+  <div class="tabs">
+    <button class="tab on" onclick="goTab('admin',this)">⚙️ المشرف</button>
+    <button class="tab" onclick="goTab('student',this)">📱 الطالب</button>
+    <button class="tab" onclick="goTab('records',this)">📊 السجلات</button>
+  </div>
+</div>
+
+<!-- ═══ ADMIN ═══ -->
+<div class="view on" id="vw-admin">
+  <div class="card">
+    <div class="ch">
+      <div class="chi" style="background:#e8f0fe">➕</div>
+      <div><strong style="font-size:14px">إنشاء فعالية جديدة</strong><div style="font-size:11px;color:var(--muted)">يمكنك إنشاء عدة فعاليات بنفس الوقت</div></div>
+    </div>
+    <div class="cb">
+      <div class="fl">
+        <label>اسم الفعالية <em>*</em></label>
+        <input class="inp" id="a-name" type="text" placeholder="مثال: ملتقى التوظيف 2025">
+      </div>
+      <div class="sec">الموقع الجغرافي</div>
+      <div class="sr">
+        <input id="msearch" type="text" placeholder="ابحث عن الموقع..." onkeydown="if(event.key==='Enter')doSearch()">
+        <button class="sbtn" onclick="doSearch()">🔍</button>
+        <button class="sbtn" onclick="myLoc()" style="background:#047857">📡</button>
+      </div>
+      <div class="mw">
+        <div id="amap"></div>
+        <div class="mhint">📍 اضغط على الخريطة لتثبيت المركز</div>
+      </div>
+      <div class="crd" id="crd-disp">
+        <span>📍</span><span id="crd-txt" style="color:var(--muted)">لم يتم تحديد الموقع بعد</span>
+      </div>
+      <div class="rrow">
+        <label>50م</label>
+        <input type="range" id="rslider" min="50" max="2000" step="50" value="300" oninput="updR(this.value)">
+        <label>2000م</label>
+        <div class="rv" id="rval">300 م</div>
+      </div>
+      <div class="st si" id="mst"><span>🗺️</span><span id="mst-t">اضغط على الخريطة لتحديد المركز</span></div>
+      <button class="btn bp" onclick="doCreate()">📲 إنشاء الفعالية وباركودها</button>
+    </div>
+  </div>
+  <div class="sec">الفعاليات النشطة</div>
+  <div id="evts-wrap"></div>
+</div>
+
+<!-- ═══ STUDENT ═══ -->
+<div class="view" id="vw-student">
+  <div class="shdr">
+    <div class="shdr-ic">🎓</div>
+    <h2 id="s-name">تسجيل الحضور</h2>
+    <p id="s-sub">جاري التحقق...</p>
+  </div>
+  <div class="card">
+    <div class="cb">
+      <div class="st si" id="s-gst"><span>📍</span><span id="s-gt">جاري التحقق من موقعك...</span></div>
+      <div id="s-form" style="display:none">
+        <div style="text-align:center;margin-bottom:15px;font-size:12px;color:var(--muted)">✅ تم التحقق — أنت داخل النطاق</div>
+        <div class="fl">
+          <label style="text-align:center;display:block;font-size:13px">الرقم الأكاديمي</label>
+          <input id="s-num" class="inp inp-c inp-big" type="text" inputmode="numeric" maxlength="12" placeholder="أدخل رقمك" oninput="this.value=this.value.replace(/\D/g,'')" onkeydown="if(event.key==='Enter')doSub()">
+        </div>
+        <button class="btn bg" onclick="doSub()">✅ تسجيل الحضور</button>
+      </div>
+      <div id="s-closed" style="display:none" class="closed">
+        <div class="closed-ic">🔒</div>
+        <h3>التسجيل موقوف</h3>
+        <p>أوقف المشرف التسجيل مؤقتاً.<br>يرجى المحاولة لاحقاً.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ RECORDS ═══ -->
+<div class="view" id="vw-records">
+  <div class="sg">
+    <div class="sc"><div class="sn" id="r-tot" style="color:var(--blue)">0</div><div class="sl2">إجمالي</div></div>
+    <div class="sc"><div class="sn" id="r-evn" style="color:var(--green)">0</div><div class="sl2">فعاليات</div></div>
+    <div class="sc"><div class="sn" id="r-tod" style="color:var(--gold)">0</div><div class="sl2">اليوم</div></div>
+  </div>
+  <div class="fb" id="fbar"></div>
+  <div class="to">
+    <div class="tb2">
+      <span style="font-size:12px;font-weight:800" id="tbl-lbl">📋 جميع السجلات</span>
+      <div class="tbb">
+        <button class="bxs xg" onclick="doExcel()">📥 Excel</button>
+        <button class="bxs" style="background:#374151;color:#e5e7eb" onclick="doCSV()">📄 CSV</button>
+        <button class="bxs xr" onclick="document.getElementById('m-clr').classList.add('on')">🗑️</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>#</th><th>الرقم الأكاديمي</th><th>الفعالية</th><th>التاريخ</th><th>الوقت</th><th>الحالة</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- QR OVERLAY -->
+<div class="qrov" id="qrov">
+  <div class="qrbox">
+    <div class="qr-dark">
+      <div class="qr-white"><img id="qrimg" src="" alt="QR"></div>
+      <div class="qr-meta">
+        <strong id="qr-nm"></strong><br>
+        <span id="qr-rng"></span>
+        <div class="qr-chip"><div class="pls"></div>مقيّد بالموقع الجغرافي</div>
+      </div>
+    </div>
+    <div class="brow">
+      <button class="btn bo" onclick="window.print()">🖨️ طباعة</button>
+      <button class="btn bo" onclick="document.getElementById('qrov').classList.remove('on')">✕ إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="ov" id="m-ok"><div class="md"><div class="md-ic">✅</div><h3 style="color:var(--green)">تم التسجيل!</h3><p>رُصد حضورك بنجاح<br>الرقم: <strong id="ok-n"></strong></p><div class="md-act"><button class="btn bg" onclick="document.getElementById('m-ok').classList.remove('on')">رائع 🎉</button></div></div></div>
+<div class="ov" id="m-geo"><div class="md"><div class="md-ic">🚫</div><h3 style="color:var(--red)">خارج النطاق</h3><p id="m-geo-p">موقعك خارج نطاق الفعالية</p><div class="md-act"><button class="btn bo" onclick="document.getElementById('m-geo').classList.remove('on')">حسناً</button></div></div></div>
+<div class="ov" id="m-dev"><div class="md"><div class="md-ic">📵</div><h3 style="color:var(--gold)">سُجِّل هذا الجهاز</h3><p>هذا الجهاز استُخدم مسبقاً للتسجيل في هذه الفعالية.</p><div class="md-act"><button class="btn bo" onclick="document.getElementById('m-dev').classList.remove('on')">حسناً</button></div></div></div>
+<div class="ov" id="m-dup"><div class="md"><div class="md-ic">⚠️</div><h3 style="color:var(--gold)">رقم مسجّل مسبقاً</h3><p>هذا الرقم الأكاديمي سبق تسجيله في هذه الفعالية.</p><div class="md-act"><button class="btn bo" onclick="document.getElementById('m-dup').classList.remove('on')">حسناً</button></div></div></div>
+<div class="ov" id="m-del"><div class="md"><div class="md-ic">🗑️</div><h3>حذف الفعالية؟</h3><p>سيتم حذف الفعالية وجميع سجلاتها.</p><div class="md-act"><button class="btn bo" onclick="document.getElementById('m-del').classList.remove('on')">إلغاء</button><button class="btn" id="m-del-ok" style="background:var(--red);color:#fff;flex:1">حذف</button></div></div></div>
+<div class="ov" id="m-clr"><div class="md"><div class="md-ic">🗑️</div><h3>حذف جميع السجلات؟</h3><p>سيتم حذف كل بيانات الحضور.</p><div class="md-act"><button class="btn bo" onclick="document.getElementById('m-clr').classList.remove('on')">إلغاء</button><button class="btn" onclick="doClear()" style="background:var(--red);color:#fff;flex:1">حذف نهائي</button></div></div></div>
+
+<script>
+// ── STORAGE ──────────────────────────────────────
+var KE='att_evts4', KR='att_recs4', KD='att_devs4', KID='att_did4';
+
+function lsGet(k){ try{ return JSON.parse(localStorage.getItem(k)||'[]') }catch(e){ return [] } }
+function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)) }catch(e){} }
+function getEvts(){ return lsGet(KE) }
+function getRecs(){ return lsGet(KR) }
+function setEvts(v){ lsSet(KE,v) }
+function setRecs(v){ lsSet(KR,v) }
+
+// ── DEVICE ID ────────────────────────────────────
+function getDID(){
+  var id=localStorage.getItem(KID);
+  if(!id){
+    id=Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);
+    localStorage.setItem(KID,id);
+  }
+  return id;
+}
+function devDone(evtId){
+  var d=lsGet(KD); if(!Array.isArray(d)) d=[];
+  return d.indexOf(evtId+'|'+getDID())!==-1;
+}
+function markDev(evtId){
+  var d=lsGet(KD); if(!Array.isArray(d)) d=[];
+  var k=evtId+'|'+getDID();
+  if(d.indexOf(k)===-1) d.push(k);
+  lsSet(KD,d);
+}
+
+// ── UTILS ─────────────────────────────────────────
+function today(){ return new Date().toISOString().slice(0,10) }
+function nowt(){ return new Date().toTimeString().slice(0,5) }
+function nowdt(){ return new Date().toLocaleString('ar-SA') }
+function dist(a1,o1,a2,o2){
+  var R=6371000,f=Math.PI/180;
+  var x=Math.sin((a2-a1)*f/2),y=Math.sin((o2-o1)*f/2);
+  var a=x*x+Math.cos(a1*f)*Math.cos(a2*f)*y*y;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function fdist(d){ return d<1000?Math.round(d)+' م':(d/1000).toFixed(1)+' كم' }
+function setSt(id,cls,ic,tx){
+  var el=document.getElementById(id);
+  el.className='st '+cls;
+  el.children[0].textContent=ic;
+  el.children[1].textContent=tx;
+}
+
+// ── TABS ──────────────────────────────────────────
+function goTab(n,btn){
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on')});
+  document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on')});
+  document.getElementById('vw-'+n).classList.add('on');
+  btn.classList.add('on');
+  if(n==='admin'){ if(!amap) setTimeout(initMap,200); renderEvts(); }
+  if(n==='records') renderRecs();
+  if(n==='student' && aCfg) startGeo();
+}
+
+// ── MAP ───────────────────────────────────────────
+var amap=null, pin=null, circ=null, pLat=null, pLng=null, pRad=300;
+
+function initMap(){
+  try{
+    amap=L.map('amap').setView([24.7136,46.6753],12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:19}).addTo(amap);
+    amap.on('click',function(e){ setPin(e.latlng.lat,e.latlng.lng) });
+  }catch(e){ console.log('Map error:',e) }
+}
+
+function setPin(lat,lng){
+  pLat=lat; pLng=lng;
+  if(pin) try{amap.removeLayer(pin)}catch(e){}
+  if(circ) try{amap.removeLayer(circ)}catch(e){}
+  var ic=L.divIcon({html:'<div style="background:#1a56db;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div>',iconSize:[14,14],iconAnchor:[7,7],className:''});
+  pin=L.marker([lat,lng],{icon:ic}).addTo(amap);
+  circ=L.circle([lat,lng],{radius:pRad,color:'#1a56db',fillColor:'#1a56db',fillOpacity:.1,weight:2,dashArray:'5 4'}).addTo(amap);
+  document.getElementById('crd-txt').innerHTML='<span style="color:var(--blue);font-weight:700">📍 '+lat.toFixed(5)+' , '+lng.toFixed(5)+'</span>';
+  setSt('mst','so','✅','تم تحديد الموقع — '+lat.toFixed(4)+', '+lng.toFixed(4));
+}
+
+function updR(v){
+  pRad=parseInt(v);
+  document.getElementById('rval').textContent=v+' م';
+  if(circ) try{circ.setRadius(pRad)}catch(e){}
+}
+
+function doSearch(){
+  var q=document.getElementById('msearch').value.trim();
+  if(!q) return;
+  fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(q)+'&limit=1&accept-language=ar')
+    .then(function(r){return r.json()})
+    .then(function(d){
+      if(!d||!d.length){alert('لم يُعثر على الموقع');return}
+      amap.setView([d[0].lat,d[0].lon],16);
+      setPin(parseFloat(d[0].lat),parseFloat(d[0].lon));
+    }).catch(function(){alert('تعذّر البحث')});
+}
+
+function myLoc(){
+  if(!navigator.geolocation){alert('GPS غير متاح');return}
+  navigator.geolocation.getCurrentPosition(function(p){
+    amap.setView([p.coords.latitude,p.coords.longitude],17);
+    setPin(p.coords.latitude,p.coords.longitude);
+  },function(){alert('تعذّر تحديد الموقع')});
+}
+
+// ── CREATE EVENT ──────────────────────────────────
+function doCreate(){
+  var name=document.getElementById('a-name').value.trim();
+  if(!name){alert('يرجى إدخال اسم الفعالية');return}
+  if(pLat===null){alert('يرجى تحديد الموقع على الخريطة أولاً');return}
+  var evt={id:'e'+Date.now(),name:name,lat:pLat,lng:pLng,radius:pRad,created:today(),active:true};
+  var evts=getEvts(); evts.push(evt); setEvts(evts);
+  document.getElementById('a-name').value='';
+  pLat=null; pLng=null;
+  if(pin) try{amap.removeLayer(pin);pin=null}catch(e){}
+  if(circ) try{amap.removeLayer(circ);circ=null}catch(e){}
+  document.getElementById('crd-txt').textContent='لم يتم تحديد الموقع بعد';
+  setSt('mst','si','🗺️','اضغط على الخريطة لتحديد المركز');
+  renderEvts();
+  showQR(evt);
+}
+
+// ── QR POPUP ──────────────────────────────────────
+function showQR(evt){
+  var base=location.href.split('?')[0];
+  var url=base+'?m=s&id='+encodeURIComponent(evt.id)+'&n='+encodeURIComponent(evt.name)+'&la='+evt.lat+'&lo='+evt.lng+'&r='+evt.radius;
+  var qrUrl='https://api.qrserver.com/v1/create-qr-code/?size=180x180&color=0d2240&bgcolor=ffffff&data='+encodeURIComponent(url);
+  document.getElementById('qrimg').src=qrUrl;
+  document.getElementById('qr-nm').textContent=evt.name;
+  document.getElementById('qr-rng').textContent='نطاق '+evt.radius+' متر';
+  document.getElementById('qrov').classList.add('on');
+}
+
+// ── EVENTS LIST ───────────────────────────────────
+function renderEvts(){
+  var evts=getEvts(), recs=getRecs(), w=document.getElementById('evts-wrap');
+  if(!evts.length){
+    w.innerHTML='<p style="text-align:center;color:var(--muted);font-size:12px;padding:16px">لا توجد فعاليات — أنشئ فعالية أولاً</p>';
+    return;
+  }
+  w.innerHTML=evts.map(function(ev){
+    var cnt=recs.filter(function(r){return r.evtId===ev.id}).length;
+    var isOn=ev.active!==false;
+    var evJ=JSON.stringify(ev).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return '<div class="ec" style="border-right:4px solid '+(isOn?'var(--green)':'var(--red)')+'">'+
+      '<div class="eh">'+
+        '<div>'+
+          '<div class="en">'+ev.name+'</div>'+
+          '<div class="em">📅 '+ev.created+' &nbsp;|&nbsp; 📍 نطاق '+ev.radius+'م</div>'+
+          '<div class="trow">'+
+            '<label class="tgl">'+
+              '<input type="checkbox" '+(isOn?'checked':'')+' onchange="togEvt(\''+ev.id+'\',this.checked)">'+
+              '<div class="tt"></div><div class="tb"></div>'+
+            '</label>'+
+            '<span class="tlbl '+(isOn?'ton':'toff')+'" id="tl-'+ev.id+'">'+(isOn?'مفعّل':'موقوف')+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<span class="ecnt">👤 '+cnt+'</span>'+
+      '</div>'+
+      '<div class="ea">'+
+        '<button class="bxs xb" onclick=\'showQR('+evJ+')\'>📲 الباركود</button>'+
+        '<button class="bxs xg" onclick="xEvt(\''+ev.id+'\',\''+ev.name.replace(/'/g,"\\'")+'\')" >📥 Excel</button>'+
+        '<button class="bxs xr" onclick="delEvt(\''+ev.id+'\')">🗑️ حذف</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function togEvt(id,val){
+  var evts=getEvts();
+  for(var i=0;i<evts.length;i++){
+    if(evts[i].id===id){ evts[i].active=val; break }
+  }
+  setEvts(evts);
+  var lbl=document.getElementById('tl-'+id);
+  if(lbl){ lbl.textContent=val?'مفعّل':'موقوف'; lbl.className='tlbl '+(val?'ton':'toff') }
+  var card=lbl&&lbl.closest('.ec');
+  if(card){ card.style.borderRight='4px solid '+(val?'var(--green)':'var(--red)') }
+}
+
+function delEvt(id){
+  document.getElementById('m-del-ok').onclick=function(){
+    setEvts(getEvts().filter(function(e){return e.id!==id}));
+    setRecs(getRecs().filter(function(r){return r.evtId!==id}));
+    document.getElementById('m-del').classList.remove('on');
+    renderEvts();
+  };
+  document.getElementById('m-del').classList.add('on');
+}
+
+// ── GEO CHECK ─────────────────────────────────────
+var aCfg=null;
+
+function startGeo(){
+  if(!aCfg) return;
+  document.getElementById('s-name').textContent=aCfg.name;
+  document.getElementById('s-sub').textContent='جاري التحقق...';
+  document.getElementById('s-form').style.display='none';
+  document.getElementById('s-closed').style.display='none';
+
+  var evts=getEvts();
+  var live=null;
+  for(var i=0;i<evts.length;i++){ if(evts[i].id===aCfg.id){live=evts[i];break} }
+
+  if(live && live.active===false){
+    setSt('s-gst','sf','🔒','التسجيل موقوف حالياً');
+    document.getElementById('s-sub').textContent='التسجيل مغلق مؤقتاً';
+    document.getElementById('s-closed').style.display='block';
+    return;
+  }
+
+  if(devDone(aCfg.id)){
+    setSt('s-gst','sf','📵','هذا الجهاز سبق تسجيل الحضور');
+    document.getElementById('s-sub').textContent='تم التسجيل مسبقاً من هذا الجهاز';
+    document.getElementById('m-dev').classList.add('on');
+    return;
+  }
+
+  setSt('s-gst','sl','⏳','جاري تحديد موقعك...');
+
+  if(!navigator.geolocation){setSt('s-gst','sf','⚠️','GPS غير متاح');return}
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var d=dist(pos.coords.latitude,pos.coords.longitude,aCfg.lat,aCfg.lng);
+    if(d<=aCfg.radius){
+      setSt('s-gst','so','📍','أنت داخل النطاق — على بُعد '+fdist(d));
+      document.getElementById('s-sub').textContent='نطاق '+aCfg.radius+'م · '+fdist(d)+' من المركز';
+      document.getElementById('s-form').style.display='block';
+      setTimeout(function(){document.getElementById('s-num').focus()},200);
+    } else {
+      setSt('s-gst','sf','🚫','خارج النطاق — على بُعد '+fdist(d));
+      document.getElementById('s-sub').textContent='لا يمكن التسجيل من موقعك';
+      document.getElementById('m-geo-p').textContent='موقعك على بُعد '+fdist(d)+' من الفعالية. النطاق: '+aCfg.radius+'م فقط.';
+      document.getElementById('m-geo').classList.add('on');
+    }
+  },function(){
+    setSt('s-gst','sf','⚠️','تعذّر تحديد الموقع — فعّل GPS');
+  },{enableHighAccuracy:true,timeout:14000});
+}
+
+// ── SUBMIT ────────────────────────────────────────
+function doSub(){
+  var num=document.getElementById('s-num').value.trim();
+  var inp=document.getElementById('s-num');
+  if(!num||num.length<4){inp.style.borderColor='var(--red)';inp.focus();return}
+  inp.style.borderColor='var(--blue)';
+
+  var evts=getEvts(), live=null;
+  for(var i=0;i<evts.length;i++){if(evts[i].id===aCfg.id){live=evts[i];break}}
+  if(live&&live.active===false){startGeo();return}
+  if(devDone(aCfg.id)){document.getElementById('m-dev').classList.add('on');return}
+
+  var recs=getRecs();
+  for(var i=0;i<recs.length;i++){
+    if(recs[i].num===num&&recs[i].evtId===aCfg.id){document.getElementById('m-dup').classList.add('on');return}
+  }
+  recs.push({id:Date.now(),num:num,evtId:aCfg.id,evtName:aCfg.name,date:today(),time:nowt(),dt:nowdt()});
+  setRecs(recs);
+  markDev(aCfg.id);
+  document.getElementById('ok-n').textContent=num;
+  document.getElementById('m-ok').classList.add('on');
+  inp.value='';
+  document.getElementById('s-form').style.display='none';
+  setSt('s-gst','so','✅','تم تسجيل الحضور — الرقم: '+num);
+}
+
+// ── RECORDS ───────────────────────────────────────
+var filt='all';
+
+function renderRecs(){
+  var recs=getRecs(), evts=getEvts(), td=today();
+  document.getElementById('r-tot').textContent=recs.length;
+  document.getElementById('r-evn').textContent=function(){var s={};recs.forEach(function(r){s[r.evtId]=1});return Object.keys(s).length}();
+  document.getElementById('r-tod').textContent=recs.filter(function(r){return r.date===td}).length;
+
+  var bar=document.getElementById('fbar');
+  bar.innerHTML='<button class="'+(filt==='all'?'on':'')+'" onclick="setF(\'all\')">الكل ('+recs.length+')</button>'+
+    evts.map(function(e){
+      var c=recs.filter(function(r){return r.evtId===e.id}).length;
+      return '<button class="'+(filt===e.id?'on':'')+'" onclick="setF(\''+e.id+'\')">'+e.name+' ('+c+')</button>';
+    }).join('');
+
+  var filtered=filt==='all'?recs:recs.filter(function(r){return r.evtId===filt});
+  var lbl=filt==='all'?'جميع السجلات':function(){var e=evts.filter(function(e){return e.id===filt})[0];return e?e.name:''}();
+  document.getElementById('tbl-lbl').textContent='📋 '+lbl;
+
+  var tb=document.getElementById('tbody');
+  if(!filtered.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)">لا توجد سجلات</td></tr>';return}
+  var rev=[].concat(filtered).reverse();
+  tb.innerHTML=rev.map(function(r,i){
+    return '<tr>'+
+      '<td style="color:var(--muted);font-size:10px">'+(filtered.length-i)+'</td>'+
+      '<td><strong style="font-size:13px;letter-spacing:1px">'+r.num+'</strong></td>'+
+      '<td><span class="bdg bb" style="font-size:10px">'+r.evtName+'</span></td>'+
+      '<td style="font-size:10px;color:var(--muted)">'+r.date+'</td>'+
+      '<td style="font-size:10px;color:var(--muted)">'+r.time+'</td>'+
+      '<td><span class="bdg bg2">✓</span></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function setF(id){ filt=id; renderRecs(); }
+
+// ── EXPORT ────────────────────────────────────────
+function doExcel(){
+  var recs=getRecs(), evts=getEvts();
+  var filtered=filt==='all'?recs:recs.filter(function(r){return r.evtId===filt});
+  if(!filtered.length){alert('لا توجد بيانات');return}
+  var wb=XLSX.utils.book_new();
+  if(filt==='all'){
+    var ids={};
+    filtered.forEach(function(r){if(!ids[r.evtId])ids[r.evtId]=[];ids[r.evtId].push(r)});
+    Object.keys(ids).forEach(function(eid){
+      var ev=evts.filter(function(e){return e.id===eid})[0];
+      var nm=ev?ev.name.slice(0,28):eid;
+      mkSheet(wb,ids[eid],nm);
+    });
+    XLSX.writeFile(wb,'كشف_الحضور_'+today()+'.xlsx');
+  } else {
+    var ev=evts.filter(function(e){return e.id===filt})[0];
+    mkSheet(wb,filtered,ev?ev.name.slice(0,28):'فعالية');
+    XLSX.writeFile(wb,'كشف_'+(ev?ev.name.slice(0,18):'فعالية')+'_'+today()+'.xlsx');
+  }
+}
+
+function xEvt(id,name){
+  var recs=getRecs().filter(function(r){return r.evtId===id});
+  if(!recs.length){alert('لا توجد سجلات');return}
+  var wb=XLSX.utils.book_new();
+  mkSheet(wb,recs,name.slice(0,28));
+  XLSX.writeFile(wb,'كشف_'+name.slice(0,18)+'_'+today()+'.xlsx');
+}
+
+function mkSheet(wb,recs,name){
+  var data=recs.map(function(r,i){return{'#':i+1,'الرقم الأكاديمي':r.num,'اسم الفعالية':r.evtName,'التاريخ':r.date,'الوقت':r.time}});
+  var ws=XLSX.utils.json_to_sheet(data,{header:['#','الرقم الأكاديمي','اسم الفعالية','التاريخ','الوقت']});
+  ws['!cols']=[{wch:5},{wch:18},{wch:30},{wch:14},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws,name);
+}
+
+function doCSV(){
+  var recs=getRecs();
+  var filtered=filt==='all'?recs:recs.filter(function(r){return r.evtId===filt});
+  if(!filtered.length){alert('لا توجد بيانات');return}
+  var rows=[['الرقم الأكاديمي','اسم الفعالية','التاريخ','الوقت']].concat(
+    filtered.map(function(r){return[r.num,'"'+r.evtName+'"',r.date,r.time]}));
+  var blob=new Blob(['\uFEFF'+rows.map(function(r){return r.join(',')}).join('\n')],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='كشف_'+today()+'.csv';a.click();
+}
+
+function doClear(){
+  localStorage.removeItem(KR);localStorage.removeItem(KD);
+  document.getElementById('m-clr').classList.remove('on');
+  renderRecs();
+}
+
+// ── BOOT ──────────────────────────────────────────
+(function(){
+  var p=new URLSearchParams(location.search);
+  if(p.get('m')==='s'){
+    aCfg={id:p.get('id'),name:p.get('n')||'فعالية',lat:parseFloat(p.get('la')),lng:parseFloat(p.get('lo')),radius:parseInt(p.get('r'))||300};
+    document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on')});
+    document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on')});
+    document.getElementById('vw-student').classList.add('on');
+    document.querySelectorAll('.tab')[1].classList.add('on');
+    startGeo();
+  } else {
+    renderEvts();
+    setTimeout(initMap,300);
+  }
+})();
+</script>
+</body>
+</html>
