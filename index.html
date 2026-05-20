@@ -265,12 +265,16 @@ firebase.initializeApp({
 var db = firebase.database();
 
 // ══ DEVICE ID ════════════════════════════════════
-var K_DID = 'att_did5';
+var K_DID = 'att_did6';
 function getDID(){
   var id = localStorage.getItem(K_DID);
   if(!id){ id = Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2); localStorage.setItem(K_DID,id); }
   return id;
 }
+// Local lock — instant check without Firebase (prevents re-submit on refresh)
+function isLocked(evtId){ var k='lk_'+evtId; return localStorage.getItem(k)==='1'||sessionStorage.getItem(k)==='1'||document.cookie.indexOf(k+'=1')!==-1; }
+function isLockedLocally(evtId){ return isLocked(evtId); }
+function lockLocally(evtId){ var k='lk_'+evtId; try{localStorage.setItem(k,'1')}catch(e){} try{sessionStorage.setItem(k,'1')}catch(e){} try{document.cookie=k+'=1;path=/;max-age=31536000'}catch(e){} }
 
 // ══ UTILS ════════════════════════════════════════
 function today(){ return new Date().toISOString().slice(0,10) }
@@ -437,6 +441,14 @@ function startGeo(){
   document.getElementById('s-sub').textContent='جاري التحقق...';
   document.getElementById('s-form').style.display='none';
   document.getElementById('s-closed').style.display='none';
+
+  // ★ Check local lock FIRST — instant, no network needed
+  if(isLockedLocally(aCfg.id)){
+    setSt('s-gst','sf','📵','هذا الجهاز سبق تسجيل الحضور في هذه الفعالية');
+    document.getElementById('s-sub').textContent='تم التسجيل مسبقاً من هذا الجهاز';
+    showM('m-dev'); return;
+  }
+
   setSt('s-gst','sl','⏳','جاري التحقق...');
 
   // Check active status from Firebase
@@ -484,23 +496,37 @@ function doSub(){
   inp.style.borderColor='var(--blue)';
   inp.disabled=true;
 
+  // ★ Lock this device locally RIGHT NOW before any async call
+  // This prevents re-submission even if the user refreshes instantly
+  lockLocally(aCfg.id);
+
   // Check for duplicate number in same event
   db.ref('records').orderByChild('evtId').equalTo(aCfg.id).once('value').then(function(snap){
     var dup=false;
     snap.forEach(function(c){ if(c.val().num===num) dup=true; });
-    if(dup){ inp.disabled=false; showM('m-dup'); return; }
+    if(dup){
+      // Duplicate ID — unlock locally so they can try different number
+      localStorage.removeItem('lock_'+aCfg.id);
+      inp.disabled=false; showM('m-dup'); return;
+    }
 
-    // Save record
+    // Save record + lock in Firebase
     var rec={num:num,evtId:aCfg.id,evtName:aCfg.name,date:today(),time:nowt(),dt:nowdt()};
     db.ref('records').push(rec).then(function(){
-      db.ref('devices/'+aCfg.id+'/'+getDID()).set(true);
+      db.ref('devices/'+aCfg.id+'/'+getDID()).set(true); // also lock in Firebase
       document.getElementById('ok-n').textContent=num;
       showM('m-ok');
       inp.value=''; inp.disabled=false;
       document.getElementById('s-form').style.display='none';
       setSt('s-gst','so','✅','تم تسجيل الحضور — الرقم: '+num);
-    }).catch(function(e){ inp.disabled=false; errMsg(e.message); });
-  }).catch(function(e){ inp.disabled=false; errMsg(e.message); });
+    }).catch(function(e){
+      // If Firebase fails, keep local lock but show error
+      inp.disabled=false; errMsg(e.message);
+    });
+  }).catch(function(e){
+    localStorage.removeItem('lock_'+aCfg.id); // unlock on error
+    inp.disabled=false; errMsg(e.message);
+  });
 }
 
 // ══ RECORDS ═══════════════════════════════════════
