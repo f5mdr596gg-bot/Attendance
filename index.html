@@ -141,6 +141,7 @@ tr:hover td{background:#f8fafc}
 .md-act{display:flex;gap:9px;margin-top:18px}
 .md-act .btn{flex:1}
 .login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0d2240,#1a3560);z-index:1000;display:flex;align-items:center;justify-content:center}
+.login-screen.hidden{display:none!important}
 .login-box{background:#fff;border-radius:22px;padding:40px 32px;max-width:360px;width:92%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.35)}
 .login-ic{font-size:56px;margin-bottom:14px}
 .login-box h2{font-size:20px;font-weight:900;color:var(--navy);margin-bottom:6px}
@@ -176,7 +177,7 @@ tr:hover td{background:#f8fafc}
     <p>أدخل رمز المشرف الرئيسي للدخول<br>أو استخدم رابط صلاحية المشرف</p>
     <input class="pin-input" id="pin-inp" type="password" inputmode="numeric" maxlength="8" placeholder="••••" onkeydown="if(event.key==='Enter')doLogin()">
     <div class="login-err" id="login-err">❌ رمز خاطئ — حاول مجدداً</div>
-    <button class="btn bp" onclick="doLogin()" style="margin-bottom:0">🔓 دخول</button>
+    <button class="btn bp" id="login-btn" onclick="doLogin()" style="margin-bottom:0">🔓 دخول</button>
   </div>
 </div>
 
@@ -897,26 +898,38 @@ var currentRole = null; // 'super'|'full'|'viewer'|'approver'|null
 var currentSupToken = null;
 
 function doLogin(){
-  var pin = document.getElementById('pin-inp').value.trim();
-  if(!pin){ document.getElementById('pin-inp').focus(); return; }
+  var pinEl = document.getElementById('pin-inp');
+  var btnEl = document.getElementById('login-btn');
+  var errEl = document.getElementById('login-err');
+  var scrEl = document.getElementById('login-screen');
 
-  // Get stored PIN from localStorage, default 1234
-  var storedPin = '';
-  try { storedPin = localStorage.getItem('att_admin_pin') || '1234'; } catch(e){ storedPin = '1234'; }
+  if(!pinEl){ return; }
+  var pin = pinEl.value.trim();
+  if(!pin){ pinEl.focus(); return; }
 
-  if(pin === storedPin){
-    currentRole = 'super';
-    try{ document.getElementById('login-screen').style.display = 'none'; }catch(e){}
-    try{ document.getElementById('tab-sups').style.display = 'flex'; }catch(e){}
-    try{ loadEvts(); }catch(e){}
-    try{ setTimeout(startPendingListener, 1000); }catch(e){}
-    try{ setTimeout(initMap, 300); }catch(e){}
-  } else {
-    var err = document.getElementById('login-err');
-    if(err){ err.style.display = 'block'; setTimeout(function(){ err.style.display='none'; }, 3000); }
-    var inp = document.getElementById('pin-inp');
-    if(inp){ inp.value=''; inp.focus(); }
-  }
+  // Visual feedback
+  if(btnEl){ btnEl.textContent = '⏳'; btnEl.style.background = '#666'; }
+
+  // PIN = 1234 hardcoded (no Firebase needed)
+  var ADMIN_PIN = '1234';
+
+  setTimeout(function(){
+    if(pin === ADMIN_PIN){
+      // ✅ Correct
+      currentRole = 'super';
+      if(scrEl){ scrEl.style.cssText = 'display:none!important'; }
+      var supTab = document.getElementById('tab-sups');
+      if(supTab){ supTab.style.cssText = 'display:flex!important'; }
+      loadEvts();
+      setTimeout(startPendingListener, 1000);
+      setTimeout(initMap, 400);
+    } else {
+      // ❌ Wrong
+      if(btnEl){ btnEl.textContent = '🔓 دخول'; btnEl.style.background = ''; }
+      if(errEl){ errEl.style.display = 'block'; setTimeout(function(){ errEl.style.display='none'; }, 3000); }
+      pinEl.value = ''; pinEl.focus();
+    }
+  }, 300);
 }
 
 function loginAsSupervisor(token, data){
