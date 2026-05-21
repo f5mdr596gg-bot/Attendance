@@ -896,31 +896,40 @@ var SUPER_ADMIN_PIN_KEY = 'att_admin_pin';
 var currentRole = null; // 'super'|'full'|'viewer'|'approver'|null
 var currentSupToken = null;
 
-function getAdminPin(){
-  // Read PIN from Firebase (first time default is 1234)
-  return db.ref('settings/adminPin').once('value').then(function(s){
-    return s.val() || '1234';
+function doLogin(){
+  var pin = document.getElementById('pin-inp').value.trim();
+  if(!pin){ return; }
+  var btn = document.querySelector('.login-box .btn');
+  btn.textContent = '⏳ جاري التحقق...';
+  btn.disabled = true;
+
+  // Try Firebase first, fallback to default 1234
+  db.ref('settings/adminPin').once('value').then(function(s){
+    var storedPin = s.val() || '1234';
+    checkPin(pin, storedPin, btn);
+  }).catch(function(){
+    // Firebase failed — use default
+    checkPin(pin, '1234', btn);
   });
 }
 
-function doLogin(){
-  var pin = document.getElementById('pin-inp').value.trim();
-  if(!pin){return;}
-  getAdminPin().then(function(storedPin){
-    if(pin === storedPin){
-      currentRole = 'super';
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('tab-sups').style.display = 'flex';
-      loadEvts();
-      setTimeout(startPendingListener, 1000);
-      setTimeout(initMap, 300);
-    } else {
-      var err = document.getElementById('login-err');
-      err.style.display = 'block';
-      document.getElementById('pin-inp').value = '';
-      setTimeout(function(){ err.style.display='none'; }, 3000);
-    }
-  });
+function checkPin(pin, storedPin, btn){
+  btn.textContent = '🔓 دخول';
+  btn.disabled = false;
+  if(pin === storedPin){
+    currentRole = 'super';
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('tab-sups').style.display = 'flex';
+    loadEvts();
+    setTimeout(startPendingListener, 1000);
+    setTimeout(initMap, 300);
+  } else {
+    var err = document.getElementById('login-err');
+    err.style.display = 'block';
+    document.getElementById('pin-inp').value = '';
+    document.getElementById('pin-inp').focus();
+    setTimeout(function(){ err.style.display='none'; }, 3000);
+  }
 }
 
 function loginAsSupervisor(token, data){
