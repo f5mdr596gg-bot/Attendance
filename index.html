@@ -140,15 +140,14 @@ tr:hover td{background:#f8fafc}
 .md p{font-size:12px;color:var(--muted);line-height:1.8}
 .md-act{display:flex;gap:9px;margin-top:18px}
 .md-act .btn{flex:1}
-.login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0d2240,#1a3560);z-index:1000;display:flex;align-items:center;justify-content:center}
-.login-screen.hidden{display:none!important}
-.login-box{background:#fff;border-radius:22px;padding:40px 32px;max-width:360px;width:92%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+
+
 .login-ic{font-size:56px;margin-bottom:14px}
 .login-box h2{font-size:20px;font-weight:900;color:var(--navy);margin-bottom:6px}
 .login-box p{font-size:12px;color:var(--muted);margin-bottom:24px;line-height:1.7}
-.pin-input{width:100%;padding:16px;font-size:28px;font-weight:900;letter-spacing:8px;text-align:center;border:2px solid var(--border);border-radius:12px;font-family:Cairo,sans-serif;outline:none;direction:ltr;margin-bottom:14px;background:#f8fafc}
+
 .pin-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
-.login-err{color:var(--red);font-size:12px;font-weight:700;margin-bottom:10px;display:none}
+
 .role-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:800;margin-bottom:10px}
 .role-super{background:var(--gld);color:var(--gold)}
 .role-sup{background:var(--blu);color:var(--blue)}
@@ -168,18 +167,6 @@ tr:hover td{background:#f8fafc}
 </style>
 </head>
 <body>
-
-<!-- LOGIN SCREEN -->
-<div class="login-screen" id="login-screen">
-  <div class="login-box">
-    <div class="login-ic">🔐</div>
-    <h2>نظام الحضور الذكي</h2>
-    <p>أدخل رمز المشرف الرئيسي للدخول<br>أو استخدم رابط صلاحية المشرف</p>
-    <input class="pin-input" id="pin-inp" type="password" inputmode="numeric" maxlength="8" placeholder="••••" onkeydown="if(event.key==='Enter')doLogin()">
-    <div class="login-err" id="login-err">❌ رمز خاطئ — حاول مجدداً</div>
-    <button class="btn bp" id="login-btn" onclick="doLogin()" style="margin-bottom:0">🔓 دخول</button>
-  </div>
-</div>
 
 <div class="top">
   <div class="brand">
@@ -894,43 +881,8 @@ function doClear(){
 
 // ══ AUTH & ROLES ══════════════════════════════════
 var SUPER_ADMIN_PIN_KEY = 'att_admin_pin';
-var currentRole = null; // 'super'|'full'|'viewer'|'approver'|null
+var currentRole = 'super';
 var currentSupToken = null;
-
-function doLogin(){
-  var pinEl = document.getElementById('pin-inp');
-  var btnEl = document.getElementById('login-btn');
-  var errEl = document.getElementById('login-err');
-  var scrEl = document.getElementById('login-screen');
-
-  if(!pinEl){ return; }
-  var pin = pinEl.value.trim();
-  if(!pin){ pinEl.focus(); return; }
-
-  // Visual feedback
-  if(btnEl){ btnEl.textContent = '⏳'; btnEl.style.background = '#666'; }
-
-  // PIN = 1234 hardcoded (no Firebase needed)
-  var ADMIN_PIN = '1234';
-
-  setTimeout(function(){
-    if(pin === ADMIN_PIN){
-      // ✅ Correct
-      currentRole = 'super';
-      if(scrEl){ scrEl.style.cssText = 'display:none!important'; }
-      var supTab = document.getElementById('tab-sups');
-      if(supTab){ supTab.style.cssText = 'display:flex!important'; }
-      loadEvts();
-      setTimeout(startPendingListener, 1000);
-      setTimeout(initMap, 400);
-    } else {
-      // ❌ Wrong
-      if(btnEl){ btnEl.textContent = '🔓 دخول'; btnEl.style.background = ''; }
-      if(errEl){ errEl.style.display = 'block'; setTimeout(function(){ errEl.style.display='none'; }, 3000); }
-      pinEl.value = ''; pinEl.focus();
-    }
-  }, 300);
-}
 
 function loginAsSupervisor(token, data){
   currentRole = data.role || 'approver';
@@ -1024,36 +976,31 @@ var _origGoTab = null;
 // ══ BOOT ══════════════════════════════════════════
 (function(){
   try{
-    // Hide sups tab by default (only super admin sees it)
-    document.getElementById('tab-sups').style.display = 'none';
     var p=new URLSearchParams(location.search);
     if(p.get('m')==='s'){
-      // Student flow — no auth needed
+      // Student flow
       aCfg={id:p.get('id'),name:p.get('n')||'فعالية',lat:parseFloat(p.get('la')),lng:parseFloat(p.get('lo')),radius:parseInt(p.get('r'))||300,mode:p.get('mode')||M_ENTRY};
-      document.getElementById('login-screen').style.display='none';
       document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on');});
       document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
       document.getElementById('vw-student').classList.add('on');
       document.querySelectorAll('.tab')[1].classList.add('on');
       startGeo();
     } else if(p.get('sup')){
-      // Supervisor token login
-      var token = p.get('sup');
+      // Supervisor token
+      currentRole='super';
+      var token=p.get('sup');
       db.ref('supervisors/'+token).once('value').then(function(snap){
-        var data = snap.val();
-        if(data && data.active){
-          loginAsSupervisor(token, data);
-        } else {
-          document.getElementById('login-screen').style.display='flex';
-          document.querySelector('.login-box p').textContent='رابط الصلاحية غير صالح أو تم إلغاؤه. تواصل مع المشرف الرئيسي.';
-        }
-      }).catch(function(){
-        document.getElementById('login-screen').style.display='flex';
-      });
+        var data=snap.val();
+        if(data&&data.active) loginAsSupervisor(token,data);
+        else { loadEvts(); setTimeout(startPendingListener,1000); setTimeout(initMap,300); }
+      }).catch(function(){ loadEvts(); setTimeout(initMap,300); });
     } else {
-      // Show login screen
-      document.getElementById('login-screen').style.display='flex';
-      setTimeout(function(){ document.getElementById('pin-inp').focus(); },300);
+      // Admin — direct access, no PIN
+      currentRole='super';
+      document.getElementById('tab-sups').style.display='flex';
+      loadEvts();
+      setTimeout(startPendingListener,1000);
+      setTimeout(initMap,300);
     }
   }catch(e){console.error('Boot error:',e);}
 })();
