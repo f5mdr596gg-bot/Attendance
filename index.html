@@ -292,7 +292,7 @@ tr:hover td{background:#f8fafc}
   <div class="md">
     <div class="md-ic" id="ok-ic">✅</div>
     <h3 id="ok-ttl" style="color:var(--green)">تم التسجيل!</h3>
-    <p id="ok-msg">رُصد حضورك بنجاح<br>الرقم: <strong id="ok-n"></strong></p>
+    <p id="ok-msg">تم التسجيل بنجاح</p>
     <div class="md-act"><button class="btn bg" onclick="hideM('m-ok')">موافق</button></div>
   </div>
 </div>
@@ -670,7 +670,6 @@ function saveRecord(num,mode,fp,inp){
         document.getElementById('ok-ttl').textContent=lbl.ttl;
         document.getElementById('ok-ttl').style.color=lbl.cls;
         document.getElementById('ok-msg').innerHTML=lbl.msg+'<br>الرقم: <strong>'+num+'</strong><br><small style="color:var(--muted)">'+nowDT()+'</small>';
-        document.getElementById('ok-n').textContent=num;
         showM('m-ok');
         inp.value='';inp.disabled=false;
         document.getElementById('s-form').style.display='none';
