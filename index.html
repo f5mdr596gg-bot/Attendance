@@ -898,37 +898,24 @@ var currentSupToken = null;
 
 function doLogin(){
   var pin = document.getElementById('pin-inp').value.trim();
-  if(!pin){ return; }
-  var btn = document.querySelector('.login-box .btn');
-  btn.textContent = '⏳ جاري التحقق...';
-  btn.disabled = true;
+  if(!pin){ document.getElementById('pin-inp').focus(); return; }
 
-  // Try Firebase first, fallback to default 1234
-  db.ref('settings/adminPin').once('value').then(function(s){
-    var storedPin = s.val() || '1234';
-    checkPin(pin, storedPin, btn);
-  }).catch(function(){
-    // Firebase failed — use default
-    checkPin(pin, '1234', btn);
-  });
-}
+  // Get stored PIN from localStorage, default 1234
+  var storedPin = '';
+  try { storedPin = localStorage.getItem('att_admin_pin') || '1234'; } catch(e){ storedPin = '1234'; }
 
-function checkPin(pin, storedPin, btn){
-  btn.textContent = '🔓 دخول';
-  btn.disabled = false;
   if(pin === storedPin){
     currentRole = 'super';
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('tab-sups').style.display = 'flex';
-    loadEvts();
-    setTimeout(startPendingListener, 1000);
-    setTimeout(initMap, 300);
+    try{ document.getElementById('login-screen').style.display = 'none'; }catch(e){}
+    try{ document.getElementById('tab-sups').style.display = 'flex'; }catch(e){}
+    try{ loadEvts(); }catch(e){}
+    try{ setTimeout(startPendingListener, 1000); }catch(e){}
+    try{ setTimeout(initMap, 300); }catch(e){}
   } else {
     var err = document.getElementById('login-err');
-    err.style.display = 'block';
-    document.getElementById('pin-inp').value = '';
-    document.getElementById('pin-inp').focus();
-    setTimeout(function(){ err.style.display='none'; }, 3000);
+    if(err){ err.style.display = 'block'; setTimeout(function(){ err.style.display='none'; }, 3000); }
+    var inp = document.getElementById('pin-inp');
+    if(inp){ inp.value=''; inp.focus(); }
   }
 }
 
