@@ -140,6 +140,24 @@ tr:hover td{background:#f8fafc}
 .md p{font-size:12px;color:var(--muted);line-height:1.8}
 .md-act{display:flex;gap:9px;margin-top:18px}
 .md-act .btn{flex:1}
+.login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0d2240,#1a3560);z-index:1000;display:flex;align-items:center;justify-content:center}
+.login-box{background:#fff;border-radius:22px;padding:40px 32px;max-width:360px;width:92%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.login-ic{font-size:56px;margin-bottom:14px}
+.login-box h2{font-size:20px;font-weight:900;color:var(--navy);margin-bottom:6px}
+.login-box p{font-size:12px;color:var(--muted);margin-bottom:24px;line-height:1.7}
+.pin-input{width:100%;padding:16px;font-size:28px;font-weight:900;letter-spacing:8px;text-align:center;border:2px solid var(--border);border-radius:12px;font-family:Cairo,sans-serif;outline:none;direction:ltr;margin-bottom:14px;background:#f8fafc}
+.pin-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+.login-err{color:var(--red);font-size:12px;font-weight:700;margin-bottom:10px;display:none}
+.role-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:800;margin-bottom:10px}
+.role-super{background:var(--gld);color:var(--gold)}
+.role-sup{background:var(--blu);color:var(--blue)}
+/* SUPERVISOR CARDS */
+.sup-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:13px 15px;margin-bottom:10px;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sup-name{font-size:14px;font-weight:800}
+.sup-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.sup-status{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.ss-active{background:var(--grn);color:var(--green)}
+.ss-revoked{background:var(--redd);color:var(--red)}
 .sec{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin:4px 0 11px;display:flex;align-items:center;gap:7px}
 .sec::after{content:'';flex:1;height:1px;background:var(--border)}
 .loading{text-align:center;padding:30px;color:var(--muted);font-size:13px}
@@ -150,6 +168,18 @@ tr:hover td{background:#f8fafc}
 </head>
 <body>
 
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="login-ic">🔐</div>
+    <h2>نظام الحضور الذكي</h2>
+    <p>أدخل رمز المشرف الرئيسي للدخول<br>أو استخدم رابط صلاحية المشرف</p>
+    <input class="pin-input" id="pin-inp" type="password" inputmode="numeric" maxlength="8" placeholder="••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="login-err" id="login-err">❌ رمز خاطئ — حاول مجدداً</div>
+    <button class="btn bp" onclick="doLogin()" style="margin-bottom:0">🔓 دخول</button>
+  </div>
+</div>
+
 <div class="top">
   <div class="brand">
     <div class="brand-ic">🎯</div>
@@ -159,6 +189,7 @@ tr:hover td{background:#f8fafc}
     <button class="tab on" onclick="goTab('admin',this)">⚙️ المشرف</button>
     <button class="tab" onclick="goTab('student',this)">📱 الطالب</button>
     <button class="tab" onclick="goTab('records',this)">📊 السجلات</button>
+    <button class="tab" id="tab-sups" onclick="goTab('sups',this)">👥 المشرفون</button>
   </div>
 </div>
 
@@ -224,6 +255,42 @@ tr:hover td{background:#f8fafc}
       <div style="margin-top:16px;padding:12px;background:var(--gld);border-radius:10px;font-size:13px;font-weight:700;color:var(--gold)">الرقم: <strong id="waiting-num"></strong></div>
     </div>
   </div></div>
+</div>
+
+<!-- SUPERVISORS (super admin only) -->
+<div class="view" id="vw-sups">
+  <div class="card">
+    <div class="ch"><div class="chi" style="background:#e8f0fe">👥</div><div><strong style="font-size:14px">إضافة مشرف جديد</strong><div style="font-size:11px;color:var(--muted)">أنشئ رابط صلاحية وأرسله عبر واتساب</div></div></div>
+    <div class="cb">
+      <div class="fl"><label>اسم المشرف <em>*</em></label><input class="inp" id="sup-name" type="text" placeholder="مثال: أحمد محمد"></div>
+      <div class="fl">
+        <label>صلاحية الوصول</label>
+        <select class="inp" id="sup-role" style="direction:rtl">
+          <option value="approver">موافقة على طلبات العودة فقط</option>
+          <option value="viewer">عرض السجلات فقط</option>
+          <option value="full">صلاحية كاملة (بدون حذف)</option>
+        </select>
+      </div>
+      <button class="btn bp" onclick="genSupLink()">🔗 إنشاء رابط الصلاحية</button>
+    </div>
+  </div>
+  <div id="sup-link-result" style="display:none" class="card">
+    <div class="cb">
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:40px;margin-bottom:8px">✅</div>
+        <div style="font-size:14px;font-weight:800;color:var(--green)">تم إنشاء الرابط!</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">أرسله للمشرف عبر واتساب</div>
+      </div>
+      <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:12px;font-size:11px;word-break:break-all;direction:ltr;text-align:left;margin-bottom:14px;color:var(--blue)" id="sup-link-txt"></div>
+      <button class="btn bg" id="wa-btn" onclick="shareWhatsApp()" style="margin-bottom:10px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        إرسال عبر واتساب
+      </button>
+      <button class="btn bo" onclick="document.getElementById('sup-link-result').style.display='none'">إغلاق</button>
+    </div>
+  </div>
+  <div class="sec">المشرفون النشطون</div>
+  <div id="sups-list"><div class="loading"><div class="spinner"></div> جاري التحميل...</div></div>
 </div>
 
 <!-- RECORDS -->
@@ -324,7 +391,8 @@ function goTab(n,btn){
   document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
   document.getElementById('vw-'+n).classList.add('on');
   btn.classList.add('on');
-  if(n==='admin'){if(!amap)setTimeout(initMap,200);loadEvts();startPendingListener();}
+  if(n==='admin'){if(!amap&&currentRole==='super')setTimeout(initMap,200);loadEvts();startPendingListener();}
+  if(n==='sups'&&currentRole==='super'){loadSups();}
   if(n==='records')loadRecs();
   if(n==='student'&&aCfg)startGeo();
 }
@@ -823,21 +891,160 @@ function doClear(){
   hideM('m-clr');setTimeout(loadRecs,600);
 }
 
+// ══ AUTH & ROLES ══════════════════════════════════
+var SUPER_ADMIN_PIN_KEY = 'att_admin_pin';
+var currentRole = null; // 'super'|'full'|'viewer'|'approver'|null
+var currentSupToken = null;
+
+function getAdminPin(){
+  // Read PIN from Firebase (first time default is 1234)
+  return db.ref('settings/adminPin').once('value').then(function(s){
+    return s.val() || '1234';
+  });
+}
+
+function doLogin(){
+  var pin = document.getElementById('pin-inp').value.trim();
+  if(!pin){return;}
+  getAdminPin().then(function(storedPin){
+    if(pin === storedPin){
+      currentRole = 'super';
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('tab-sups').style.display = 'flex';
+      loadEvts();
+      setTimeout(startPendingListener, 1000);
+      setTimeout(initMap, 300);
+    } else {
+      var err = document.getElementById('login-err');
+      err.style.display = 'block';
+      document.getElementById('pin-inp').value = '';
+      setTimeout(function(){ err.style.display='none'; }, 3000);
+    }
+  });
+}
+
+function loginAsSupervisor(token, data){
+  currentRole = data.role || 'approver';
+  currentSupToken = token;
+  document.getElementById('login-screen').style.display = 'none';
+  // Hide tabs not allowed for supervisor
+  if(currentRole === 'approver'){
+    document.querySelector('[onclick*="goTab('records'"]') && (document.querySelector('[onclick*="goTab('records'"]').style.display='none');
+    document.getElementById('tab-sups').style.display = 'none';
+    // Auto show pending requests
+    document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on');});
+    document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
+    document.getElementById('vw-admin').classList.add('on');
+    document.querySelectorAll('.tab')[0].classList.add('on');
+    startPendingListener();
+    // Hide create event card
+    document.querySelector('#vw-admin .card').style.display = 'none';
+  } else if(currentRole === 'viewer'){
+    document.getElementById('tab-sups').style.display = 'none';
+    loadEvts();
+    setTimeout(startPendingListener,1000);
+  } else if(currentRole === 'full'){
+    document.getElementById('tab-sups').style.display = 'none';
+    loadEvts();
+    setTimeout(startPendingListener,1000);
+    setTimeout(initMap,300);
+  }
+}
+
+// ══ SUPERVISOR MANAGEMENT ══════════════════════════
+var generatedLink = '';
+
+function genSupLink(){
+  var name = document.getElementById('sup-name').value.trim();
+  var role = document.getElementById('sup-role').value;
+  if(!name){alert('يرجى إدخال اسم المشرف');return;}
+
+  var token = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+  db.ref('supervisors/'+token).set({
+    name: name, role: role,
+    createdAt: nowDT(), active: true, token: token
+  }).then(function(){
+    var base = location.href.split('?')[0];
+    generatedLink = base + '?sup=' + token;
+    document.getElementById('sup-link-txt').textContent = generatedLink;
+    document.getElementById('sup-link-result').style.display = 'block';
+    document.getElementById('sup-name').value = '';
+    loadSups();
+  }).catch(function(e){ errMsg(e.message); });
+}
+
+function shareWhatsApp(){
+  var roleNames = {approver:'موافقة طلبات العودة',viewer:'عرض السجلات',full:'صلاحية كاملة'};
+  var txt = 'مرحباً، تم منحك صلاحية الوصول لنظام تسجيل الحضور.
+الصلاحية: ' + (roleNames[document.getElementById('sup-role') ? document.getElementById('sup-role').value : 'approver'] || 'مشرف') + '
+الرابط: ' + generatedLink;
+  window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+}
+
+function loadSups(){
+  var w = document.getElementById('sups-list');
+  if(!w) return;
+  w.innerHTML = '<div class="loading"><div class="spinner"></div> جاري التحميل...</div>';
+  db.ref('supervisors').once('value').then(function(snap){
+    var sups = [];
+    snap.forEach(function(c){ var s=c.val(); s.token=c.key; sups.push(s); });
+    if(!sups.length){ w.innerHTML='<p style="text-align:center;color:var(--muted);font-size:12px;padding:16px">لا يوجد مشرفون بعد</p>'; return; }
+    var roleNames = {approver:'موافقة طلبات العودة',viewer:'عرض فقط',full:'صلاحية كاملة'};
+    w.innerHTML = sups.map(function(s){
+      return '<div class="sup-card">'+
+        '<div style="flex:1">'+
+          '<div class="sup-name">'+s.name+'</div>'+
+          '<div class="sup-meta">'+roleNames[s.role]+' · '+s.createdAt+'</div>'+
+        '</div>'+
+        '<div style="display:flex;gap:8px;align-items:center">'+
+          '<span class="sup-status '+(s.active?'ss-active':'ss-revoked')+'">'+(s.active?'✅ نشط':'⛔ ملغى')+'</span>'+
+          (s.active ? '<button class="bxs xr" onclick="revokeSuper(''+s.token+'')">إلغاء</button>' : '')+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }).catch(function(){ w.innerHTML='<p style="color:var(--red);text-align:center;padding:16px;font-size:12px">⚠️ تعذّر التحميل</p>'; });
+}
+
+function revokeSuper(token){
+  db.ref('supervisors/'+token+'/active').set(false).then(function(){ loadSups(); }).catch(function(e){ errMsg(e.message); });
+}
+
+// Override goTab to respect roles
+var _origGoTab = null;
+
 // ══ BOOT ══════════════════════════════════════════
 (function(){
   try{
+    // Hide sups tab by default (only super admin sees it)
+    document.getElementById('tab-sups').style.display = 'none';
     var p=new URLSearchParams(location.search);
     if(p.get('m')==='s'){
+      // Student flow — no auth needed
       aCfg={id:p.get('id'),name:p.get('n')||'فعالية',lat:parseFloat(p.get('la')),lng:parseFloat(p.get('lo')),radius:parseInt(p.get('r'))||300,mode:p.get('mode')||M_ENTRY};
+      document.getElementById('login-screen').style.display='none';
       document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on');});
       document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
       document.getElementById('vw-student').classList.add('on');
       document.querySelectorAll('.tab')[1].classList.add('on');
       startGeo();
+    } else if(p.get('sup')){
+      // Supervisor token login
+      var token = p.get('sup');
+      db.ref('supervisors/'+token).once('value').then(function(snap){
+        var data = snap.val();
+        if(data && data.active){
+          loginAsSupervisor(token, data);
+        } else {
+          document.getElementById('login-screen').style.display='flex';
+          document.querySelector('.login-box p').textContent='رابط الصلاحية غير صالح أو تم إلغاؤه. تواصل مع المشرف الرئيسي.';
+        }
+      }).catch(function(){
+        document.getElementById('login-screen').style.display='flex';
+      });
     } else {
-      loadEvts();
-      setTimeout(initMap,300);
-      setTimeout(startPendingListener,2000); // delay to avoid blocking boot
+      // Show login screen
+      document.getElementById('login-screen').style.display='flex';
+      setTimeout(function(){ document.getElementById('pin-inp').focus(); },300);
     }
   }catch(e){console.error('Boot error:',e);}
 })();
