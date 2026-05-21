@@ -561,14 +561,40 @@ function rejectReturn(reqId){
 function loadEvts(){
   var w=document.getElementById('evts-wrap');
   w.innerHTML='<div class="loading"><div class="spinner"></div> جاري التحميل...</div>';
+
+  // Timeout safety — if Firebase takes >8s show error
+  var loadTimer=setTimeout(function(){
+    if(w.innerHTML.indexOf('spinner')!==-1){
+      w.innerHTML='<p style="text-align:center;color:var(--red);font-size:12px;padding:16px">⚠️ تعذّر التحميل — تحقق من الاتصال وأعد المحاولة<br><button onclick="loadEvts()" style="margin-top:10px;padding:8px 18px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:Cairo,sans-serif;font-weight:700;cursor:pointer">🔄 إعادة المحاولة</button></p>';
+    }
+  },8000);
+
   db.ref('events').once('value').then(function(snap){
     var evts=[];
     snap.forEach(function(c){var e=c.val();e.id=c.key;evts.push(e);});
-    if(!evts.length){w.innerHTML='<p style="text-align:center;color:var(--muted);font-size:12px;padding:16px">لا توجد فعاليات — أنشئ فعالية أولاً</p>';return;}
+    if(!evts.length){
+      clearTimeout(loadTimer);
+      w.innerHTML='<p style="text-align:center;color:var(--muted);font-size:12px;padding:16px">لا توجد فعاليات — أنشئ فعالية أولاً</p>';
+      return;
+    }
+    // Render events immediately without waiting for record counts
+    clearTimeout(loadTimer);
+    renderEvtCards(evts, {});
+    // Then load counts in background
     db.ref('records').once('value').then(function(rs){
       var counts={};
       rs.forEach(function(c){var r=c.val();if(!counts[r.evtId])counts[r.evtId]={entry:0,exit:0,return:0};if(counts[r.evtId][r.mode]!==undefined)counts[r.evtId][r.mode]++;});
-      w.innerHTML=evts.map(function(ev){
+      renderEvtCards(evts, counts);
+    }).catch(function(){ /* counts failed silently — cards already shown */ });
+  }).catch(function(){
+    clearTimeout(loadTimer);
+    w.innerHTML='<p style="text-align:center;color:var(--red);font-size:12px;padding:16px">⚠️ تعذّر التحميل<br><button onclick="loadEvts()" style="margin-top:10px;padding:8px 18px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:Cairo,sans-serif;font-weight:700;cursor:pointer">🔄 إعادة المحاولة</button></p>';
+  });
+}
+
+function renderEvtCards(evts, counts){
+  var w=document.getElementById('evts-wrap');
+  w.innerHTML=evts.map(function(ev){
         var c=counts[ev.id]||{entry:0,exit:0,return:0};
         var isOn=ev.active!==false;
         return '<div class="ec" style="border-right:4px solid '+(isOn?'var(--green)':'var(--red)')+'">'+
@@ -590,8 +616,6 @@ function loadEvts(){
             '<button class="bxs xr" onclick="delEvt(\''+ev.id+'\')">🗑️ حذف</button>'+
           '</div></div>';
       }).join('');
-    });
-  }).catch(function(){document.getElementById('evts-wrap').innerHTML='<p style="color:var(--red);text-align:center;padding:16px;font-size:12px">⚠️ تعذّر التحميل</p>';});
 }
 
 function togEvt(id,val){
