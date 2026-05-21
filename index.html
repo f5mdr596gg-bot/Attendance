@@ -18,18 +18,21 @@ body{font-family:'Cairo',sans-serif;background:#f0f4f8;color:#1e293b;min-height:
   --green:#059669;--grn:#d1fae5;
   --red:#dc2626;--redd:#fee2e2;
   --gold:#d97706;--gld:#fef3c7;
+  --purple:#7c3aed;--purp:#ede9fe;
+  --orange:#ea580c;--orng:#ffedd5;
   --muted:#64748b;--border:#dde4ee;
   --shadow:0 2px 14px rgba(13,34,64,.08);
 }
+*{margin:0;padding:0;box-sizing:border-box}
 .top{background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:sticky;top:0;z-index:300;box-shadow:0 2px 10px rgba(0,0,0,.25)}
 .brand{display:flex;align-items:center;gap:10px;padding:13px 0}
 .brand-ic{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#1a56db,#60a5fa);display:flex;align-items:center;justify-content:center;font-size:17px}
 .brand-t{color:#fff;font-size:14px;font-weight:900;line-height:1.2}
 .brand-s{color:rgba(255,255,255,.4);font-size:10px}
 .tabs{display:flex}
-.tab{background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,.45);font-family:Cairo,sans-serif;font-size:12px;font-weight:700;padding:15px 12px;cursor:pointer;transition:.2s}
+.tab{background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,.45);font-family:Cairo,sans-serif;font-size:12px;font-weight:700;padding:15px 11px;cursor:pointer;transition:.2s}
 .tab.on{color:#fff;border-bottom-color:#60a5fa}
-.view{display:none;max-width:600px;margin:0 auto;padding:22px 14px 70px}
+.view{display:none;max-width:620px;margin:0 auto;padding:22px 14px 70px}
 .view.on{display:block}
 .card{background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden}
 .ch{padding:14px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
@@ -41,13 +44,14 @@ body{font-family:'Cairo',sans-serif;background:#f0f4f8;color:#1e293b;min-height:
 .inp{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-family:Cairo,sans-serif;font-size:14px;color:#1e293b;background:#fafcff;outline:none;transition:.2s;direction:rtl}
 .inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.09)}
 .inp-c{direction:ltr;text-align:center}
-.inp-big{font-size:26px!important;font-weight:900!important;letter-spacing:4px;padding:14px!important;border-color:var(--blue)!important;background:#f0f6ff!important}
+.inp-big{font-size:26px!important;font-weight:900!important;letter-spacing:4px;padding:14px!important;background:#f0f6ff!important}
 .inp-big::placeholder{font-size:13px;letter-spacing:1px;color:#94a3b8}
 .btn{width:100%;padding:12px;border:none;border-radius:10px;font-family:Cairo,sans-serif;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s}
+.btn:disabled{opacity:.6;cursor:not-allowed}
 .bp{background:linear-gradient(135deg,#1648c0,#1a56db);color:#fff;box-shadow:0 4px 14px rgba(26,86,219,.22)}
-.bp:hover{transform:translateY(-1px)}
 .bg{background:linear-gradient(135deg,#047857,#059669);color:#fff;box-shadow:0 4px 14px rgba(5,150,105,.22)}
-.bg:hover{transform:translateY(-1px)}
+.br{background:linear-gradient(135deg,#b91c1c,var(--red));color:#fff;box-shadow:0 4px 14px rgba(220,38,38,.22)}
+.bor{background:linear-gradient(135deg,#c2410c,var(--orange));color:#fff;box-shadow:0 4px 14px rgba(234,88,12,.22)}
 .bo{background:#fff;border:1.5px solid var(--border);color:var(--muted);font-size:13px}
 .brow{display:flex;gap:9px}
 .brow .btn{flex:1}
@@ -55,11 +59,14 @@ body{font-family:'Cairo',sans-serif;background:#f0f4f8;color:#1e293b;min-height:
 .xb{background:var(--blu);color:var(--blue)}
 .xg{background:#065f46;color:#a7f3d0}
 .xr{background:#7f1d1d;color:#fca5a5}
+.xp{background:var(--purp);color:var(--purple)}
+.xo{background:var(--orng);color:var(--orange)}
 .st{display:flex;align-items:center;gap:9px;padding:10px 13px;border-radius:9px;font-size:12px;font-weight:600;margin-bottom:12px}
 .si{background:#f8fafc;border:1.5px dashed var(--border);color:var(--muted)}
 .sl{background:var(--gld);border:1.5px solid #fcd34d;color:var(--gold)}
 .so{background:var(--grn);border:1.5px solid #6ee7b7;color:var(--green)}
 .sf{background:var(--redd);border:1.5px solid #fca5a5;color:var(--red)}
+.sp{background:var(--purp);border:1.5px solid #c4b5fd;color:var(--purple)}
 .mw{border-radius:11px;overflow:hidden;border:1.5px solid var(--border);margin-bottom:11px;position:relative}
 #amap{height:260px;width:100%}
 .mhint{position:absolute;top:7px;right:7px;z-index:500;background:rgba(255,255,255,.9);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;color:var(--muted);font-weight:600;pointer-events:none}
@@ -71,6 +78,7 @@ body{font-family:'Cairo',sans-serif;background:#f0f4f8;color:#1e293b;min-height:
 input[type=range]{flex:1;accent-color:var(--blue);cursor:pointer}
 .rv{min-width:60px;text-align:center;background:var(--blu);border:1px solid #bfdbfe;border-radius:7px;padding:4px 8px;font-size:12px;font-weight:800;color:var(--blue)}
 .crd{display:flex;align-items:center;gap:7px;padding:8px 12px;background:#f8fafc;border:1px solid var(--border);border-radius:9px;margin-bottom:11px;font-size:12px;color:var(--muted)}
+/* EVENT CARDS */
 .ec{background:#fff;border:1px solid var(--border);border-radius:12px;padding:13px 15px;margin-bottom:11px;box-shadow:var(--shadow)}
 .eh{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:8px}
 .en{font-size:14px;font-weight:800}
@@ -86,20 +94,55 @@ input[type=range]{flex:1;accent-color:var(--blue);cursor:pointer}
 .tgl input:checked ~ .tb2{transform:translateX(18px)}
 .tlbl{font-size:11px;font-weight:800}
 .ton{color:var(--green)} .toff{color:var(--red)}
+/* QR OVERLAY */
 .qrov{display:none;position:fixed;inset:0;background:rgba(10,20,40,.85);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
 .qrov.on{display:flex}
-.qrbox{background:#fff;border-radius:18px;padding:26px 22px;max-width:320px;width:92%;text-align:center;animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
-.qr-dark{background:linear-gradient(160deg,#0d2240,#1a3560);border-radius:12px;padding:22px 18px;display:flex;flex-direction:column;align-items:center;margin-bottom:13px}
-.qr-white{background:#fff;padding:11px;border-radius:9px;box-shadow:0 6px 22px rgba(0,0,0,.35)}
-.qr-white img{display:block;width:180px;height:180px}
-.qr-meta{margin-top:13px;color:rgba(255,255,255,.7);font-size:12px;line-height:1.8;text-align:center}
-.qr-meta strong{color:#fff;font-size:14px}
-.qr-chip{display:inline-flex;align-items:center;gap:5px;margin-top:7px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.3);border-radius:20px;padding:3px 10px;font-size:11px;color:#93c5fd;font-weight:700}
-.pls{width:6px;height:6px;border-radius:50%;background:#34d399;animation:plsa 2s infinite}
+.qrbox{background:#fff;border-radius:18px;padding:24px 20px;max-width:340px;width:94%;text-align:center;animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
+.qr-dark{border-radius:12px;padding:22px 18px;display:flex;flex-direction:column;align-items:center;margin-bottom:13px}
+.qr-in{background:#fff;padding:11px;border-radius:9px;box-shadow:0 6px 22px rgba(0,0,0,.35)}
+.qr-in img{display:block;width:170px;height:170px}
+.qr-meta{margin-top:12px;font-size:12px;line-height:1.8;text-align:center}
+.qr-chip{display:inline-flex;align-items:center;gap:5px;margin-top:7px;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700}
+.pls{width:6px;height:6px;border-radius:50%;animation:plsa 2s infinite}
 @keyframes plsa{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
-.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:16px}
-.sc{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 10px;text-align:center;box-shadow:var(--shadow)}
-.sn{font-size:26px;font-weight:900;line-height:1}
+/* QR TYPE STYLES */
+.qr-entry .qr-dark{background:linear-gradient(160deg,#0d2240,#1a3560)}
+.qr-entry .qr-meta{color:rgba(255,255,255,.7)}
+.qr-entry .qr-meta strong{color:#fff;font-size:14px}
+.qr-entry .qr-chip{background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.3);color:#93c5fd}
+.qr-entry .pls{background:#34d399}
+.qr-exit .qr-dark{background:linear-gradient(160deg,#7f1d1d,#b91c1c)}
+.qr-exit .qr-meta{color:rgba(255,255,255,.7)}
+.qr-exit .qr-meta strong{color:#fff;font-size:14px}
+.qr-exit .qr-chip{background:rgba(220,38,38,.2);border:1px solid rgba(220,38,38,.3);color:#fca5a5}
+.qr-exit .pls{background:#fca5a5}
+.qr-return .qr-dark{background:linear-gradient(160deg,#3b0764,#7c3aed)}
+.qr-return .qr-meta{color:rgba(255,255,255,.7)}
+.qr-return .qr-meta strong{color:#fff;font-size:14px}
+.qr-return .qr-chip{background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.3);color:#c4b5fd}
+.qr-return .pls{background:#c4b5fd}
+/* STUDENT VIEW */
+.mode-entry .inp-big{border-color:var(--blue)!important}
+.mode-exit .inp-big{border-color:var(--red)!important;background:#fff5f5!important}
+.mode-return .inp-big{border-color:var(--purple)!important;background:#faf5ff!important}
+.s-hdr{border-radius:13px;padding:22px 18px;text-align:center;margin-bottom:16px;color:#fff}
+.s-hdr-entry{background:linear-gradient(135deg,#0d2240,#1a3560)}
+.s-hdr-exit{background:linear-gradient(135deg,#7f1d1d,#b91c1c)}
+.s-hdr-return{background:linear-gradient(135deg,#3b0764,#7c3aed)}
+.s-hdr-ic{font-size:40px;margin-bottom:7px}
+.s-hdr h2{font-size:18px;font-weight:900}
+.s-hdr p{font-size:11px;color:rgba(255,255,255,.5);margin-top:3px}
+.mode-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:800;margin-bottom:14px}
+.mb-entry{background:var(--blu);color:var(--blue)}
+.mb-exit{background:var(--redd);color:var(--red)}
+.mb-return{background:var(--purp);color:var(--purple)}
+.closed{text-align:center;padding:30px 16px}
+.closed h3{font-size:18px;font-weight:900;color:var(--red);margin-bottom:7px}
+.closed p{font-size:12px;color:var(--muted);line-height:1.8}
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.sc{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 8px;text-align:center;box-shadow:var(--shadow)}
+.sn{font-size:22px;font-weight:900;line-height:1}
 .sl2{font-size:10px;color:var(--muted);font-weight:700;margin-top:4px}
 .fb{display:flex;gap:7px;margin-bottom:13px;flex-wrap:wrap}
 .fb button{padding:6px 12px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-family:Cairo,sans-serif;font-size:11px;font-weight:700;cursor:pointer;color:var(--muted)}
@@ -107,23 +150,18 @@ input[type=range]{flex:1;accent-color:var(--blue);cursor:pointer}
 .to{border-radius:11px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow)}
 .tb3{display:flex;align-items:center;justify-content:space-between;padding:11px 15px;background:#f8fafc;border-bottom:1px solid var(--border);gap:7px;flex-wrap:wrap}
 .tbb{display:flex;gap:6px}
-table{width:100%;border-collapse:collapse;font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:11px}
 thead{background:#f1f5f9}
-th{padding:9px 11px;text-align:right;font-weight:800;color:var(--muted);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border)}
-td{padding:10px 11px;border-bottom:1px solid #f1f5f9}
+th{padding:8px 10px;text-align:right;font-weight:800;color:var(--muted);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+td{padding:9px 10px;border-bottom:1px solid #f1f5f9}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:#f8fafc}
 .bdg{display:inline-flex;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700}
 .bg2{background:var(--grn);color:var(--green)}
+.br2{background:var(--redd);color:var(--red)}
+.bp2{background:var(--purp);color:var(--purple)}
 .bb{background:var(--blu);color:var(--blue)}
-.shdr{background:linear-gradient(135deg,#0d2240,#1a3560);border-radius:13px;padding:22px 18px;text-align:center;margin-bottom:16px;color:#fff}
-.shdr-ic{font-size:40px;margin-bottom:7px}
-.shdr h2{font-size:19px;font-weight:900}
-.shdr p{font-size:11px;color:rgba(255,255,255,.5);margin-top:3px}
-.closed{text-align:center;padding:30px 16px}
-.closed-ic{font-size:56px;margin-bottom:12px}
-.closed h3{font-size:18px;font-weight:900;color:var(--red);margin-bottom:7px}
-.closed p{font-size:12px;color:var(--muted);line-height:1.8}
+/* MODALS */
 .ov{display:none;position:fixed;inset:0;background:rgba(10,20,40,.78);z-index:600;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
 .ov.on{display:flex}
 .md{background:#fff;border-radius:18px;padding:32px 26px;text-align:center;max-width:320px;width:92%;box-shadow:0 20px 50px rgba(0,0,0,.2);animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
@@ -138,6 +176,10 @@ tr:hover td{background:#f8fafc}
 .loading{text-align:center;padding:30px;color:var(--muted);font-size:13px}
 .spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin-left:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:480px){
+  .sg{grid-template-columns:repeat(2,1fr)}
+  .tab{font-size:11px;padding:14px 9px}
+}
 </style>
 </head>
 <body>
@@ -154,10 +196,10 @@ tr:hover td{background:#f8fafc}
   </div>
 </div>
 
-<!-- ADMIN -->
+<!-- ═══ ADMIN ═══ -->
 <div class="view on" id="vw-admin">
   <div class="card">
-    <div class="ch"><div class="chi" style="background:#e8f0fe">➕</div><div><strong style="font-size:14px">إنشاء فعالية جديدة</strong><div style="font-size:11px;color:var(--muted)">يمكنك إنشاء عدة فعاليات بنفس الوقت</div></div></div>
+    <div class="ch"><div class="chi" style="background:#e8f0fe">➕</div><div><strong style="font-size:14px">إنشاء فعالية جديدة</strong><div style="font-size:11px;color:var(--muted)">كل فعالية تحصل على باركود دخول + خروج + عودة</div></div></div>
     <div class="cb">
       <div class="fl"><label>اسم الفعالية <em>*</em></label><input class="inp" id="a-name" type="text" placeholder="مثال: ملتقى التوظيف 2025"></div>
       <div class="sec">الموقع الجغرافي</div>
@@ -175,33 +217,42 @@ tr:hover td{background:#f8fafc}
         <div class="rv" id="rval">300 م</div>
       </div>
       <div class="st si" id="mst"><span>🗺️</span><span id="mst-t">اضغط على الخريطة لتحديد المركز</span></div>
-      <button class="btn bp" id="create-btn" onclick="doCreate()">📲 إنشاء الفعالية وباركودها</button>
+      <button class="btn bp" id="create-btn" onclick="doCreate()">📲 إنشاء الفعالية وباركوداتها</button>
     </div>
   </div>
   <div class="sec">الفعاليات النشطة</div>
   <div id="evts-wrap"><div class="loading"><div class="spinner"></div> جاري التحميل...</div></div>
 </div>
 
-<!-- STUDENT -->
+<!-- ═══ STUDENT ═══ -->
 <div class="view" id="vw-student">
-  <div class="shdr"><div class="shdr-ic">🎓</div><h2 id="s-name">تسجيل الحضور</h2><p id="s-sub">جاري التحقق...</p></div>
+  <div class="s-hdr s-hdr-entry" id="s-hdr">
+    <div class="s-hdr-ic" id="s-ic">🎓</div>
+    <h2 id="s-name">تسجيل الحضور</h2>
+    <p id="s-sub">جاري التحقق...</p>
+  </div>
   <div class="card"><div class="cb">
+    <div style="text-align:center;margin-bottom:12px">
+      <span class="mode-badge mb-entry" id="mode-badge">🟢 تسجيل دخول</span>
+    </div>
     <div class="st si" id="s-gst"><span>📍</span><span id="s-gt">جاري التحقق من موقعك...</span></div>
     <div id="s-form" style="display:none">
-      <div style="text-align:center;margin-bottom:15px;font-size:12px;color:var(--muted)">✅ تم التحقق — أنت داخل النطاق</div>
-      <div class="fl"><label style="text-align:center;display:block;font-size:13px">الرقم الأكاديمي</label>
-      <input id="s-num" class="inp inp-c inp-big" type="text" inputmode="numeric" maxlength="12" placeholder="أدخل رقمك" oninput="this.value=this.value.replace(/\D/g,'')" onkeydown="if(event.key==='Enter')doSub()"></div>
-      <button class="btn bg" onclick="doSub()">✅ تسجيل الحضور</button>
+      <div class="fl">
+        <label style="text-align:center;display:block;font-size:13px" id="s-inp-lbl">الرقم الأكاديمي</label>
+        <input id="s-num" class="inp inp-c inp-big mode-entry" type="text" inputmode="numeric" maxlength="12" placeholder="أدخل رقمك" oninput="this.value=this.value.replace(/\D/g,'')" onkeydown="if(event.key==='Enter')doSub()">
+      </div>
+      <button class="btn" id="s-btn" onclick="doSub()">✅ تسجيل الحضور</button>
     </div>
-    <div id="s-closed" style="display:none" class="closed"><div class="closed-ic">🔒</div><h3>التسجيل موقوف</h3><p>أوقف المشرف التسجيل مؤقتاً.</p></div>
+    <div id="s-closed" style="display:none" class="closed"><div style="font-size:56px;margin-bottom:12px">🔒</div><h3>التسجيل موقوف</h3><p>أوقف المشرف التسجيل مؤقتاً.</p></div>
   </div></div>
 </div>
 
-<!-- RECORDS -->
+<!-- ═══ RECORDS ═══ -->
 <div class="view" id="vw-records">
   <div class="sg">
-    <div class="sc"><div class="sn" id="r-tot" style="color:var(--blue)">0</div><div class="sl2">إجمالي</div></div>
-    <div class="sc"><div class="sn" id="r-evn" style="color:var(--green)">0</div><div class="sl2">فعاليات</div></div>
+    <div class="sc"><div class="sn" id="r-tot" style="color:var(--blue)">0</div><div class="sl2">إجمالي الدخول</div></div>
+    <div class="sc"><div class="sn" id="r-out" style="color:var(--red)">0</div><div class="sl2">خروج</div></div>
+    <div class="sc"><div class="sn" id="r-ret" style="color:var(--purple)">0</div><div class="sl2">عودة</div></div>
     <div class="sc"><div class="sn" id="r-tod" style="color:var(--gold)">0</div><div class="sl2">اليوم</div></div>
   </div>
   <div class="fb" id="fbar"></div>
@@ -215,31 +266,40 @@ tr:hover td{background:#f8fafc}
       </div>
     </div>
     <div style="overflow-x:auto"><table>
-      <thead><tr><th>#</th><th>الرقم الأكاديمي</th><th>الفعالية</th><th>الوقت</th><th>IP</th><th>الحالة</th></tr></thead>
+      <thead><tr><th>#</th><th>الرقم الأكاديمي</th><th>الفعالية</th><th>النوع</th><th>التاريخ والوقت</th><th>IP</th></tr></thead>
       <tbody id="tbody"></tbody>
     </table></div>
   </div>
 </div>
 
-<!-- QR -->
-<div class="qrov" id="qrov">
-  <div class="qrbox">
-    <div class="qr-dark">
-      <div class="qr-white"><img id="qrimg" src="" alt="QR"></div>
-      <div class="qr-meta"><strong id="qr-nm"></strong><br><span id="qr-rng"></span><div class="qr-chip"><div class="pls"></div>مقيّد بالموقع الجغرافي</div></div>
+<!-- QR POPUP -->
+<div class="qrov" id="qr-popup">
+  <div class="qrbox" id="qr-box-wrap">
+    <div class="qr-dark"><div class="qr-in"><img id="qrimg" src="" alt="QR"></div>
+      <div class="qr-meta"><strong id="qr-nm"></strong><br><span id="qr-sub"></span>
+        <div class="qr-chip"><div class="pls"></div><span id="qr-chip-txt"></span></div>
+      </div>
     </div>
     <div class="brow">
       <button class="btn bo" onclick="window.print()">🖨️ طباعة</button>
-      <button class="btn bo" onclick="document.getElementById('qrov').classList.remove('on')">✕ إغلاق</button>
+      <button class="btn bo" onclick="hideM('qr-popup')">✕ إغلاق</button>
     </div>
   </div>
 </div>
 
 <!-- MODALS -->
-<div class="ov" id="m-ok"><div class="md"><div class="md-ic">✅</div><h3 style="color:var(--green)">تم التسجيل!</h3><p>رُصد حضورك بنجاح<br>الرقم: <strong id="ok-n"></strong></p><div class="md-act"><button class="btn bg" onclick="hideM('m-ok')">رائع 🎉</button></div></div></div>
+<div class="ov" id="m-ok">
+  <div class="md">
+    <div class="md-ic" id="ok-ic">✅</div>
+    <h3 id="ok-ttl" style="color:var(--green)">تم التسجيل!</h3>
+    <p id="ok-msg">رُصد حضورك بنجاح<br>الرقم: <strong id="ok-n"></strong></p>
+    <div class="md-act"><button class="btn bg" onclick="hideM('m-ok')">موافق</button></div>
+  </div>
+</div>
 <div class="ov" id="m-geo"><div class="md"><div class="md-ic">🚫</div><h3 style="color:var(--red)">خارج النطاق</h3><p id="m-geo-p">موقعك خارج نطاق الفعالية</p><div class="md-act"><button class="btn bo" onclick="hideM('m-geo')">حسناً</button></div></div></div>
 <div class="ov" id="m-dev"><div class="md"><div class="md-ic">📵</div><h3 style="color:var(--gold)">سُجِّل هذا الجهاز</h3><p>هذا الجهاز استُخدم مسبقاً للتسجيل في هذه الفعالية.</p><div class="md-act"><button class="btn bo" onclick="hideM('m-dev')">حسناً</button></div></div></div>
-<div class="ov" id="m-dup"><div class="md"><div class="md-ic">⚠️</div><h3 style="color:var(--gold)">رقم مسجّل مسبقاً</h3><p>هذا الرقم الأكاديمي سبق تسجيله في هذه الفعالية.</p><div class="md-act"><button class="btn bo" onclick="hideM('m-dup')">حسناً</button></div></div></div>
+<div class="ov" id="m-not-reg"><div class="md"><div class="md-ic">❌</div><h3 style="color:var(--red)">رقم غير مسجّل</h3><p id="m-not-reg-p">هذا الرقم الأكاديمي غير موجود في سجلات الدخول لهذه الفعالية.<br>يرجى التأكد من الرقم والمحاولة مجدداً.</p><div class="md-act"><button class="btn br" onclick="hideM('m-not-reg')">حسناً</button></div></div></div>
+<div class="ov" id="m-dup"><div class="md"><div class="md-ic">⚠️</div><h3 style="color:var(--gold)">مسجّل مسبقاً</h3><p>هذا الرقم الأكاديمي سبق تسجيله في هذه العملية.</p><div class="md-act"><button class="btn bo" onclick="hideM('m-dup')">حسناً</button></div></div></div>
 <div class="ov" id="m-del"><div class="md"><div class="md-ic">🗑️</div><h3>حذف الفعالية؟</h3><p>سيتم حذف الفعالية وجميع سجلاتها.</p><div class="md-act"><button class="btn bo" onclick="hideM('m-del')">إلغاء</button><button class="btn" id="m-del-ok" style="background:var(--red);color:#fff;flex:1">حذف</button></div></div></div>
 <div class="ov" id="m-clr"><div class="md"><div class="md-ic">🗑️</div><h3>حذف جميع السجلات؟</h3><p>سيتم حذف كل بيانات الحضور.</p><div class="md-act"><button class="btn bo" onclick="hideM('m-clr')">إلغاء</button><button class="btn" onclick="doClear()" style="background:var(--red);color:#fff;flex:1">حذف نهائي</button></div></div></div>
 <div class="ov" id="m-err"><div class="md"><div class="md-ic">❌</div><h3>خطأ في الاتصال</h3><p id="m-err-p">تعذّر الاتصال بقاعدة البيانات.</p><div class="md-act"><button class="btn bo" onclick="hideM('m-err')">حسناً</button></div></div></div>
@@ -257,146 +317,157 @@ firebase.initializeApp({
 });
 var db = firebase.database();
 
-// ══ DEVICE FINGERPRINT ════════════════════════════
-// Computed from stable device properties — survives page refresh
-function getFingerprint(){
-  var raw=[
-    screen.width, screen.height, screen.colorDepth,
-    navigator.language || '',
-    navigator.hardwareConcurrency || 0,
-    new Date().getTimezoneOffset(),
-    navigator.platform || '',
-    (typeof Intl!=='undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : '')
-  ].join('|');
-  var h = 0;
-  for(var i=0; i<raw.length; i++){
-    h = ((h<<5)-h) + raw.charCodeAt(i);
-    h = h|0;
-  }
-  return 'fp' + Math.abs(h).toString(36);
-}
+// ══ MODE CONSTANTS ═════════════════════════════════
+var MODE_ENTRY  = 'entry';   // دخول
+var MODE_EXIT   = 'exit';    // خروج
+var MODE_RETURN = 'return';  // عودة
 
-// Triple-layer local lock (localStorage + sessionStorage + cookie)
-function isLockedLocally(evtId){
-  var k = 'lk_'+evtId;
-  try{ if(localStorage.getItem(k)==='1') return true; }catch(e){}
-  try{ if(sessionStorage.getItem(k)==='1') return true; }catch(e){}
-  try{ if(document.cookie.indexOf(k+'=1')!==-1) return true; }catch(e){}
+// ══ DEVICE FINGERPRINT ════════════════════════════
+function getFingerprint(){
+  var raw=[screen.width,screen.height,screen.colorDepth,navigator.language||'',
+    navigator.hardwareConcurrency||0,new Date().getTimezoneOffset(),
+    navigator.platform||'',(typeof Intl!=='undefined'?Intl.DateTimeFormat().resolvedOptions().timeZone:'')].join('|');
+  var h=0;
+  for(var i=0;i<raw.length;i++){h=((h<<5)-h)+raw.charCodeAt(i);h=h|0;}
+  return 'fp'+Math.abs(h).toString(36);
+}
+function isLockedLocally(evtId,mode){
+  var k='lk_'+evtId+'_'+mode;
+  try{if(localStorage.getItem(k)==='1') return true;}catch(e){}
+  try{if(sessionStorage.getItem(k)==='1') return true;}catch(e){}
+  try{if(document.cookie.indexOf(k+'=1')!==-1) return true;}catch(e){}
   return false;
 }
-function lockLocally(evtId){
-  var k = 'lk_'+evtId;
-  try{ localStorage.setItem(k,'1'); }catch(e){}
-  try{ sessionStorage.setItem(k,'1'); }catch(e){}
-  try{ document.cookie = k+'=1;path=/;max-age=31536000'; }catch(e){}
+function lockLocally(evtId,mode){
+  var k='lk_'+evtId+'_'+mode;
+  try{localStorage.setItem(k,'1');}catch(e){}
+  try{sessionStorage.setItem(k,'1');}catch(e){}
+  try{document.cookie=k+'=1;path=/;max-age=31536000';}catch(e){}
 }
 
 // ══ UTILS ═════════════════════════════════════════
-function today(){ return new Date().toISOString().slice(0,10); }
-function nowTime(){ return new Date().toTimeString().slice(0,5); }
-function nowDT(){ return new Date().toLocaleString('ar-SA'); }
+function today(){return new Date().toISOString().slice(0,10);}
+function nowTime(){return new Date().toTimeString().slice(0,5);}
+function nowDT(){return new Date().toLocaleString('ar-SA');}
 function calcDist(la1,lo1,la2,lo2){
-  var R=6371000, f=Math.PI/180;
-  var x=Math.sin((la2-la1)*f/2), y=Math.sin((lo2-lo1)*f/2);
-  var a=x*x + Math.cos(la1*f)*Math.cos(la2*f)*y*y;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+  var R=6371000,f=Math.PI/180;
+  var x=Math.sin((la2-la1)*f/2),y=Math.sin((lo2-lo1)*f/2);
+  return R*2*Math.atan2(Math.sqrt(x*x+Math.cos(la1*f)*Math.cos(la2*f)*y*y),Math.sqrt(1-(x*x+Math.cos(la1*f)*Math.cos(la2*f)*y*y)));
 }
-function fmtDist(d){ return d<1000 ? Math.round(d)+' م' : (d/1000).toFixed(1)+' كم'; }
-function showM(id){ document.getElementById(id).classList.add('on'); }
-function hideM(id){ document.getElementById(id).classList.remove('on'); }
-function setSt(id,cls,ic,tx){
-  var el=document.getElementById(id);
-  el.className='st '+cls;
-  el.children[0].textContent=ic;
-  el.children[1].textContent=tx;
+function fmtDist(d){return d<1000?Math.round(d)+' م':(d/1000).toFixed(1)+' كم';}
+function showM(id){document.getElementById(id).classList.add('on');}
+function hideM(id){document.getElementById(id).classList.remove('on');}
+function setSt(id,cls,ic,tx){var el=document.getElementById(id);el.className='st '+cls;el.children[0].textContent=ic;el.children[1].textContent=tx;}
+function errMsg(msg){document.getElementById('m-err-p').textContent=msg||'تعذّر الاتصال.';showM('m-err');}
+
+// mode UI config
+function modeUI(mode){
+  var cfg={
+    entry:  {hdr:'s-hdr-entry', ic:'🎓', badge:'mb-entry', badgeTxt:'🟢 تسجيل دخول',    btnCls:'bg', btnTxt:'✅ تسجيل الدخول',    lbl:'الرقم الأكاديمي'},
+    exit:   {hdr:'s-hdr-exit',  ic:'🚪', badge:'mb-exit',  badgeTxt:'🔴 تسجيل خروج',   btnCls:'br', btnTxt:'🚪 تسجيل الخروج',   lbl:'الرقم الأكاديمي للمغادرة'},
+    return: {hdr:'s-hdr-return',ic:'↩️', badge:'mb-return',badgeTxt:'🟣 تسجيل عودة',   btnCls:'bor',btnTxt:'↩️ تسجيل العودة',   lbl:'الرقم الأكاديمي للعودة'}
+  };
+  return cfg[mode]||cfg.entry;
 }
-function errMsg(msg){ document.getElementById('m-err-p').textContent=msg||'تعذّر الاتصال.'; showM('m-err'); }
 
 // ══ TABS ══════════════════════════════════════════
 function goTab(n,btn){
-  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('on'); });
-  document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('on'); });
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on');});
+  document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
   document.getElementById('vw-'+n).classList.add('on');
   btn.classList.add('on');
-  if(n==='admin'){ if(!amap) setTimeout(initMap,200); loadEvts(); }
+  if(n==='admin'){if(!amap)setTimeout(initMap,200);loadEvts();}
   if(n==='records') loadRecs();
-  if(n==='student' && aCfg) startGeo();
+  if(n==='student'&&aCfg) startGeo();
 }
 
 // ══ MAP ═══════════════════════════════════════════
-var amap=null, pin=null, circ=null, pLat=null, pLng=null, pRad=300;
-
+var amap=null,pin=null,circ=null,pLat=null,pLng=null,pRad=300;
 function initMap(){
   try{
-    amap = L.map('amap').setView([24.7136,46.6753],12);
+    amap=L.map('amap').setView([24.7136,46.6753],12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:19}).addTo(amap);
-    amap.on('click',function(e){ setPin(e.latlng.lat,e.latlng.lng); });
+    amap.on('click',function(e){setPin(e.latlng.lat,e.latlng.lng);});
   }catch(e){}
 }
 function setPin(lat,lng){
-  pLat=lat; pLng=lng;
-  if(pin) try{ amap.removeLayer(pin); }catch(e){}
-  if(circ) try{ amap.removeLayer(circ); }catch(e){}
-  var ic = L.divIcon({html:'<div style="background:#1a56db;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div>',iconSize:[14,14],iconAnchor:[7,7],className:''});
-  pin = L.marker([lat,lng],{icon:ic}).addTo(amap);
-  circ = L.circle([lat,lng],{radius:pRad,color:'#1a56db',fillColor:'#1a56db',fillOpacity:.1,weight:2,dashArray:'5 4'}).addTo(amap);
+  pLat=lat;pLng=lng;
+  if(pin)try{amap.removeLayer(pin);}catch(e){}
+  if(circ)try{amap.removeLayer(circ);}catch(e){}
+  var ic=L.divIcon({html:'<div style="background:#1a56db;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div>',iconSize:[14,14],iconAnchor:[7,7],className:''});
+  pin=L.marker([lat,lng],{icon:ic}).addTo(amap);
+  circ=L.circle([lat,lng],{radius:pRad,color:'#1a56db',fillColor:'#1a56db',fillOpacity:.1,weight:2,dashArray:'5 4'}).addTo(amap);
   document.getElementById('crd-txt').innerHTML='<span style="color:var(--blue);font-weight:700">📍 '+lat.toFixed(5)+' , '+lng.toFixed(5)+'</span>';
   setSt('mst','so','✅','تم تحديد الموقع — '+lat.toFixed(4)+', '+lng.toFixed(4));
 }
-function updR(v){
-  pRad=parseInt(v);
-  document.getElementById('rval').textContent=v+' م';
-  if(circ) try{ circ.setRadius(pRad); }catch(e){}
-}
+function updR(v){pRad=parseInt(v);document.getElementById('rval').textContent=v+' م';if(circ)try{circ.setRadius(pRad);}catch(e){}}
 function doSearch(){
-  var q=document.getElementById('msearch').value.trim();
-  if(!q) return;
+  var q=document.getElementById('msearch').value.trim();if(!q)return;
   fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(q)+'&limit=1&accept-language=ar')
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      if(!d||!d.length){ alert('لم يُعثر على الموقع'); return; }
-      amap.setView([d[0].lat,d[0].lon],16);
-      setPin(parseFloat(d[0].lat),parseFloat(d[0].lon));
-    }).catch(function(){ alert('تعذّر البحث'); });
+    .then(function(r){return r.json();}).then(function(d){
+      if(!d||!d.length){alert('لم يُعثر على الموقع');return;}
+      amap.setView([d[0].lat,d[0].lon],16);setPin(parseFloat(d[0].lat),parseFloat(d[0].lon));
+    }).catch(function(){alert('تعذّر البحث');});
 }
 function myLoc(){
-  if(!navigator.geolocation){ alert('GPS غير متاح'); return; }
-  navigator.geolocation.getCurrentPosition(function(p){
-    amap.setView([p.coords.latitude,p.coords.longitude],17);
-    setPin(p.coords.latitude,p.coords.longitude);
-  },function(){ alert('تعذّر تحديد الموقع'); });
+  if(!navigator.geolocation){alert('GPS غير متاح');return;}
+  navigator.geolocation.getCurrentPosition(function(p){amap.setView([p.coords.latitude,p.coords.longitude],17);setPin(p.coords.latitude,p.coords.longitude);},function(){alert('تعذّر تحديد الموقع');});
 }
 
 // ══ CREATE EVENT ══════════════════════════════════
 function doCreate(){
   var name=document.getElementById('a-name').value.trim();
-  if(!name){ alert('يرجى إدخال اسم الفعالية'); return; }
-  if(pLat===null){ alert('يرجى تحديد الموقع على الخريطة أولاً'); return; }
+  if(!name){alert('يرجى إدخال اسم الفعالية');return;}
+  if(pLat===null){alert('يرجى تحديد الموقع على الخريطة أولاً');return;}
   var btn=document.getElementById('create-btn');
-  btn.disabled=true; btn.textContent='⏳ جاري الحفظ...';
+  btn.disabled=true;btn.textContent='⏳ جاري الحفظ...';
   var evt={name:name,lat:pLat,lng:pLng,radius:pRad,created:today(),active:true};
   db.ref('events').push(evt).then(function(ref){
     evt.id=ref.key;
-    btn.disabled=false; btn.textContent='📲 إنشاء الفعالية وباركودها';
+    btn.disabled=false;btn.textContent='📲 إنشاء الفعالية وباركوداتها';
     document.getElementById('a-name').value='';
-    pLat=null; pLng=null;
-    if(pin) try{ amap.removeLayer(pin); pin=null; }catch(e){}
-    if(circ) try{ amap.removeLayer(circ); circ=null; }catch(e){}
+    pLat=null;pLng=null;
+    if(pin)try{amap.removeLayer(pin);pin=null;}catch(e){}
+    if(circ)try{amap.removeLayer(circ);circ=null;}catch(e){}
     document.getElementById('crd-txt').textContent='لم يتم تحديد الموقع بعد';
     setSt('mst','si','🗺️','اضغط على الخريطة لتحديد المركز');
     loadEvts();
-    showQR(evt);
-  }).catch(function(e){ btn.disabled=false; btn.textContent='📲 إنشاء الفعالية وباركودها'; errMsg('فشل الحفظ: '+e.message); });
+    showQRPanel(evt);
+  }).catch(function(e){btn.disabled=false;btn.textContent='📲 إنشاء الفعالية وباركوداتها';errMsg('فشل الحفظ: '+e.message);});
 }
 
-// ══ QR ════════════════════════════════════════════
-function showQR(evt){
+// ══ QR PANEL (shows 3 QR codes) ════════════════════
+var qrPanel=null; // holds the panel element
+
+function showQRPanel(evt){
+  // Remove existing panel
+  if(qrPanel){qrPanel.remove();qrPanel=null;}
+  var div=document.createElement('div');
+  div.style.cssText='background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:var(--shadow)';
+  div.innerHTML='<div style="font-size:14px;font-weight:800;margin-bottom:16px;color:var(--navy)">📲 باركودات الفعالية: '+evt.name+'</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px" id="qr3-grid">'+
+      '<div style="text-align:center"><div id="qr-e-'+evt.id+'"></div><div style="font-size:11px;font-weight:800;color:var(--green);margin-top:6px">🟢 دخول</div></div>'+
+      '<div style="text-align:center"><div id="qr-x-'+evt.id+'"></div><div style="font-size:11px;font-weight:800;color:var(--red);margin-top:6px">🔴 خروج</div></div>'+
+      '<div style="text-align:center"><div id="qr-r-'+evt.id+'"></div><div style="font-size:11px;font-weight:800;color:var(--purple);margin-top:6px">🟣 عودة</div></div>'+
+    '</div>'+
+    '<button onclick="this.closest(\'div\').remove()" style="width:100%;margin-top:14px;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:#fff;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted)">✕ إغلاق</button>';
+  document.getElementById('evts-wrap').before(div);
+  qrPanel=div;
+
   var base=location.href.split('?')[0];
-  var url=base+'?m=s&id='+encodeURIComponent(evt.id)+'&n='+encodeURIComponent(evt.name)+'&la='+evt.lat+'&lo='+evt.lng+'&r='+evt.radius;
-  document.getElementById('qrimg').src='https://api.qrserver.com/v1/create-qr-code/?size=180x180&color=0d2240&bgcolor=ffffff&data='+encodeURIComponent(url);
-  document.getElementById('qr-nm').textContent=evt.name;
-  document.getElementById('qr-rng').textContent='نطاق '+evt.radius+' متر';
-  document.getElementById('qrov').classList.add('on');
+  var modes=[
+    {mode:MODE_ENTRY, el:'qr-e-'+evt.id, color:'0d2240'},
+    {mode:MODE_EXIT,  el:'qr-x-'+evt.id, color:'7f1d1d'},
+    {mode:MODE_RETURN,el:'qr-r-'+evt.id, color:'3b0764'}
+  ];
+  modes.forEach(function(m){
+    var url=base+'?m=s&id='+encodeURIComponent(evt.id)+'&n='+encodeURIComponent(evt.name)+'&la='+evt.lat+'&lo='+evt.lng+'&r='+evt.radius+'&mode='+m.mode;
+    var img=document.createElement('img');
+    img.src='https://api.qrserver.com/v1/create-qr-code/?size=120x120&color='+m.color+'&bgcolor=ffffff&data='+encodeURIComponent(url);
+    img.style.cssText='width:100%;max-width:120px;border-radius:8px;border:1px solid var(--border)';
+    document.getElementById(m.el).appendChild(img);
+  });
+  div.scrollIntoView({behavior:'smooth'});
 }
 
 // ══ EVENTS LIST ═══════════════════════════════════
@@ -405,74 +476,94 @@ function loadEvts(){
   w.innerHTML='<div class="loading"><div class="spinner"></div> جاري التحميل...</div>';
   db.ref('events').once('value').then(function(snap){
     var evts=[];
-    snap.forEach(function(c){ var e=c.val(); e.id=c.key; evts.push(e); });
-    if(!evts.length){ w.innerHTML='<p style="text-align:center;color:var(--muted);font-size:12px;padding:16px">لا توجد فعاليات — أنشئ فعالية أولاً</p>'; return; }
+    snap.forEach(function(c){var e=c.val();e.id=c.key;evts.push(e);});
+    if(!evts.length){w.innerHTML='<p style="text-align:center;color:var(--muted);font-size:12px;padding:16px">لا توجد فعاليات — أنشئ فعالية أولاً</p>';return;}
     db.ref('records').once('value').then(function(rs){
       var counts={};
-      rs.forEach(function(c){ var r=c.val(); counts[r.evtId]=(counts[r.evtId]||0)+1; });
+      rs.forEach(function(c){var r=c.val();if(!counts[r.evtId])counts[r.evtId]={entry:0,exit:0,return:0};if(counts[r.evtId][r.mode]!==undefined)counts[r.evtId][r.mode]++;});
       w.innerHTML=evts.map(function(ev){
-        var cnt=counts[ev.id]||0;
+        var c=counts[ev.id]||{entry:0,exit:0,return:0};
         var isOn=ev.active!==false;
-        var evJ=JSON.stringify(ev).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
         return '<div class="ec" style="border-right:4px solid '+(isOn?'var(--green)':'var(--red)')+'">'+
           '<div class="eh"><div>'+
             '<div class="en">'+ev.name+'</div>'+
             '<div class="em">📅 '+ev.created+' | 📍 نطاق '+ev.radius+'م</div>'+
+            '<div style="display:flex;gap:8px;margin-top:5px;flex-wrap:wrap">'+
+              '<span style="font-size:11px;color:var(--green);font-weight:700">🟢 دخول: '+c.entry+'</span>'+
+              '<span style="font-size:11px;color:var(--red);font-weight:700">🔴 خروج: '+c.exit+'</span>'+
+              '<span style="font-size:11px;color:var(--purple);font-weight:700">🟣 عودة: '+c.return+'</span>'+
+            '</div>'+
             '<div class="trow">'+
-              '<label class="tgl">'+
-                '<input type="checkbox" '+(isOn?'checked':'')+' onchange="togEvt(\''+ev.id+'\',this.checked)">'+
-                '<div class="tt"></div><div class="tb2"></div>'+
-              '</label>'+
+              '<label class="tgl"><input type="checkbox" '+(isOn?'checked':'')+' onchange="togEvt(\''+ev.id+'\',this.checked)"><div class="tt"></div><div class="tb2"></div></label>'+
               '<span class="tlbl '+(isOn?'ton':'toff')+'" id="tl-'+ev.id+'">'+(isOn?'مفعّل':'موقوف')+'</span>'+
-            '</div></div>'+
-            '<span class="ecnt">👤 '+cnt+'</span>'+
-          '</div>'+
+            '</div></div></div>'+
           '<div class="ea">'+
-            '<button class="bxs xb" onclick=\'showQR(JSON.parse(decodeURIComponent("'+encodeURIComponent(JSON.stringify(ev))+'")))\'>📲 الباركود</button>'+
+            '<button class="bxs xb" onclick=\'showQRPanel(JSON.parse(decodeURIComponent("'+encodeURIComponent(JSON.stringify(ev))+'")))\'>📲 الباركودات</button>'+
             '<button class="bxs xg" onclick="xEvt(\''+ev.id+'\',\''+ev.name.replace(/'/g,"\\'")+'\')">📥 Excel</button>'+
             '<button class="bxs xr" onclick="delEvt(\''+ev.id+'\')">🗑️ حذف</button>'+
           '</div></div>';
       }).join('');
     });
-  }).catch(function(){ document.getElementById('evts-wrap').innerHTML='<p style="color:var(--red);text-align:center;padding:16px;font-size:12px">⚠️ تعذّر التحميل</p>'; });
+  }).catch(function(){document.getElementById('evts-wrap').innerHTML='<p style="color:var(--red);text-align:center;padding:16px;font-size:12px">⚠️ تعذّر التحميل</p>';});
 }
 
 function togEvt(id,val){
-  db.ref('events/'+id).update({active:val}).catch(function(e){ errMsg(e.message); });
+  db.ref('events/'+id).update({active:val}).catch(function(e){errMsg(e.message);});
   var lbl=document.getElementById('tl-'+id);
-  if(lbl){ lbl.textContent=val?'مفعّل':'موقوف'; lbl.className='tlbl '+(val?'ton':'toff'); }
+  if(lbl){lbl.textContent=val?'مفعّل':'موقوف';lbl.className='tlbl '+(val?'ton':'toff');}
   var card=lbl&&lbl.closest('.ec');
-  if(card){ card.style.borderRight='4px solid '+(val?'var(--green)':'var(--red)'); }
+  if(card){card.style.borderRight='4px solid '+(val?'var(--green)':'var(--red)');}
 }
 function delEvt(id){
   document.getElementById('m-del-ok').onclick=function(){
     db.ref('events/'+id).remove();
-    db.ref('records').orderByChild('evtId').equalTo(id).once('value').then(function(s){ s.forEach(function(c){ c.ref.remove(); }); });
+    db.ref('records').orderByChild('evtId').equalTo(id).once('value').then(function(s){s.forEach(function(c){c.ref.remove();});});
     db.ref('devices/'+id).remove();
-    hideM('m-del'); loadEvts();
+    hideM('m-del');loadEvts();
   };
   showM('m-del');
 }
 
-// ══ GEO CHECK ═════════════════════════════════════
+// ══ STUDENT FLOW ══════════════════════════════════
 var aCfg=null;
+
+function applyModeUI(mode){
+  var ui=modeUI(mode);
+  var hdr=document.getElementById('s-hdr');
+  hdr.className='s-hdr '+ui.hdr;
+  document.getElementById('s-ic').textContent=ui.ic;
+  var badge=document.getElementById('mode-badge');
+  badge.className='mode-badge '+ui.badge;
+  badge.textContent=ui.badgeTxt;
+  var btn=document.getElementById('s-btn');
+  btn.className='btn '+ui.btnCls;
+  btn.textContent=ui.btnTxt;
+  document.getElementById('s-inp-lbl').textContent=ui.lbl;
+  var inp=document.getElementById('s-num');
+  inp.className='inp inp-c inp-big mode-'+mode;
+  if(mode===MODE_ENTRY) inp.style.borderColor='var(--blue)';
+  else if(mode===MODE_EXIT) inp.style.borderColor='var(--red)';
+  else inp.style.borderColor='var(--purple)';
+}
 
 function startGeo(){
   if(!aCfg) return;
+  var mode=aCfg.mode||MODE_ENTRY;
   document.getElementById('s-name').textContent=aCfg.name;
   document.getElementById('s-sub').textContent='جاري التحقق...';
   document.getElementById('s-form').style.display='none';
   document.getElementById('s-closed').style.display='none';
+  applyModeUI(mode);
 
-  // Layer 1: local lock
-  if(isLockedLocally(aCfg.id)){
-    setSt('s-gst','sf','📵','تم التسجيل مسبقاً من هذا الجهاز');
+  // For exit/return: NO device lock check (same device may do entry AND exit)
+  // For entry only: check device lock
+  if(mode===MODE_ENTRY && isLockedLocally(aCfg.id, MODE_ENTRY)){
+    setSt('s-gst','sf','📵','تم تسجيل الدخول مسبقاً من هذا الجهاز');
     document.getElementById('s-sub').textContent='هذا الجهاز سبق تسجيله';
     showM('m-dev'); return;
   }
 
   setSt('s-gst','sl','⏳','جاري التحقق...');
-
   db.ref('events/'+aCfg.id).once('value').then(function(snap){
     var ev=snap.val();
     if(ev && ev.active===false){
@@ -481,90 +572,111 @@ function startGeo(){
       document.getElementById('s-closed').style.display='block';
       return;
     }
-    // Layer 2: Firebase device check (uses fingerprint — stable across refreshes)
-    db.ref('devices/'+aCfg.id+'/'+getFingerprint()).once('value').then(function(ds){
-      if(ds.val()){
-        lockLocally(aCfg.id); // sync local lock
-        setSt('s-gst','sf','📵','تم التسجيل مسبقاً من هذا الجهاز');
-        document.getElementById('s-sub').textContent='هذا الجهاز سبق تسجيله';
-        showM('m-dev'); return;
-      }
-      // Layer 3: geo check
-      if(!navigator.geolocation){ setSt('s-gst','sf','⚠️','GPS غير متاح'); return; }
-      setSt('s-gst','sl','⏳','جاري تحديد موقعك...');
-      navigator.geolocation.getCurrentPosition(function(pos){
-        var d=calcDist(pos.coords.latitude,pos.coords.longitude,aCfg.lat,aCfg.lng);
-        if(d<=aCfg.radius){
-          setSt('s-gst','so','📍','أنت داخل النطاق — على بُعد '+fmtDist(d));
-          document.getElementById('s-sub').textContent='نطاق '+aCfg.radius+'م · '+fmtDist(d)+' من المركز';
-          document.getElementById('s-form').style.display='block';
-          setTimeout(function(){ document.getElementById('s-num').focus(); },200);
-        } else {
-          setSt('s-gst','sf','🚫','خارج النطاق — على بُعد '+fmtDist(d));
-          document.getElementById('s-sub').textContent='لا يمكن التسجيل من موقعك';
-          document.getElementById('m-geo-p').textContent='موقعك على بُعد '+fmtDist(d)+'. النطاق المسموح: '+aCfg.radius+'م فقط.';
-          showM('m-geo');
-        }
-      },function(){ setSt('s-gst','sf','⚠️','تعذّر تحديد الموقع — فعّل GPS'); },{enableHighAccuracy:true,timeout:14000});
-    });
-  }).catch(function(){ errMsg('تعذّر التحقق من الفعالية'); });
+    // Entry only: check Firebase device lock
+    if(mode===MODE_ENTRY){
+      db.ref('devices/'+aCfg.id+'/'+getFingerprint()).once('value').then(function(ds){
+        if(ds.val()){lockLocally(aCfg.id,MODE_ENTRY);setSt('s-gst','sf','📵','تم تسجيل الدخول مسبقاً من هذا الجهاز');showM('m-dev');return;}
+        doGeoCheck();
+      });
+    } else {
+      doGeoCheck();
+    }
+  }).catch(function(){errMsg('تعذّر التحقق من الفعالية');});
+}
+
+function doGeoCheck(){
+  if(!navigator.geolocation){setSt('s-gst','sf','⚠️','GPS غير متاح');return;}
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var d=calcDist(pos.coords.latitude,pos.coords.longitude,aCfg.lat,aCfg.lng);
+    if(d<=aCfg.radius){
+      var mode=aCfg.mode||MODE_ENTRY;
+      var labels={entry:'أنت داخل النطاق — يمكنك تسجيل الدخول',exit:'أنت داخل النطاق — يمكنك تسجيل الخروج',return:'أنت داخل النطاق — يمكنك تسجيل العودة'};
+      setSt('s-gst','so','📍',(labels[mode]||labels.entry)+' ('+fmtDist(d)+')');
+      document.getElementById('s-sub').textContent='نطاق '+aCfg.radius+'م · '+fmtDist(d)+' من المركز';
+      document.getElementById('s-form').style.display='block';
+      setTimeout(function(){document.getElementById('s-num').focus();},200);
+    } else {
+      setSt('s-gst','sf','🚫','خارج النطاق — على بُعد '+fmtDist(d));
+      document.getElementById('m-geo-p').textContent='موقعك على بُعد '+fmtDist(d)+'. النطاق المسموح: '+aCfg.radius+'م فقط.';
+      showM('m-geo');
+    }
+  },function(){setSt('s-gst','sf','⚠️','تعذّر تحديد الموقع — فعّل GPS');},{enableHighAccuracy:true,timeout:14000});
 }
 
 // ══ SUBMIT ════════════════════════════════════════
 function doSub(){
   var num=document.getElementById('s-num').value.trim();
   var inp=document.getElementById('s-num');
-  if(!num||num.length<4){ inp.style.borderColor='var(--red)'; inp.focus(); return; }
-  inp.style.borderColor='var(--blue)';
+  if(!num||num.length<4){inp.style.borderColor='var(--red)';inp.focus();return;}
   inp.disabled=true;
 
+  var mode=aCfg.mode||MODE_ENTRY;
   var fp=getFingerprint();
 
-  // Re-check local lock
-  if(isLockedLocally(aCfg.id)){ inp.disabled=false; showM('m-dev'); return; }
+  // Entry: full device check
+  if(mode===MODE_ENTRY){
+    if(isLockedLocally(aCfg.id,MODE_ENTRY)){inp.disabled=false;showM('m-dev');return;}
+    db.ref('devices/'+aCfg.id+'/'+fp).once('value').then(function(ds){
+      if(ds.val()){lockLocally(aCfg.id,MODE_ENTRY);inp.disabled=false;showM('m-dev');return;}
+      // Check duplicate entry
+      db.ref('records').orderByChild('evtId').equalTo(aCfg.id).once('value').then(function(snap){
+        var dup=false;
+        snap.forEach(function(c){if(c.val().num===num&&c.val().mode===MODE_ENTRY)dup=true;});
+        if(dup){inp.disabled=false;showM('m-dup');return;}
+        saveRecord(num,mode,fp,inp);
+      });
+    }).catch(function(e){inp.disabled=false;errMsg(e.message);});
 
-  // Re-check Firebase device (fingerprint)
-  db.ref('devices/'+aCfg.id+'/'+fp).once('value').then(function(ds){
-    if(ds.val()){ lockLocally(aCfg.id); inp.disabled=false; showM('m-dev'); return; }
-
-    // Check duplicate academic number
+  } else {
+    // Exit / Return: verify the student actually has an entry record first
     db.ref('records').orderByChild('evtId').equalTo(aCfg.id).once('value').then(function(snap){
+      var hasEntry=false;
+      snap.forEach(function(c){if(c.val().num===num&&c.val().mode===MODE_ENTRY)hasEntry=true;});
+
+      if(!hasEntry){
+        // Student not registered — REJECT
+        inp.disabled=false;
+        document.getElementById('m-not-reg-p').textContent='الرقم الأكاديمي "'+num+'" غير موجود في سجلات الدخول لهذه الفعالية. تأكد من الرقم وحاول مجدداً.';
+        showM('m-not-reg');
+        inp.value='';
+        return;
+      }
+      // Check duplicate exit/return
       var dup=false;
-      snap.forEach(function(c){ if(c.val().num===num) dup=true; });
-      if(dup){ inp.disabled=false; showM('m-dup'); return; }
+      snap.forEach(function(c){if(c.val().num===num&&c.val().mode===mode)dup=true;});
+      if(dup){
+        // For exit/return allow multiple (student may exit/return more than once)
+        // Just save it
+      }
+      saveRecord(num,mode,fp,inp);
+    }).catch(function(e){inp.disabled=false;errMsg(e.message);});
+  }
+}
 
-      // Lock locally immediately
-      lockLocally(aCfg.id);
-
-      // Fetch IP then save everything atomically
-      fetch('https://api.ipify.org?format=json')
-        .then(function(r){ return r.json(); })
-        .catch(function(){ return {ip:'غير متاح'}; })
-        .then(function(ipData){
-          var recKey = db.ref('records').push().key;
-          var rec={
-            num:num,
-            evtId:aCfg.id,
-            evtName:aCfg.name,
-            date:today(),
-            time:nowTime(),
-            dt:nowDT(),
-            ip:ipData.ip||'غير متاح',
-            fp:fp
-          };
-          var updates={};
-          updates['records/'+recKey] = rec;
-          updates['devices/'+aCfg.id+'/'+fp] = true;
-          db.ref().update(updates).then(function(){
-            document.getElementById('ok-n').textContent=num;
-            showM('m-ok');
-            inp.value=''; inp.disabled=false;
-            document.getElementById('s-form').style.display='none';
-            setSt('s-gst','so','✅','تم تسجيل الحضور — الرقم: '+num);
-          }).catch(function(e){ inp.disabled=false; errMsg(e.message); });
-        });
-    }).catch(function(e){ inp.disabled=false; errMsg(e.message); });
-  }).catch(function(e){ inp.disabled=false; errMsg(e.message); });
+function saveRecord(num,mode,fp,inp){
+  lockLocally(aCfg.id,mode);
+  fetch('https://api.ipify.org?format=json')
+    .then(function(r){return r.json();}).catch(function(){return{ip:'غير متاح'};})
+    .then(function(ipData){
+      var recKey=db.ref('records').push().key;
+      var rec={num:num,evtId:aCfg.id,evtName:aCfg.name,mode:mode,date:today(),time:nowTime(),dt:nowDT(),ip:ipData.ip||'غير متاح',fp:fp};
+      var updates={};
+      updates['records/'+recKey]=rec;
+      if(mode===MODE_ENTRY) updates['devices/'+aCfg.id+'/'+fp]=true;
+      db.ref().update(updates).then(function(){
+        var labels={entry:{ic:'✅',ttl:'تم تسجيل الدخول!',cls:'var(--green)',msg:'مرحباً بك في الفعالية'},exit:{ic:'🚪',ttl:'تم تسجيل الخروج!',cls:'var(--red)',msg:'تم رصد مغادرتك'},return:{ic:'↩️',ttl:'تم تسجيل العودة!',cls:'var(--purple)',msg:'مرحباً بعودتك'}};
+        var lbl=labels[mode]||labels.entry;
+        document.getElementById('ok-ic').textContent=lbl.ic;
+        document.getElementById('ok-ttl').textContent=lbl.ttl;
+        document.getElementById('ok-ttl').style.color=lbl.cls;
+        document.getElementById('ok-msg').innerHTML=lbl.msg+'<br>الرقم: <strong>'+num+'</strong><br><small style="color:var(--muted)">'+nowDT()+'</small>';
+        document.getElementById('ok-n').textContent=num;
+        showM('m-ok');
+        inp.value='';inp.disabled=false;
+        document.getElementById('s-form').style.display='none';
+        setSt('s-gst','so','✅','تم التسجيل بنجاح — الرقم: '+num);
+      }).catch(function(e){inp.disabled=false;errMsg(e.message);});
+    });
 }
 
 // ══ RECORDS ═══════════════════════════════════════
@@ -572,138 +684,111 @@ var filt='all', allRecs=[], allEvts=[];
 
 function loadRecs(){
   document.getElementById('tbody').innerHTML='<tr><td colspan="6" style="text-align:center;padding:20px"><div class="spinner"></div></td></tr>';
-  Promise.all([
-    db.ref('events').once('value'),
-    db.ref('records').once('value')
-  ]).then(function(res){
-    allEvts=[];
-    res[0].forEach(function(c){ var e=c.val(); e.id=c.key; allEvts.push(e); });
-    allRecs=[];
-    res[1].forEach(function(c){ var r=c.val(); r.id=c.key; allRecs.push(r); });
+  Promise.all([db.ref('events').once('value'),db.ref('records').once('value')]).then(function(res){
+    allEvts=[];res[0].forEach(function(c){var e=c.val();e.id=c.key;allEvts.push(e);});
+    allRecs=[];res[1].forEach(function(c){var r=c.val();r.id=c.key;allRecs.push(r);});
     renderRecs();
-  }).catch(function(){
-    document.getElementById('tbody').innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--red);padding:20px">⚠️ تعذّر التحميل</td></tr>';
-  });
+  }).catch(function(){document.getElementById('tbody').innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--red);padding:20px">⚠️ تعذّر التحميل</td></tr>';});
 }
 
 function renderRecs(){
   var td=today();
-  var filtered = filt==='all' ? allRecs : allRecs.filter(function(r){ return r.evtId===filt; });
+  var filtered=filt==='all'?allRecs:allRecs.filter(function(r){return r.evtId===filt;});
+  document.getElementById('r-tot').textContent=allRecs.filter(function(r){return r.mode===MODE_ENTRY;}).length;
+  document.getElementById('r-out').textContent=allRecs.filter(function(r){return r.mode===MODE_EXIT;}).length;
+  document.getElementById('r-ret').textContent=allRecs.filter(function(r){return r.mode===MODE_RETURN;}).length;
+  document.getElementById('r-tod').textContent=allRecs.filter(function(r){return r.date===td;}).length;
 
-  document.getElementById('r-tot').textContent=allRecs.length;
-  document.getElementById('r-evn').textContent=(function(){ var s={}; allRecs.forEach(function(r){ s[r.evtId]=1; }); return Object.keys(s).length; })();
-  document.getElementById('r-tod').textContent=allRecs.filter(function(r){ return r.date===td; }).length;
-
-  // Filter buttons
   var bar=document.getElementById('fbar');
   bar.innerHTML='<button class="'+(filt==='all'?'on':'')+'" onclick="setF(\'all\')">الكل ('+allRecs.length+')</button>'+
-    allEvts.map(function(e){
-      var c=allRecs.filter(function(r){ return r.evtId===e.id; }).length;
-      return '<button class="'+(filt===e.id?'on':'')+'" onclick="setF(\''+e.id+'\')">'+e.name+' ('+c+')</button>';
-    }).join('');
+    allEvts.map(function(e){var c=allRecs.filter(function(r){return r.evtId===e.id;}).length;return '<button class="'+(filt===e.id?'on':'')+'" onclick="setF(\''+e.id+'\')">'+e.name+' ('+c+')</button>';}).join('');
 
-  var lbl = filt==='all' ? 'جميع السجلات' : (function(){ var e=allEvts.filter(function(e){ return e.id===filt; })[0]; return e?e.name:''; })();
-  document.getElementById('tbl-lbl').textContent='📋 '+lbl;
+  document.getElementById('tbl-lbl').textContent='📋 '+(filt==='all'?'جميع السجلات':(function(){var e=allEvts.filter(function(e){return e.id===filt;})[0];return e?e.name:'';})());
 
   var tb=document.getElementById('tbody');
-  if(!filtered.length){
-    tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)">لا توجد سجلات</td></tr>';
-    return;
-  }
+  if(!filtered.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)">لا توجد سجلات</td></tr>';return;}
   var rev=[].concat(filtered).reverse();
+  var modeInfo={entry:{lbl:'دخول',cls:'bg2',ic:'🟢'},exit:{lbl:'خروج',cls:'br2',ic:'🔴'},return:{lbl:'عودة',cls:'bp2',ic:'🟣'}};
   tb.innerHTML=rev.map(function(r,i){
+    var mi=modeInfo[r.mode]||modeInfo.entry;
     return '<tr>'+
       '<td style="color:var(--muted);font-size:10px">'+(filtered.length-i)+'</td>'+
-      '<td><strong style="font-size:13px;letter-spacing:1px">'+r.num+'</strong></td>'+
-      '<td><span class="bdg bb">'+r.evtName+'</span></td>'+
+      '<td><strong style="font-size:12px;letter-spacing:1px">'+r.num+'</strong></td>'+
+      '<td><span class="bdg bb" style="font-size:10px">'+r.evtName+'</span></td>'+
+      '<td><span class="bdg '+mi.cls+'">'+mi.ic+' '+mi.lbl+'</span></td>'+
       '<td style="font-size:10px;color:var(--muted)">'+r.date+' '+r.time+'</td>'+
       '<td style="font-size:10px;color:var(--muted);direction:ltr">'+(r.ip||'—')+'</td>'+
-      '<td><span class="bdg bg2">✓</span></td>'+
     '</tr>';
   }).join('');
 }
-
-function setF(id){ filt=id; renderRecs(); }
+function setF(id){filt=id;renderRecs();}
 
 // ══ EXPORT ════════════════════════════════════════
-function buildSheet(wb, recs, sheetName){
-  // Sort by datetime (ascending) so first registrant is row 1
-  var sorted=[].concat(recs).sort(function(a,b){
-    return (a.dt||'').localeCompare(b.dt||'');
-  });
-  var data=sorted.map(function(r,i){
-    return {
-      'الترتيب'       : i===0?'🥇 الأول' : i===1?'🥈 الثاني' : i===2?'🥉 الثالث' : (i+1)+'',
-      'الرقم الأكاديمي': r.num,
-      'اسم الفعالية'   : r.evtName,
-      'التاريخ'        : r.date,
-      'الوقت'          : r.time,
-      'التاريخ والوقت' : r.dt||'',
-      'عنوان IP'       : r.ip||'غير متاح',
-      'بصمة الجهاز'    : r.fp||'غير متاح'
-    };
-  });
-  var headers=['الترتيب','الرقم الأكاديمي','اسم الفعالية','التاريخ','الوقت','التاريخ والوقت','عنوان IP','بصمة الجهاز'];
+function buildSheet(wb,recs,sheetName){
+  var sorted=[].concat(recs).sort(function(a,b){return (a.dt||'').localeCompare(b.dt||'');});
+  var modeLabels={entry:'دخول',exit:'خروج',return:'عودة'};
+  var data=sorted.map(function(r,i){return{
+    'الترتيب'         :i===0?'🥇 الأول':i===1?'🥈 الثاني':i===2?'🥉 الثالث':(i+1)+'',
+    'الرقم الأكاديمي' :r.num,
+    'اسم الفعالية'    :r.evtName,
+    'نوع التسجيل'     :modeLabels[r.mode]||r.mode||'دخول',
+    'التاريخ'         :r.date,
+    'الوقت'           :r.time,
+    'التاريخ والوقت'  :r.dt||'',
+    'عنوان IP'        :r.ip||'غير متاح',
+    'بصمة الجهاز'     :r.fp||'غير متاح'
+  };});
+  var headers=['الترتيب','الرقم الأكاديمي','اسم الفعالية','نوع التسجيل','التاريخ','الوقت','التاريخ والوقت','عنوان IP','بصمة الجهاز'];
   var ws=XLSX.utils.json_to_sheet(data,{header:headers});
-  ws['!cols']=[{wch:12},{wch:18},{wch:28},{wch:12},{wch:8},{wch:26},{wch:18},{wch:20}];
-  XLSX.utils.book_append_sheet(wb, ws, sheetName.slice(0,28));
+  ws['!cols']=[{wch:12},{wch:18},{wch:26},{wch:12},{wch:12},{wch:8},{wch:26},{wch:18},{wch:20}];
+  XLSX.utils.book_append_sheet(wb,ws,sheetName.slice(0,28));
 }
 
 function doExcel(){
-  if(!allRecs.length){ alert('لا توجد بيانات — افتح تبويب السجلات أولاً'); return; }
-  var filtered = filt==='all' ? allRecs : allRecs.filter(function(r){ return r.evtId===filt; });
-  if(!filtered.length){ alert('لا توجد بيانات للفعالية المحددة'); return; }
+  if(!allRecs.length){alert('لا توجد بيانات — افتح تبويب السجلات أولاً');return;}
+  var filtered=filt==='all'?allRecs:allRecs.filter(function(r){return r.evtId===filt;});
+  if(!filtered.length){alert('لا توجد بيانات');return;}
   var wb=XLSX.utils.book_new();
   if(filt==='all'){
-    // One sheet per event
     var groups={};
-    filtered.forEach(function(r){ if(!groups[r.evtId]) groups[r.evtId]=[]; groups[r.evtId].push(r); });
+    filtered.forEach(function(r){if(!groups[r.evtId])groups[r.evtId]=[];groups[r.evtId].push(r);});
     Object.keys(groups).forEach(function(eid){
-      var ev=allEvts.filter(function(e){ return e.id===eid; })[0];
-      buildSheet(wb, groups[eid], ev?ev.name:eid);
+      var ev=allEvts.filter(function(e){return e.id===eid;})[0];
+      buildSheet(wb,groups[eid],ev?ev.name:eid);
     });
   } else {
-    var ev=allEvts.filter(function(e){ return e.id===filt; })[0];
-    buildSheet(wb, filtered, ev?ev.name:'فعالية');
+    var ev=allEvts.filter(function(e){return e.id===filt;})[0];
+    buildSheet(wb,filtered,ev?ev.name:'فعالية');
   }
-  XLSX.writeFile(wb, 'كشف_الحضور_'+today()+'.xlsx');
+  XLSX.writeFile(wb,'كشف_الحضور_'+today()+'.xlsx');
 }
 
-// Export single event from admin panel (reads Firebase directly)
 function xEvt(id,name){
   db.ref('records').orderByChild('evtId').equalTo(id).once('value').then(function(snap){
-    var recs=[];
-    snap.forEach(function(c){ recs.push(c.val()); });
-    if(!recs.length){ alert('لا توجد سجلات لهذه الفعالية'); return; }
-    var wb=XLSX.utils.book_new();
-    buildSheet(wb, recs, name);
-    XLSX.writeFile(wb, 'كشف_'+name.slice(0,18)+'_'+today()+'.xlsx');
-  }).catch(function(e){ errMsg(e.message); });
+    var recs=[];snap.forEach(function(c){recs.push(c.val());});
+    if(!recs.length){alert('لا توجد سجلات');return;}
+    var wb=XLSX.utils.book_new();buildSheet(wb,recs,name);
+    XLSX.writeFile(wb,'كشف_'+name.slice(0,18)+'_'+today()+'.xlsx');
+  }).catch(function(e){errMsg(e.message);});
 }
 
 function doCSV(){
-  if(!allRecs.length){ alert('لا توجد بيانات — افتح تبويب السجلات أولاً'); return; }
-  var filtered = filt==='all' ? allRecs : allRecs.filter(function(r){ return r.evtId===filt; });
-  if(!filtered.length){ alert('لا توجد بيانات'); return; }
-  var rows=[['الترتيب','الرقم الأكاديمي','اسم الفعالية','التاريخ','الوقت','التاريخ والوقت','عنوان IP','بصمة الجهاز']];
-  var sorted=[].concat(filtered).sort(function(a,b){ return (a.dt||'').localeCompare(b.dt||''); });
-  sorted.forEach(function(r,i){
-    rows.push([
-      i===0?'الأول':i===1?'الثاني':i===2?'الثالث':(i+1)+'',
-      r.num, '"'+r.evtName+'"', r.date, r.time, '"'+(r.dt||'')+'"', r.ip||'', r.fp||''
-    ]);
-  });
-  var blob=new Blob(['\uFEFF'+rows.map(function(r){ return r.join(','); }).join('\n')],{type:'text/csv;charset=utf-8'});
-  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='كشف_'+today()+'.csv'; a.click();
+  if(!allRecs.length){alert('لا توجد بيانات');return;}
+  var filtered=filt==='all'?allRecs:allRecs.filter(function(r){return r.evtId===filt;});
+  var modeLabels={entry:'دخول',exit:'خروج',return:'عودة'};
+  var sorted=[].concat(filtered).sort(function(a,b){return (a.dt||'').localeCompare(b.dt||'');});
+  var rows=[['الترتيب','الرقم الأكاديمي','اسم الفعالية','نوع التسجيل','التاريخ','الوقت','التاريخ والوقت','عنوان IP','بصمة الجهاز']];
+  sorted.forEach(function(r,i){rows.push([i===0?'الأول':i===1?'الثاني':i===2?'الثالث':(i+1)+'',r.num,'"'+r.evtName+'"',modeLabels[r.mode]||'دخول',r.date,r.time,'"'+(r.dt||'')+'"',r.ip||'',r.fp||'']);});
+  var blob=new Blob(['\uFEFF'+rows.map(function(r){return r.join(',');}).join('\n')],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='كشف_'+today()+'.csv';a.click();
 }
 
 function doClear(){
-  var toDelete = filt==='all' ? allRecs : allRecs.filter(function(r){ return r.evtId===filt; });
-  toDelete.forEach(function(r){ db.ref('records/'+r.id).remove(); });
+  var toDelete=filt==='all'?allRecs:allRecs.filter(function(r){return r.evtId===filt;});
+  toDelete.forEach(function(r){db.ref('records/'+r.id).remove();});
   if(filt!=='all') db.ref('devices/'+filt).remove();
   else db.ref('devices').remove();
-  hideM('m-clr');
-  setTimeout(loadRecs, 600);
+  hideM('m-clr');setTimeout(loadRecs,600);
 }
 
 // ══ BOOT ══════════════════════════════════════════
@@ -711,14 +796,15 @@ function doClear(){
   var p=new URLSearchParams(location.search);
   if(p.get('m')==='s'){
     aCfg={
-      id     : p.get('id'),
-      name   : p.get('n')||'فعالية',
-      lat    : parseFloat(p.get('la')),
-      lng    : parseFloat(p.get('lo')),
-      radius : parseInt(p.get('r'))||300
+      id    :p.get('id'),
+      name  :p.get('n')||'فعالية',
+      lat   :parseFloat(p.get('la')),
+      lng   :parseFloat(p.get('lo')),
+      radius:parseInt(p.get('r'))||300,
+      mode  :p.get('mode')||MODE_ENTRY
     };
-    document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('on'); });
-    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('on'); });
+    document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on');});
+    document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
     document.getElementById('vw-student').classList.add('on');
     document.querySelectorAll('.tab')[1].classList.add('on');
     startGeo();
