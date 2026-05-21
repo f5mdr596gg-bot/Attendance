@@ -174,6 +174,23 @@ tr:hover td{background:#f8fafc}
 .sec{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin:4px 0 11px;display:flex;align-items:center;gap:7px}
 .sec::after{content:'';flex:1;height:1px;background:var(--border)}
 .loading{text-align:center;padding:30px;color:var(--muted);font-size:13px}
+/* PENDING REQUEST CARDS */
+.pend-card{background:#fff;border:2px solid #fcd34d;border-radius:12px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 12px rgba(217,119,6,.15);animation:slideIn .3s ease}
+@keyframes slideIn{from{transform:translateY(-8px);opacity:0}to{transform:translateY(0);opacity:1}}
+.pend-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.pend-num{font-size:20px;font-weight:900;color:var(--navy);letter-spacing:2px}
+.pend-time{font-size:11px;color:var(--muted)}
+.pend-evt{font-size:12px;color:var(--muted);margin-bottom:10px}
+.pend-btns{display:flex;gap:8px}
+.pend-btns .btn{flex:1;padding:10px}
+/* WAITING SCREEN */
+.waiting{text-align:center;padding:28px 16px}
+.waiting-ic{font-size:52px;margin-bottom:12px;animation:bounce 1.5s infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.waiting h3{font-size:17px;font-weight:900;color:var(--gold);margin-bottom:8px}
+.waiting p{font-size:12px;color:var(--muted);line-height:1.8}
+.waiting-dots::after{content:'...';animation:dots 1.5s steps(4,end) infinite}
+@keyframes dots{0%,20%{content:'.'}40%{content:'..'}60%,100%{content:'...'}}
 .spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin-left:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:480px){
@@ -220,6 +237,11 @@ tr:hover td{background:#f8fafc}
       <button class="btn bp" id="create-btn" onclick="doCreate()">📲 إنشاء الفعالية وباركوداتها</button>
     </div>
   </div>
+  <!-- PENDING RETURN REQUESTS -->
+  <div id="pending-wrap" style="display:none">
+    <div class="sec">⏳ طلبات العودة المعلّقة</div>
+    <div id="pending-list"></div>
+  </div>
   <div class="sec">الفعاليات النشطة</div>
   <div id="evts-wrap"><div class="loading"><div class="spinner"></div> جاري التحميل...</div></div>
 </div>
@@ -244,6 +266,12 @@ tr:hover td{background:#f8fafc}
       <button class="btn" id="s-btn" onclick="doSub()">✅ تسجيل الحضور</button>
     </div>
     <div id="s-closed" style="display:none" class="closed"><div style="font-size:56px;margin-bottom:12px">🔒</div><h3>التسجيل موقوف</h3><p>أوقف المشرف التسجيل مؤقتاً.</p></div>
+    <div id="s-waiting" style="display:none" class="waiting">
+      <div class="waiting-ic">⏳</div>
+      <h3>في انتظار موافقة المشرف<span class="waiting-dots"></span></h3>
+      <p>تم إرسال طلب عودتك للمشرف<br>يرجى الانتظار حتى الموافقة</p>
+      <div style="margin-top:16px;padding:12px;background:var(--gld);border-radius:10px;font-size:13px;font-weight:700;color:var(--gold)">الرقم الأكاديمي: <strong id="waiting-num"></strong></div>
+    </div>
   </div></div>
 </div>
 
@@ -302,6 +330,7 @@ tr:hover td{background:#f8fafc}
 <div class="ov" id="m-dup"><div class="md"><div class="md-ic">⚠️</div><h3 style="color:var(--gold)">مسجّل مسبقاً</h3><p>هذا الرقم الأكاديمي سبق تسجيله في هذه العملية.</p><div class="md-act"><button class="btn bo" onclick="hideM('m-dup')">حسناً</button></div></div></div>
 <div class="ov" id="m-del"><div class="md"><div class="md-ic">🗑️</div><h3>حذف الفعالية؟</h3><p>سيتم حذف الفعالية وجميع سجلاتها.</p><div class="md-act"><button class="btn bo" onclick="hideM('m-del')">إلغاء</button><button class="btn" id="m-del-ok" style="background:var(--red);color:#fff;flex:1">حذف</button></div></div></div>
 <div class="ov" id="m-clr"><div class="md"><div class="md-ic">🗑️</div><h3>حذف جميع السجلات؟</h3><p>سيتم حذف كل بيانات الحضور.</p><div class="md-act"><button class="btn bo" onclick="hideM('m-clr')">إلغاء</button><button class="btn" onclick="doClear()" style="background:var(--red);color:#fff;flex:1">حذف نهائي</button></div></div></div>
+<div class="ov" id="m-rejected"><div class="md"><div class="md-ic">❌</div><h3 style="color:var(--red)">تم رفض طلب العودة</h3><p id="m-rej-p">رفض المشرف طلب عودتك. يرجى التواصل معه مباشرة.</p><div class="md-act"><button class="btn br" onclick="hideM('m-rejected')">حسناً</button></div></div></div>
 <div class="ov" id="m-err"><div class="md"><div class="md-ic">❌</div><h3>خطأ في الاتصال</h3><p id="m-err-p">تعذّر الاتصال بقاعدة البيانات.</p><div class="md-act"><button class="btn bo" onclick="hideM('m-err')">حسناً</button></div></div></div>
 
 <script>
@@ -376,7 +405,7 @@ function goTab(n,btn){
   document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
   document.getElementById('vw-'+n).classList.add('on');
   btn.classList.add('on');
-  if(n==='admin'){if(!amap)setTimeout(initMap,200);loadEvts();}
+  if(n==='admin'){if(!amap)setTimeout(initMap,200);loadEvts();startPendingListener();}
   if(n==='records') loadRecs();
   if(n==='student'&&aCfg) startGeo();
 }
@@ -471,6 +500,64 @@ function showQRPanel(evt){
 }
 
 // ══ EVENTS LIST ═══════════════════════════════════
+// ══ PENDING RETURN REQUESTS (Real-time) ════════════
+var pendingListener = null;
+
+function startPendingListener(){
+  if(pendingListener) return; // already listening
+  var ref = db.ref('return_requests').orderByChild('status').equalTo('pending');
+  pendingListener = ref.on('value', function(snap){
+    var reqs = [];
+    snap.forEach(function(c){ var r=c.val(); r.id=c.key; reqs.push(r); });
+    var wrap = document.getElementById('pending-wrap');
+    var list = document.getElementById('pending-list');
+    if(!reqs.length){
+      wrap.style.display='none';
+      list.innerHTML='';
+      return;
+    }
+    wrap.style.display='block';
+    list.innerHTML = reqs.map(function(r){
+      return '<div class="pend-card" id="pc-'+r.id+'">'+
+        '<div class="pend-top">'+
+          '<div class="pend-num">'+r.num+'</div>'+
+          '<div class="pend-time">'+r.time+'</div>'+
+        '</div>'+
+        '<div class="pend-evt">📋 '+r.evtName+'</div>'+
+        '<div class="pend-btns">'+
+          '<button class="btn bg" onclick="approveReturn(''+r.id+'',''+r.num+'',''+r.evtId+'',''+r.evtName.replace(/'/g,"\'")+'')">✅ موافقة</button>'+
+          '<button class="btn br" onclick="rejectReturn(''+r.id+'')">❌ رفض</button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  });
+}
+
+function approveReturn(reqId, num, evtId, evtName){
+  // Save return record
+  var rec={num:num,evtId:evtId,evtName:evtName,mode:'return',date:today(),time:nowTime(),dt:nowDT(),ip:'تمت الموافقة من المشرف',fp:'admin-approved'};
+  var updates={};
+  updates['records/'+db.ref('records').push().key]=rec;
+  updates['return_requests/'+reqId+'/status']='approved';
+  updates['return_requests/'+reqId+'/approvedAt']=nowDT();
+  db.ref().update(updates).then(function(){
+    var card=document.getElementById('pc-'+reqId);
+    if(card){ card.style.borderColor='var(--green)'; card.style.background='var(--grn)'; card.innerHTML='<div style="text-align:center;padding:8px;font-weight:800;color:var(--green)">✅ تمت الموافقة — '+num+'</div>'; }
+    setTimeout(function(){ if(card) card.remove(); loadEvts(); }, 2000);
+  }).catch(function(e){ errMsg(e.message); });
+}
+
+function rejectReturn(reqId){
+  var updates={};
+  updates['return_requests/'+reqId+'/status']='rejected';
+  updates['return_requests/'+reqId+'/rejectedAt']=nowDT();
+  db.ref().update(updates).then(function(){
+    var card=document.getElementById('pc-'+reqId);
+    if(card){ card.style.borderColor='var(--red)'; card.style.background='var(--redd)'; card.innerHTML='<div style="text-align:center;padding:8px;font-weight:800;color:var(--red)">❌ تم الرفض</div>'; }
+    setTimeout(function(){ if(card) card.remove(); }, 1500);
+  }).catch(function(e){ errMsg(e.message); });
+}
+
 function loadEvts(){
   var w=document.getElementById('evts-wrap');
   w.innerHTML='<div class="loading"><div class="spinner"></div> جاري التحميل...</div>';
@@ -641,16 +728,69 @@ function doSub(){
         inp.value='';
         return;
       }
-      // Check duplicate exit/return
-      var dup=false;
-      snap.forEach(function(c){if(c.val().num===num&&c.val().mode===mode)dup=true;});
-      if(dup){
-        // For exit/return allow multiple (student may exit/return more than once)
-        // Just save it
+      // EXIT: save directly
+      if(mode==='exit'){
+        saveRecord(num,mode,fp,inp);
+        return;
       }
-      saveRecord(num,mode,fp,inp);
+      // RETURN: send approval request to admin
+      sendReturnRequest(num,fp,inp);
     }).catch(function(e){inp.disabled=false;errMsg(e.message);});
   }
+}
+
+// ══ RETURN REQUEST (Student sends → Admin approves) ═════
+var returnReqListener = null;
+
+function sendReturnRequest(num, fp, inp){
+  inp.disabled = false;
+  // Show waiting screen
+  document.getElementById('s-form').style.display = 'none';
+  document.getElementById('s-waiting').style.display = 'block';
+  document.getElementById('waiting-num').textContent = num;
+  setSt('s-gst','sl','⏳','في انتظار موافقة المشرف...');
+
+  // Fetch IP then create request
+  fetch('https://api.ipify.org?format=json')
+    .then(function(r){ return r.json(); }).catch(function(){ return {ip:'غير متاح'}; })
+    .then(function(ipData){
+      var reqData = {
+        num: num, evtId: aCfg.id, evtName: aCfg.name,
+        status: 'pending', date: today(), time: nowTime(), dt: nowDT(),
+        ip: ipData.ip||'غير متاح', fp: fp
+      };
+      db.ref('return_requests').push(reqData).then(function(ref){
+        var reqId = ref.key;
+        // Listen for admin decision
+        if(returnReqListener) returnReqListener();
+        returnReqListener = db.ref('return_requests/'+reqId+'/status').on('value', function(snap){
+          var status = snap.val();
+          if(status === 'approved'){
+            returnReqListener();
+            returnReqListener = null;
+            document.getElementById('s-waiting').style.display = 'none';
+            document.getElementById('ok-ic').textContent = '✅';
+            document.getElementById('ok-ttl').textContent = 'تمت الموافقة على عودتك!';
+            document.getElementById('ok-ttl').style.color = 'var(--green)';
+            document.getElementById('ok-msg').innerHTML = 'وافق المشرف على طلب عودتك<br>الرقم: <strong>'+num+'</strong>';
+            showM('m-ok');
+            setSt('s-gst','so','✅','تمت الموافقة على العودة');
+          } else if(status === 'rejected'){
+            returnReqListener();
+            returnReqListener = null;
+            document.getElementById('s-waiting').style.display = 'none';
+            document.getElementById('m-rej-p').textContent = 'رفض المشرف طلب عودة الرقم: '+num+'. يرجى التواصل معه مباشرة.';
+            showM('m-rejected');
+            setSt('s-gst','sf','❌','تم رفض طلب العودة');
+            // Show form again so student can try different number
+            setTimeout(function(){
+              document.getElementById('s-form').style.display = 'block';
+              document.getElementById('s-num').value = '';
+            }, 500);
+          }
+        });
+      }).catch(function(e){ errMsg(e.message); });
+    });
 }
 
 function saveRecord(num,mode,fp,inp){
@@ -809,6 +949,7 @@ function doClear(){
     startGeo();
   } else {
     loadEvts();
+    startPendingListener();
     setTimeout(initMap,300);
   }
 })();
