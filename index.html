@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
@@ -44,6 +45,7 @@ body{font-family:'Cairo',sans-serif;background:#f0f4f8;color:#1e293b;min-height:
 .inp-c{direction:ltr;text-align:center}
 .inp-big{font-size:26px!important;font-weight:900!important;letter-spacing:4px;padding:14px!important;background:#f0f6ff!important}
 .inp-big::placeholder{font-size:13px;letter-spacing:1px;color:#94a3b8}
+.inp-email{direction:ltr!important;text-align:left!important;font-size:14px!important;letter-spacing:0!important}
 .btn{width:100%;padding:12px;border:none;border-radius:10px;font-family:Cairo,sans-serif;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s}
 .btn:disabled{opacity:.6;cursor:not-allowed}
 .bp{background:linear-gradient(135deg,#1648c0,#1a56db);color:#fff;box-shadow:0 4px 14px rgba(26,86,219,.22)}
@@ -205,6 +207,11 @@ tr:hover td{background:#f8fafc}
         <label style="text-align:center;display:block;font-size:13px" id="s-inp-lbl">الرقم الأكاديمي</label>
         <input id="s-num" class="inp inp-c inp-big" type="text" inputmode="numeric" maxlength="12" placeholder="أدخل رقمك" oninput="this.value=this.value.replace(/\D/g,'')" onkeydown="if(event.key==='Enter')doSub()">
       </div>
+      <div class="fl" id="email-field-wrap">
+        <label style="text-align:center;display:block;font-size:13px">البريد الإلكتروني</label>
+        <input id="s-email" class="inp inp-email" type="email" inputmode="email" placeholder="example@email.com">
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;text-align:center">سيصلك تأكيد التسجيل ورابط الخروج/العودة</div>
+      </div>
       <button class="btn bg" id="s-btn" onclick="doSub()">✅ تسجيل الحضور</button>
     </div>
     <div id="s-closed" style="display:none;text-align:center;padding:30px">
@@ -290,6 +297,31 @@ tr:hover td{background:#f8fafc}
 <div class="ov" id="m-err"><div class="md"><div class="md-ic">❌</div><h3>خطأ</h3><p id="m-err-p">تعذّر الاتصال.</p><div class="md-act"><button class="btn bo" onclick="hideM('m-err')">حسناً</button></div></div></div>
 
 <script>
+// ══ EMAILJS ══
+(function(){
+  try{ emailjs.init('1zYWcK8w4IOUY_ltl'); }catch(e){ console.log('EmailJS init error',e); }
+})();
+
+var EJS_SERVICE  = 'service_cjyq7cd';
+var EJS_TEMPLATE = 'template_uqyzyrm';
+
+function sendConfirmEmail(toEmail, studentId, evtName, regTime, attendanceLink){
+  if(!toEmail || toEmail.indexOf('@') === -1) return;
+  try{
+    emailjs.send(EJS_SERVICE, EJS_TEMPLATE, {
+      to_email       : toEmail,
+      student_id     : studentId,
+      event_name     : evtName,
+      reg_time       : regTime,
+      attendance_link: attendanceLink
+    }).then(function(){
+      console.log('Email sent OK');
+    }).catch(function(e){
+      console.log('Email error:', e);
+    });
+  }catch(e){ console.log('EmailJS send error',e); }
+}
+
 // ══ FIREBASE ══
 firebase.initializeApp({
   apiKey:"AIzaSyDEuTcHorgbRaZaJWz7SsB1lLDS129HTc8",
@@ -535,38 +567,52 @@ var pendRef=null;
 function startPendingListener(){
   if(pendRef)return;
   try{
-    pendRef=db.ref('return_requests');
-    pendRef.on('value',function(snap){
-      var reqs=[];
-      snap.forEach(function(c){var r=c.val();r.id=c.key;if(r.status==='pending')reqs.push(r);});
-      var sec=document.getElementById('pending-section');
-      var list=document.getElementById('pending-list');
-      if(!sec||!list)return;
-      if(!reqs.length){sec.style.display='none';list.innerHTML='';return;}
-      sec.style.display='block';
-      var html='';
-      reqs.forEach(function(r){
-        html+='<div class="pend-card" id="pc-'+r.id+'">'+
-          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+
-            '<span style="font-size:20px;font-weight:900;color:var(--navy);letter-spacing:2px">'+r.num+'</span>'+
-            '<span style="font-size:11px;color:var(--muted)">'+r.time+'</span>'+
-          '</div>'+
-          '<div style="font-size:12px;color:var(--muted);margin-bottom:10px">📋 '+r.evtName+'</div>'+
-          '<div style="display:flex;gap:8px">'+
-            '<button class="btn bg" style="flex:1;padding:10px" onclick="approveReturn(\''+r.id+'\',\''+r.num+'\',\''+r.evtId+'\',\''+r.evtName.replace(/'/g,"\\'")+'\')">✅ موافقة</button>'+
-            '<button class="btn br" style="flex:1;padding:10px" onclick="rejectReturn(\''+r.id+'\')">❌ رفض</button>'+
-          '</div>'+
-        '</div>';
+    function renderPending(){
+      Promise.all([
+        db.ref('return_requests').once('value'),
+        db.ref('exit_requests').once('value')
+      ]).then(function(results){
+        var reqs=[];
+        results[0].forEach(function(c){var r=c.val();r.id=c.key;r._src='return_requests';r._type=r.type||'return';if(r.status==='pending')reqs.push(r);});
+        results[1].forEach(function(c){var r=c.val();r.id=c.key;r._src='exit_requests';if(r.status==='pending')reqs.push(r);});
+        var sec=document.getElementById('pending-section');
+        var list=document.getElementById('pending-list');
+        if(!sec||!list)return;
+        if(!reqs.length){sec.style.display='none';list.innerHTML='';return;}
+        sec.style.display='block';
+        var html='';
+        reqs.forEach(function(r){
+          var isExit=r.type==='exit';
+          var lbl=isExit?'🚪 طلب خروج مؤقت (5 دقائق)':'↩️ طلب عودة';
+          var bc=isExit?'#fca5a5':'#fcd34d';
+          html+='<div class="pend-card" id="pc-'+r.id+'" style="border-color:'+bc+'">'+
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
+              '<span style="font-size:18px;font-weight:900;color:var(--navy);letter-spacing:2px">'+r.num+'</span>'+
+              '<span style="font-size:11px;color:var(--muted)">'+r.time+'</span>'+
+            '</div>'+
+            '<div style="font-size:11px;font-weight:800;color:'+(isExit?'var(--red)':'var(--purple)')+';margin-bottom:4px">'+lbl+'</div>'+
+            '<div style="font-size:11px;color:var(--muted);margin-bottom:10px">📋 '+r.evtName+'</div>'+
+            '<div style="display:flex;gap:8px">'+
+              '<button class="btn bg" style="flex:1;padding:10px" onclick="approvePend(''+r.id+'',''+r._src+'',''+r.num+'',''+r.evtId+'',''+r.evtName.replace(/'/g,"\'")+'',''+r.type+'')">✅ موافقة</button>'+
+              '<button class="btn br" style="flex:1;padding:10px" onclick="rejectPend(''+r.id+'',''+r._src+'')">❌ رفض</button>'+
+            '</div>'+
+          '</div>';
+        });
+        list.innerHTML=html;
       });
-      list.innerHTML=html;
-    });
-  }catch(e){console.log('pending listener error',e);}
+    }
+    pendRef=db.ref('return_requests');
+    pendRef.on('value',renderPending);
+    db.ref('exit_requests').on('value',renderPending);
+  }catch(e){console.log('pending error',e);}
 }
 
-function approveReturn(reqId,num,evtId,evtName){
+function approvePend(reqId,src,num,evtId,evtName,type){
   var updates={};
-  updates['records/'+db.ref('records').push().key]={num:num,evtId:evtId,evtName:evtName,mode:M_RETURN,date:today(),time:nowTime(),dt:nowDT(),ip:'موافقة المشرف',fp:'admin'};
-  updates['return_requests/'+reqId+'/status']='approved';
+  updates[src+'/'+reqId+'/status']='approved';
+  if(src==='return_requests'||type==='return'){
+    updates['records/'+db.ref('records').push().key]={num:num,evtId:evtId,evtName:evtName,mode:M_RETURN,date:today(),time:nowTime(),dt:nowDT(),ip:'موافقة المشرف',fp:'admin'};
+  }
   db.ref().update(updates).then(function(){
     var c=document.getElementById('pc-'+reqId);
     if(c){c.style.borderColor='var(--green)';c.style.background='var(--grn)';c.innerHTML='<div style="text-align:center;padding:8px;font-weight:800;color:var(--green)">✅ تمت الموافقة — '+num+'</div>';}
@@ -574,9 +620,12 @@ function approveReturn(reqId,num,evtId,evtName){
   }).catch(function(e){errMsg(e.message);});
 }
 
-function rejectReturn(reqId){
-  db.ref('return_requests/'+reqId+'/status').set('rejected').catch(function(e){errMsg(e.message);});
+function rejectPend(reqId,src){
+  db.ref(src+'/'+reqId+'/status').set('rejected').catch(function(e){errMsg(e.message);});
 }
+
+
+// approveReturn/rejectReturn replaced by approvePend/rejectPend
 
 // ══ STUDENT ══
 var aCfg=null,retReqRef=null;
@@ -658,8 +707,22 @@ function doSub(){
   var num=document.getElementById('s-num').value.trim();
   var inp=document.getElementById('s-num');
   if(!num||num.length<4){inp.style.borderColor='var(--red)';inp.focus();return;}
-  inp.disabled=true;
+
+  // Email only required for entry mode
   var mode=aCfg.mode||M_ENTRY;
+  var emailInp=document.getElementById('s-email');
+  var studentEmail='';
+  if(mode===M_ENTRY && emailInp){
+    studentEmail=emailInp.value.trim();
+    if(!studentEmail||studentEmail.indexOf('@')===-1){
+      emailInp.style.borderColor='var(--red)';
+      emailInp.focus();
+      return;
+    }
+    emailInp.style.borderColor='var(--blue)';
+  }
+
+  inp.disabled=true;
   var fp=getFP();
 
   if(mode===M_ENTRY){
@@ -670,7 +733,7 @@ function doSub(){
         var dup=false;
         snap.forEach(function(c){if(c.val().num===num&&c.val().mode===M_ENTRY)dup=true;});
         if(dup){inp.disabled=false;showM('m-dup');return;}
-        saveRec(num,mode,fp,inp);
+        saveRec(num,mode,fp,inp,studentEmail);
       }).catch(function(e){inp.disabled=false;errMsg(e.message);});
     }).catch(function(e){inp.disabled=false;errMsg(e.message);});
 
@@ -700,23 +763,32 @@ function doSub(){
   }
 }
 
-function saveRec(num,mode,fp,inp){
+function saveRec(num,mode,fp,inp,studentEmail){
   setLock(aCfg.id,mode);
   fetch('https://api.ipify.org?format=json')
     .then(function(r){return r.json();}).catch(function(){return{ip:'غير متاح'};})
     .then(function(ipData){
       var updates={};
       var key=db.ref('records').push().key;
-      updates['records/'+key]={num:num,evtId:aCfg.id,evtName:aCfg.name,mode:mode,date:today(),time:nowTime(),dt:nowDT(),ip:ipData.ip||'غير متاح',fp:fp};
-      if(mode===M_ENTRY)updates['devices/'+aCfg.id+'/'+fp]=true;
+      var rec={num:num,evtId:aCfg.id,evtName:aCfg.name,mode:mode,date:today(),time:nowTime(),dt:nowDT(),ip:ipData.ip||'غير متاح',fp:fp};
+      if(studentEmail) rec.email=studentEmail;
+      updates['records/'+key]=rec;
+      if(mode===M_ENTRY) updates['devices/'+aCfg.id+'/'+fp]=true;
       db.ref().update(updates).then(function(){
-        var lbl={entry:{ic:'✅',ttl:'تم تسجيل الدخول!',msg:'مرحباً بك'},exit:{ic:'🚪',ttl:'تم تسجيل الخروج!',msg:'تم رصد مغادرتك'}};
+        // Send confirmation email for entry
+        if(mode===M_ENTRY && studentEmail){
+          var base=location.href.split('?')[0];
+          var attendLink=base+'?action=manage&rid='+key+'&eid='+encodeURIComponent(aCfg.id)+'&n='+encodeURIComponent(num)+'&evt='+encodeURIComponent(aCfg.name);
+          sendConfirmEmail(studentEmail, num, aCfg.name, nowDT(), attendLink);
+        }
+        var lbl={entry:{ic:'✅',ttl:'تم تسجيل الدخول!',msg:'تم إرسال تأكيد على بريدك الإلكتروني'},exit:{ic:'🚪',ttl:'تم تسجيل الخروج!',msg:'تم رصد مغادرتك'}};
         var l=lbl[mode]||lbl.entry;
         document.getElementById('ok-ic').textContent=l.ic;
         document.getElementById('ok-ttl').textContent=l.ttl;
         document.getElementById('ok-msg').innerHTML=l.msg+'<br><strong>'+num+'</strong><br><small style="color:var(--muted)">'+nowDT()+'</small>';
         showM('m-ok');
         inp.value='';inp.disabled=false;
+        if(document.getElementById('s-email')) document.getElementById('s-email').value='';
         document.getElementById('s-form').style.display='none';
         setSt('s-gst','so','✅','تم التسجيل — الرقم: '+num);
       }).catch(function(e){inp.disabled=false;errMsg(e.message);});
@@ -927,10 +999,168 @@ function doClear(){
   hideM('m-clr');setTimeout(loadRecs,600);
 }
 
+// ══ MANAGE SCREEN (email link) ══
+function showManageScreen(recId, evtId, studentNum, evtName){
+  // Hide all views and tabs
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on');});
+  document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
+
+  // Build manage screen
+  var wrap=document.createElement('div');
+  wrap.style.cssText='max-width:400px;margin:30px auto;padding:20px';
+  wrap.innerHTML=
+    '<div style="background:linear-gradient(135deg,#0d2240,#1a3560);border-radius:14px;padding:24px;text-align:center;color:#fff;margin-bottom:16px">'+
+      '<div style="font-size:40px;margin-bottom:8px">🎓</div>'+
+      '<h2 style="font-size:18px;font-weight:900;margin-bottom:4px">'+evtName+'</h2>'+
+      '<p style="font-size:12px;opacity:.6">الرقم الأكاديمي: '+studentNum+'</p>'+
+    '</div>'+
+    '<div id="manage-status" style="background:#fff;border:1px solid #dde4ee;border-radius:12px;padding:20px;text-align:center">'+
+      '<div class="spinner" style="margin:0 auto 12px"></div>'+
+      '<p style="color:#64748b;font-size:13px">جاري التحقق من حالتك...</p>'+
+    '</div>';
+  document.body.appendChild(wrap);
+
+  // Check current status from records
+  db.ref('records').orderByChild('evtId').equalTo(evtId).once('value').then(function(snap){
+    var records=[];
+    snap.forEach(function(c){var r=c.val();r.id=c.key;records.push(r);});
+    var myRecs=records.filter(function(r){return r.num===studentNum;});
+
+    // Get last record
+    myRecs.sort(function(a,b){return (a.dt||'').localeCompare(b.dt||'');});
+    var last=myRecs[myRecs.length-1];
+    var lastMode=last?last.mode:null;
+
+    var ms=document.getElementById('manage-status');
+
+    if(!last||lastMode===M_EXIT){
+      // Either never registered or currently outside — show return option
+      if(!last){
+        ms.innerHTML='<div style="font-size:40px;margin-bottom:10px">❌</div><p style="font-weight:800;color:#dc2626">لم يتم تسجيل دخولك في هذه الفعالية</p>';
+      } else {
+        // Outside — show return request
+        var exitTime=last.dt||last.time;
+        var now=new Date();
+        ms.innerHTML=
+          '<div style="font-size:40px;margin-bottom:10px">🚶</div>'+
+          '<p style="font-size:14px;font-weight:800;color:#7c3aed;margin-bottom:8px">أنت خارج الفعالية حالياً</p>'+
+          '<p style="font-size:12px;color:#64748b;margin-bottom:16px">وقت الخروج: '+exitTime+'</p>'+
+          '<div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:12px;font-size:12px;color:#92400e;margin-bottom:16px">'+
+            '⚠️ توجّه للمشرف أولاً ثم اضغط الزر أدناه'+
+          '</div>'+
+          '<button class="btn bpu" onclick="reqReturn(''+recId+'',''+evtId+'',''+studentNum+'',''+evtName+'')">↩️ تسجيل العودة</button>';
+      }
+    } else if(lastMode===M_ENTRY||lastMode===M_RETURN){
+      // Inside — show exit request
+      ms.innerHTML=
+        '<div style="font-size:40px;margin-bottom:10px">✅</div>'+
+        '<p style="font-size:14px;font-weight:800;color:#059669;margin-bottom:8px">أنت داخل الفعالية</p>'+
+        '<p style="font-size:12px;color:#64748b;margin-bottom:16px">وقت الدخول: '+(last.dt||last.time)+'</p>'+
+        '<div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:12px;font-size:12px;color:#92400e;margin-bottom:16px">'+
+          '⚠️ توجّه للمشرف أولاً وأخبره برغبتك بالخروج، ثم اضغط الزر أدناه'+
+        '</div>'+
+        '<button class="btn br" onclick="reqExit(''+recId+'',''+evtId+'',''+studentNum+'',''+evtName+'')">🚪 طلب الخروج المؤقت</button>';
+    }
+  }).catch(function(){
+    document.getElementById('manage-status').innerHTML='<p style="color:var(--red)">⚠️ تعذّر الاتصال</p>';
+  });
+}
+
+// Request exit via manage screen
+var manageReqRef=null;
+function reqExit(recId,evtId,num,evtName){
+  var ms=document.getElementById('manage-status');
+  ms.innerHTML=
+    '<div class="waiting"><div class="waiting-ic">⏳</div>'+
+    '<h3 style="font-size:16px;font-weight:900;color:var(--gold);margin-bottom:8px">في انتظار موافقة المشرف</h3>'+
+    '<p style="font-size:12px;color:var(--muted)">تم إرسال طلب خروجك للمشرف<br>يرجى الانتظار...</p>'+
+    '<div style="margin-top:14px;padding:10px;background:var(--gld);border-radius:9px;font-size:12px;font-weight:700;color:var(--gold)">الرقم: <strong>'+num+'</strong></div>'+
+    '</div>';
+
+  db.ref('exit_requests').push({
+    num:num,evtId:evtId,evtName:evtName,recId:recId,
+    status:'pending',date:today(),time:nowTime(),dt:nowDT(),type:'exit'
+  }).then(function(ref){
+    if(manageReqRef)manageReqRef.off();
+    manageReqRef=db.ref('exit_requests/'+ref.key+'/status');
+    manageReqRef.on('value',function(snap){
+      var st=snap.val();
+      if(st==='approved'){
+        manageReqRef.off();manageReqRef=null;
+        // Save exit record
+        var updates={};
+        updates['records/'+db.ref('records').push().key]={num:num,evtId:evtId,evtName:evtName,mode:M_EXIT,date:today(),time:nowTime(),dt:nowDT(),ip:'رابط البريد',fp:'email-link'};
+        db.ref().update(updates);
+        ms.innerHTML=
+          '<div style="text-align:center;padding:20px">'+
+            '<div style="font-size:52px;margin-bottom:12px">✅</div>'+
+            '<h3 style="font-size:17px;font-weight:900;color:var(--green);margin-bottom:8px">تمت الموافقة على خروجك!</h3>'+
+            '<p style="font-size:12px;color:var(--muted);line-height:1.8">يمكنك الخروج الآن<br><strong style="color:var(--red)">⏱️ لديك 5 دقائق للعودة</strong></p>'+
+            '<div id="exit-timer" style="font-size:28px;font-weight:900;color:var(--red);margin:14px 0">05:00</div>'+
+            '<p style="font-size:11px;color:var(--muted)">استخدم نفس رابط البريد الإلكتروني عند عودتك</p>'+
+          '</div>';
+        // Start 5-min countdown
+        var secs=300;
+        var timer=setInterval(function(){
+          secs--;
+          var m=Math.floor(secs/60), s=secs%60;
+          var el=document.getElementById('exit-timer');
+          if(el) el.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+          if(secs<=0){clearInterval(timer);}
+        },1000);
+      } else if(st==='rejected'){
+        manageReqRef.off();manageReqRef=null;
+        ms.innerHTML='<div style="text-align:center;padding:20px"><div style="font-size:52px">❌</div><h3 style="font-size:17px;font-weight:900;color:var(--red)">تم رفض طلب الخروج</h3><p style="font-size:12px;color:var(--muted)">رفض المشرف طلبك. تواصل معه مباشرة.</p></div>';
+      }
+    });
+  }).catch(function(e){ms.innerHTML='<p style="color:var(--red)">⚠️ '+e.message+'</p>';});
+}
+
+// Request return via manage screen
+function reqReturn(recId,evtId,num,evtName){
+  var ms=document.getElementById('manage-status');
+  ms.innerHTML=
+    '<div class="waiting"><div class="waiting-ic">⏳</div>'+
+    '<h3 style="font-size:16px;font-weight:900;color:var(--gold);margin-bottom:8px">في انتظار موافقة المشرف</h3>'+
+    '<p style="font-size:12px;color:var(--muted)">تم إرسال طلب عودتك للمشرف<br>يرجى الانتظار...</p>'+
+    '</div>';
+
+  db.ref('exit_requests').push({
+    num:num,evtId:evtId,evtName:evtName,recId:recId,
+    status:'pending',date:today(),time:nowTime(),dt:nowDT(),type:'return'
+  }).then(function(ref){
+    if(manageReqRef)manageReqRef.off();
+    manageReqRef=db.ref('exit_requests/'+ref.key+'/status');
+    manageReqRef.on('value',function(snap){
+      var st=snap.val();
+      if(st==='approved'){
+        manageReqRef.off();manageReqRef=null;
+        var updates={};
+        updates['records/'+db.ref('records').push().key]={num:num,evtId:evtId,evtName:evtName,mode:M_RETURN,date:today(),time:nowTime(),dt:nowDT(),ip:'رابط البريد',fp:'email-link'};
+        db.ref().update(updates);
+        ms.innerHTML='<div style="text-align:center;padding:20px"><div style="font-size:52px">✅</div><h3 style="font-size:17px;font-weight:900;color:var(--green)">تمت الموافقة على عودتك!</h3><p style="font-size:12px;color:var(--muted)">مرحباً بعودتك للفعالية</p></div>';
+      } else if(st==='rejected'){
+        manageReqRef.off();manageReqRef=null;
+        ms.innerHTML='<div style="text-align:center;padding:20px"><div style="font-size:52px">❌</div><h3 style="font-size:17px;font-weight:900;color:var(--red)">تم رفض طلب العودة</h3><p style="font-size:12px;color:var(--muted)">رفض المشرف طلبك. تواصل معه مباشرة.</p></div>';
+      }
+    });
+  }).catch(function(e){ms.innerHTML='<p style="color:var(--red)">⚠️ '+e.message+'</p>';});
+}
+
 // ══ BOOT ══
 (function(){
   var p=new URLSearchParams(location.search);
-  if(p.get('m')==='s'){
+  if(p.get('action')==='manage'){
+    // Email link — show manage screen
+    var rid=p.get('rid')||'';
+    var eid=p.get('eid')||'';
+    var snum=p.get('n')||'';
+    var sevt=p.get('evt')||'فعالية';
+    // Hide top navigation for clean experience
+    document.querySelector('.top').style.display='none';
+    document.body.style.background='#f0f4f8';
+    showManageScreen(rid,eid,snum,sevt);
+  } else if(p.get('m')==='s'){
     aCfg={id:p.get('id'),name:p.get('n')||'فعالية',lat:parseFloat(p.get('la')),lng:parseFloat(p.get('lo')),radius:parseInt(p.get('r'))||300,mode:p.get('mode')||M_ENTRY};
     document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on');});
     document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
