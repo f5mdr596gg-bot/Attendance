@@ -6,7 +6,6 @@
 <title>نظام تسجيل حضور الفعاليات</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -269,11 +268,17 @@ tr:hover td{background:#f8fafc}
 <div class="ov" id="m-err"><div class="md"><div class="md-ic">❌</div><h3>خطأ</h3><p id="m-err-p">تعذّر الاتصال.</p><div class="md-act"><button class="btn bo" onclick="hideM('m-err')">حسناً</button></div></div></div>
 
 <script>
-try{emailjs.init('1zYWcK8w4IOUY_ltl');}catch(e){}
-var EJS_SVC='service_cjyq7cd',EJS_TPL='template_uqyzyrm';
+var GAS_URL='https://script.google.com/macros/s/AKfycbxpKrAZFdQHHNw3zvqlFiZGYdX357mXVlvJjbejrNceVhk0ZGJP0urig-mOG6FGjG0VHQ/exec';
 function sendEmail(to,sid,evt,dt,link){
   if(!to||to.indexOf('@')===-1)return;
-  try{emailjs.send(EJS_SVC,EJS_TPL,{to_email:to,student_id:sid,event_name:evt,reg_time:dt,attendance_link:link}).catch(function(e){console.log('email err',e);});}catch(e){console.log('email exc',e);}
+  try{
+    fetch(GAS_URL,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({to_email:to,student_id:sid,event_name:evt,reg_time:dt,attendance_link:link})
+    }).catch(function(e){console.log('email err',e);});
+  }catch(e){console.log('email exc',e);}
 }
 
 firebase.initializeApp({apiKey:"AIzaSyDEuTcHorgbRaZaJWz7SsB1lLDS129HTc8",authDomain:"attendance-system-48933.firebaseapp.com",databaseURL:"https://attendance-system-48933-default-rtdb.firebaseio.com",projectId:"attendance-system-48933",storageBucket:"attendance-system-48933.firebasestorage.app",messagingSenderId:"663442932094",appId:"1:663442932094:web:ed43fa69f8820c57b5f32f"});
