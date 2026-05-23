@@ -119,6 +119,25 @@ tr:hover td{background:#f8fafc}
 .spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin-left:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
 .manage-wrap{max-width:400px;margin:30px auto;padding:20px}
+/* VERIFICATION */
+.vr-card{background:linear-gradient(135deg,#1e40af,#1a56db);border-radius:14px;padding:18px;margin-bottom:14px;color:#fff}
+.vr-card h3{font-size:15px;font-weight:900;margin-bottom:12px}
+.vr-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.vr-sel{flex:1;padding:9px 12px;border:none;border-radius:9px;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;background:rgba(255,255,255,.15);color:#fff;outline:none;cursor:pointer}
+.vr-sel option{background:#1a56db;color:#fff}
+.vr-btn{padding:9px 16px;background:#fff;color:var(--blue);border:none;border-radius:9px;font-family:Cairo,sans-serif;font-size:13px;font-weight:900;cursor:pointer;white-space:nowrap}
+.vr-active{background:linear-gradient(135deg,#065f46,#059669);border-radius:14px;padding:16px;margin-bottom:14px;color:#fff}
+.vr-timer{font-size:32px;font-weight:900;text-align:center;margin:10px 0;letter-spacing:2px}
+.vr-count{text-align:center;font-size:13px;opacity:.8;margin-bottom:12px}
+.vr-result{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+.vr-result h4{font-size:13px;font-weight:800;margin-bottom:10px;color:var(--navy)}
+.vr-student{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:12px}
+.vr-student:last-child{border-bottom:none}
+.vr-present{color:var(--green);font-weight:800}
+.vr-absent{color:var(--red);font-weight:800}
+/* VERIFY SCREEN */
+.verify-wrap{max-width:400px;margin:30px auto;padding:20px}
+.verify-hdr{background:linear-gradient(135deg,#1e40af,#1a56db);border-radius:14px;padding:24px;text-align:center;color:#fff;margin-bottom:16px}
 @media(max-width:480px){.sg{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
@@ -142,6 +161,15 @@ tr:hover td{background:#f8fafc}
     <div class="cb">
       <div class="fl"><label>اسم الفعالية <em>*</em></label><input class="inp" id="a-name" type="text" placeholder="مثال: ملتقى التوظيف 2025"></div>
       <div class="sec">الموقع الجغرافي</div>
+      <div class="fl" style="display:flex;align-items:center;gap:14px;background:#f8fafc;border:1px solid var(--border);border-radius:9px;padding:10px 14px;margin-bottom:10px">
+        <span style="font-size:12px;font-weight:800;color:#475569">التحقق من الموقع:</span>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:700;color:var(--green)">
+          <input type="radio" name="geo-mode" id="geo-required" value="required" checked style="accent-color:var(--green)"> إلزامي
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:700;color:var(--muted)">
+          <input type="radio" name="geo-mode" id="geo-optional" value="optional" style="accent-color:var(--blue)"> اختياري
+        </label>
+      </div>
       <div class="sr">
         <input id="msearch" type="text" placeholder="ابحث عن الموقع..." onkeydown="if(event.key==='Enter')doSearch()">
         <button class="sbtn" onclick="doSearch()">🔍</button>
@@ -159,6 +187,7 @@ tr:hover td{background:#f8fafc}
       <button class="btn bp" id="create-btn" onclick="doCreate()">📲 إنشاء الفعالية وباركوداتها</button>
     </div>
   </div>
+  <div id="vr-section" style="margin-bottom:8px"></div>
   <div id="pending-section" style="display:none">
     <div class="sec">⏳ الطلبات المعلّقة</div>
     <div id="pending-list"></div>
@@ -188,7 +217,8 @@ tr:hover td{background:#f8fafc}
       </div>
       <button class="btn bg" id="s-btn" onclick="doSub()">✅ تسجيل الحضور</button>
     </div>
-    <div id="s-closed" style="display:none;text-align:center;padding:30px">
+    <!-- VERIFY SCREEN (injected dynamically) -->
+  <div id="s-closed" style="display:none;text-align:center;padding:30px">
       <div style="font-size:52px;margin-bottom:12px">🔒</div>
       <h3 style="font-size:18px;font-weight:900;color:var(--red);margin-bottom:7px">التسجيل موقوف</h3>
       <p style="font-size:12px;color:var(--muted)">أوقف المشرف التسجيل مؤقتاً.</p>
@@ -290,7 +320,16 @@ function isLocked(e,m){var k='lk_'+e+'_'+m;try{if(localStorage.getItem(k)==='1')
 function setLock(e,m){var k='lk_'+e+'_'+m;try{localStorage.setItem(k,'1');}catch(x){}try{sessionStorage.setItem(k,'1');}catch(x){}try{document.cookie=k+'=1;path=/;max-age=31536000';}catch(x){}}
 function today(){return new Date().toISOString().slice(0,10);}
 function nowTime(){return new Date().toTimeString().slice(0,5);}
-function nowDT(){return new Date().toLocaleString('ar-SA');}
+function nowDT(){
+  var d=new Date();
+  var yr=d.getFullYear();
+  var mo=String(d.getMonth()+1).padStart(2,'0');
+  var dy=String(d.getDate()).padStart(2,'0');
+  var hr=String(d.getHours()).padStart(2,'0');
+  var mn=String(d.getMinutes()).padStart(2,'0');
+  var sc=String(d.getSeconds()).padStart(2,'0');
+  return yr+'-'+mo+'-'+dy+' '+hr+':'+mn+':'+sc;
+}
 function calcDist(la1,lo1,la2,lo2){var R=6371000,f=Math.PI/180,x=Math.sin((la2-la1)*f/2),y=Math.sin((lo2-lo1)*f/2),a=x*x+Math.cos(la1*f)*Math.cos(la2*f)*y*y;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 function fmtD(d){return d<1000?Math.round(d)+' م':(d/1000).toFixed(1)+' كم';}
 function showM(id){document.getElementById(id).classList.add('on');}
@@ -303,7 +342,7 @@ function goTab(name,btn){
   document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
   document.getElementById('vw-'+name).classList.add('on');
   btn.classList.add('on');
-  if(name==='admin'){loadEvts();if(!amap)setTimeout(initMap,300);loadPending();}
+  if(name==='admin'){loadEvts();if(!amap)setTimeout(initMap,300);else setTimeout(function(){try{amap.invalidateSize();}catch(e){}},200);loadPending();setTimeout(function(){if(allEvtsList.length)renderVrSection(allEvtsList);},500);}
   if(name==='records'){loadRecs();}
   if(name==='sups'){loadSups();}
   if(name==='student'&&aCfg){startGeo();}
@@ -312,7 +351,12 @@ function goTab(name,btn){
 var amap=null,pin=null,circ=null,pLat=null,pLng=null,pRad=300;
 function initMap(){
   if(amap)return;
-  try{amap=L.map('amap').setView([24.7136,46.6753],12);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:19}).addTo(amap);amap.on('click',function(e){setPin(e.latlng.lat,e.latlng.lng);});}catch(e){console.log('map err',e);}
+  try{
+    amap=L.map('amap').setView([24.7136,46.6753],12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:19}).addTo(amap);
+    amap.on('click',function(e){setPin(e.latlng.lat,e.latlng.lng);});
+    setTimeout(function(){try{amap.invalidateSize();}catch(e){}},400);
+  }catch(e){console.log('map err',e);}
 }
 function setPin(lat,lng){
   pLat=lat;pLng=lng;
@@ -323,6 +367,7 @@ function setPin(lat,lng){
   circ=L.circle([lat,lng],{radius:pRad,color:'#1a56db',fillColor:'#1a56db',fillOpacity:.1,weight:2,dashArray:'5 4'}).addTo(amap);
   document.getElementById('crd-txt').innerHTML='<span style="color:var(--blue);font-weight:700">📍 '+lat.toFixed(5)+' , '+lng.toFixed(5)+'</span>';
   setSt('mst','so','✅','تم تحديد الموقع');
+  setTimeout(function(){try{amap.invalidateSize();}catch(e){}},100);
 }
 function updR(v){pRad=parseInt(v);document.getElementById('rval').textContent=v+' م';if(circ)try{circ.setRadius(pRad);}catch(e){}}
 function doSearch(){
@@ -337,7 +382,7 @@ function doCreate(){
   if(pLat===null){alert('يرجى تحديد الموقع على الخريطة أولاً');return;}
   var btn=document.getElementById('create-btn');
   btn.disabled=true;btn.textContent='⏳ جاري الحفظ...';
-  db.ref('events').push({name:name,lat:pLat,lng:pLng,radius:pRad,created:today(),active:true}).then(function(ref){
+  db.ref('events').push({name:name,lat:pLat,lng:pLng,radius:pRad,created:today(),active:true,geoRequired:(document.getElementById('geo-required').checked)}).then(function(ref){
     var evt={id:ref.key,name:name,lat:pLat,lng:pLng,radius:pRad};
     btn.disabled=false;btn.textContent='📲 إنشاء الفعالية وباركوداتها';
     document.getElementById('a-name').value='';pLat=null;pLng=null;
@@ -355,7 +400,7 @@ function showQRGrid(evt){
   var modes=[{mode:M_ENTRY,label:'🟢 دخول',color:'0d2240'},{mode:M_EXIT,label:'🔴 خروج',color:'7f1d1d'},{mode:M_RETURN,label:'🟣 عودة',color:'3b0764'}];
   var div=document.createElement('div');div.id='qr-grid-section';div.className='qr-grid-wrap';
   var html='<div style="font-size:13px;font-weight:800;margin-bottom:14px;color:var(--navy)">📲 باركودات: '+evt.name+'</div><div class="qr-grid">';
-  modes.forEach(function(m){var url=base+'?m=s&id='+encodeURIComponent(evt.id)+'&n='+encodeURIComponent(evt.name)+'&la='+evt.lat+'&lo='+evt.lng+'&r='+evt.radius+'&mode='+m.mode;html+='<div class="qr-item"><img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&color='+m.color+'&bgcolor=ffffff&data='+encodeURIComponent(url)+'" alt="QR"><div style="font-size:11px;font-weight:800;margin-top:6px">'+m.label+'</div></div>';});
+  modes.forEach(function(m){var gr=(evt.geoRequired===false)?'0':'1';var url=base+'?m=s&id='+encodeURIComponent(evt.id)+'&n='+encodeURIComponent(evt.name)+'&la='+evt.lat+'&lo='+evt.lng+'&r='+evt.radius+'&mode='+m.mode+'&gr='+gr;html+='<div class="qr-item"><img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&color='+m.color+'&bgcolor=ffffff&data='+encodeURIComponent(url)+'" alt="QR"><div style="font-size:11px;font-weight:800;margin-top:6px">'+m.label+'</div></div>';});
   html+='</div><button onclick="this.closest(\'.qr-grid-wrap\').remove()" style="width:100%;margin-top:12px;padding:9px;border:1.5px solid var(--border);border-radius:9px;background:#fff;font-family:Cairo,sans-serif;font-size:12px;font-weight:700;cursor:pointer;color:var(--muted)">✕ إغلاق</button>';
   div.innerHTML=html;document.getElementById('evts-wrap').before(div);div.scrollIntoView({behavior:'smooth'});
 }
@@ -369,6 +414,7 @@ function loadEvts(){
     var evts=[];snap.forEach(function(c){var e=c.val();e.id=c.key;evts.push(e);});
     if(!evts.length){w.innerHTML='<p style="text-align:center;color:var(--muted);font-size:12px;padding:16px">لا توجد فعاليات — أنشئ فعالية أولاً</p>';return;}
     renderEvts(evts,{});
+    try{renderVrSection(evts);}catch(e){console.log('vr err',e);}
     db.ref('records').once('value').then(function(rs){var c={};rs.forEach(function(r){var v=r.val();if(!c[v.evtId])c[v.evtId]={entry:0,exit:0,return:0};if(v.mode&&c[v.evtId][v.mode]!==undefined)c[v.evtId][v.mode]++;});renderEvts(evts,c);}).catch(function(){});
   }).catch(function(){clearTimeout(timer);w.innerHTML='<p style="text-align:center;color:var(--red);font-size:12px;padding:16px">⚠️ تعذّر التحميل</p>';});
 }
@@ -444,8 +490,14 @@ function startGeo(){
   db.ref('events/'+aCfg.id).once('value').then(function(snap){
     var ev=snap.val();
     if(!ev||ev.active===false){setSt('s-gst','sf','🔒','التسجيل موقوف حالياً');document.getElementById('s-closed').style.display='block';return;}
-    if(mode===M_ENTRY){db.ref('devices/'+aCfg.id+'/'+getFP()).once('value').then(function(ds){if(ds.val()){setLock(aCfg.id,M_ENTRY);setSt('s-gst','sf','📵','تم التسجيل مسبقاً من هذا الجهاز');showM('m-dev');return;}checkGeo();}).catch(function(){checkGeo();});}
-    else{checkGeo();}
+    if(mode===M_ENTRY){db.ref('devices/'+aCfg.id+'/'+getFP()).once('value').then(function(ds){if(ds.val()){setLock(aCfg.id,M_ENTRY);setSt('s-gst','sf','📵','تم التسجيل مسبقاً من هذا الجهاز');showM('m-dev');return;}
+      if(aCfg.geoReq===false){setSt('s-gst','so','✅','الموقع اختياري — يمكنك التسجيل');document.getElementById('s-form').style.display='block';setTimeout(function(){document.getElementById('s-num').focus();},200);}
+      else{checkGeo();}
+    }).catch(function(){checkGeo();});}
+    else{
+      if(aCfg.geoReq===false){setSt('s-gst','so','✅','الموقع اختياري');document.getElementById('s-form').style.display='block';}
+      else{checkGeo();}
+    }
   }).catch(function(){setSt('s-gst','sf','⚠️','تعذّر الاتصال بالإنترنت');});
 }
 
@@ -514,7 +566,23 @@ function saveRec(num,mode,fp,inp,sEmail){
 }
 
 function sendReturnReq(num,fp,inp){
-  inp.disabled=false;document.getElementById('s-form').style.display='none';document.getElementById('s-waiting').style.display='block';document.getElementById('waiting-num').textContent=num;setSt('s-gst','sl','⏳','في انتظار موافقة المشرف...');
+  inp.disabled=false;
+  // Check last status first
+  db.ref('records').orderByChild('evtId').equalTo(aCfg.id).once('value').then(function(snap){
+    var myRecs=[];
+    snap.forEach(function(c){var r=c.val();r.id=c.key;if(r.num===num)myRecs.push(r);});
+    myRecs.sort(function(a,b){return (a.dt||'').localeCompare(b.dt||'');});
+    var last=myRecs[myRecs.length-1];
+    if(!last||last.mode!=='exit'){
+      setSt('s-gst','sf','⚠️','أنت داخل الفعالية بالفعل — لا يمكن طلب عودة');
+      document.getElementById('s-form').style.display='block';
+      document.getElementById('s-num').value='';
+      return;
+    }
+    document.getElementById('s-form').style.display='none';
+    document.getElementById('s-waiting').style.display='block';
+    document.getElementById('waiting-num').textContent=num;
+    setSt('s-gst','sl','⏳','في انتظار موافقة المشرف...');
   fetch('https://api.ipify.org?format=json').then(function(r){return r.json();}).catch(function(){return{ip:'غير متاح'};}).then(function(ipData){
     db.ref('return_requests').push({num:num,evtId:aCfg.id,evtName:aCfg.name,status:'pending',date:today(),time:nowTime(),dt:nowDT(),ip:ipData.ip||'غير متاح',fp:fp}).then(function(ref){
       if(retReqRef)retReqRef.off();
@@ -526,6 +594,7 @@ function sendReturnReq(num,fp,inp){
       });
     }).catch(function(e){document.getElementById('s-waiting').style.display='none';document.getElementById('s-form').style.display='block';errMsg(e.message);});
   });
+  }).catch(function(e){errMsg(e.message);});
 }
 
 function showManageScreen(evtId,studentNum,evtName){
@@ -546,38 +615,137 @@ function showManageScreen(evtId,studentNum,evtName){
 
 var mReqRef=null;
 function manageReqExit(evtId,num,evtName){
-  var mb=document.getElementById('manage-body');mb.innerHTML='<div class="waiting"><div class="waiting-ic">⏳</div><h3 style="font-size:16px;font-weight:900;color:var(--gold);margin-bottom:8px">في انتظار موافقة المشرف</h3><p style="font-size:12px;color:var(--muted)">تم إرسال طلب خروجك<br>يرجى الانتظار...</p></div>';
-  fetch('https://api.ipify.org?format=json').then(function(r){return r.json();}).catch(function(){return{ip:'غير متاح'};}).then(function(ipData){
-    db.ref('exit_requests').push({num:num,evtId:evtId,evtName:evtName,status:'pending',type:'exit',date:today(),time:nowTime(),dt:nowDT(),ip:ipData.ip||'غير متاح'}).then(function(ref){
-      if(mReqRef)mReqRef.off();mReqRef=db.ref('exit_requests/'+ref.key+'/status');
-      mReqRef.on('value',function(snap){
-        var st=snap.val();
-        if(st==='approved'){
-          mReqRef.off();mReqRef=null;
-          var updates={};updates['records/'+db.ref('records').push().key]={num:num,evtId:evtId,evtName:evtName,mode:M_EXIT,date:today(),time:nowTime(),dt:nowDT(),ip:'رابط البريد',fp:'email-link'};db.ref().update(updates);
-          var secs=300;mb.innerHTML='<div style="text-align:center;padding:20px"><div style="font-size:52px;margin-bottom:12px">✅</div><h3 style="font-size:17px;font-weight:900;color:var(--green);margin-bottom:8px">تمت الموافقة على خروجك!</h3><p style="font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:14px">يمكنك الخروج الآن<br><strong style="color:var(--red)">⏱️ لديك 5 دقائق للعودة</strong></p><div id="exit-timer" style="font-size:32px;font-weight:900;color:var(--red);margin:12px 0">05:00</div><p style="font-size:11px;color:var(--muted)">استخدم نفس رابط البريد عند عودتك</p></div>';
-          var iv=setInterval(function(){secs--;var mm=Math.floor(secs/60),ss=secs%60;var el=document.getElementById('exit-timer');if(el)el.textContent=(mm<10?'0':'')+mm+':'+(ss<10?'0':'')+ss;if(secs<=0)clearInterval(iv);},1000);
-        } else if(st==='rejected'){mReqRef.off();mReqRef=null;mb.innerHTML='<div style="text-align:center;padding:20px"><div style="font-size:52px">❌</div><h3 style="font-size:17px;font-weight:900;color:var(--red)">تم رفض طلب الخروج</h3><p style="font-size:12px;color:var(--muted)">رفض المشرف طلبك.</p></div>';}
-      });
-    }).catch(function(e){mb.innerHTML='<p style="color:var(--red)">⚠️ '+e.message+'</p>';});
-  });
+  var mb=document.getElementById('manage-body');
+  db.ref('records').orderByChild('evtId').equalTo(evtId).once('value').then(function(snap){
+    var myRecs=[];
+    snap.forEach(function(c){var r=c.val();r.id=c.key;if(r.num===num)myRecs.push(r);});
+    myRecs.sort(function(a,b){return (a.dt||'').localeCompare(b.dt||'');});
+    var last=myRecs[myRecs.length-1];
+    if(last&&last.mode==='exit'){
+      mb.innerHTML='<div style="text-align:center;padding:20px"><div style="font-size:40px">⚠️</div><h3 style="font-size:16px;font-weight:900;color:var(--gold);margin-top:10px">أنت خارج الفعالية بالفعل</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">لا يمكن طلب خروج مجدداً<br>قبل تسجيل العودة أولاً</p></div>';
+      return;
+    }
+    mb.innerHTML='<div class="waiting"><div class="waiting-ic">⏳</div><h3 style="font-size:16px;font-weight:900;color:var(--gold);margin-bottom:8px">في انتظار موافقة المشرف</h3><p style="font-size:12px;color:var(--muted)">تم إرسال طلب خروجك<br>يرجى الانتظار...</p></div>';
+    fetch('https://api.ipify.org?format=json').then(function(r){return r.json();}).catch(function(){return{ip:'غير متاح'};}).then(function(ipData){
+      db.ref('exit_requests').push({num:num,evtId:evtId,evtName:evtName,status:'pending',type:'exit',date:today(),time:nowTime(),dt:nowDT(),ip:ipData.ip||'غير متاح'}).then(function(ref){
+        if(mReqRef)mReqRef.off();
+        mReqRef=db.ref('exit_requests/'+ref.key+'/status');
+        mReqRef.on('value',function(snap){
+          var st=snap.val();
+          if(st==='approved'){
+            mReqRef.off();mReqRef=null;
+            var updates={};
+            updates['records/'+db.ref('records').push().key]={num:num,evtId:evtId,evtName:evtName,mode:M_EXIT,date:today(),time:nowTime(),dt:nowDT(),ip:'رابط البريد',fp:'email-link'};
+            db.ref().update(updates);
+            var secs=300;
+            mb.innerHTML='<div style="text-align:center;padding:20px"><div style="font-size:52px;margin-bottom:12px">✅</div><h3 style="font-size:17px;font-weight:900;color:var(--green);margin-bottom:8px">تمت الموافقة على خروجك!</h3><p style="font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:14px">يمكنك الخروج الآن<br><strong style="color:var(--red)">⏱️ لديك 5 دقائق للعودة</strong></p><div id="exit-timer" style="font-size:32px;font-weight:900;color:var(--red);margin:12px 0">05:00</div><p style="font-size:11px;color:var(--muted)">استخدم نفس رابط البريد عند عودتك</p></div>';
+            var iv=setInterval(function(){secs--;var mm=Math.floor(secs/60),ss=secs%60;var el=document.getElementById('exit-timer');if(el)el.textContent=(mm<10?'0':'')+mm+':'+(ss<10?'0':'')+ss;if(secs<=0)clearInterval(iv);},1000);
+          } else if(st==='rejected'){
+            mReqRef.off();mReqRef=null;
+            mb.innerHTML='<div style="text-align:center;padding:20px"><div style="font-size:52px">❌</div><h3 style="font-size:17px;font-weight:900;color:var(--red)">تم رفض طلب الخروج</h3><p style="font-size:12px;color:var(--muted)">رفض المشرف طلبك.</p></div>';
+          }
+        });
+      }).catch(function(e){mb.innerHTML='<p style="color:var(--red)">⚠️ '+e.message+'</p>';});
+    });
+  }).catch(function(){});
 }
+
 
 function manageReqReturn(evtId,num,evtName){
-  var mb=document.getElementById('manage-body');mb.innerHTML='<div class="waiting"><div class="waiting-ic">⏳</div><h3 style="font-size:16px;font-weight:900;color:var(--gold);margin-bottom:8px">في انتظار موافقة المشرف</h3><p style="font-size:12px;color:var(--muted)">تم إرسال طلب عودتك<br>يرجى الانتظار...</p></div>';
-  fetch('https://api.ipify.org?format=json').then(function(r){return r.json();}).catch(function(){return{ip:'غير متاح'};}).then(function(ipData){
-    db.ref('exit_requests').push({num:num,evtId:evtId,evtName:evtName,status:'pending',type:'return',date:today(),time:nowTime(),dt:nowDT(),ip:ipData.ip||'غير متاح'}).then(function(ref){
-      if(mReqRef)mReqRef.off();mReqRef=db.ref('exit_requests/'+ref.key+'/status');
-      mReqRef.on('value',function(snap){
-        var st=snap.val();
-        if(st==='approved'){mReqRef.off();mReqRef=null;var updates={};updates['records/'+db.ref('records').push().key]={num:num,evtId:evtId,evtName:evtName,mode:M_RETURN,date:today(),time:nowTime(),dt:nowDT(),ip:'رابط البريد',fp:'email-link'};db.ref().update(updates);mb.innerHTML='<div style="text-align:center;padding:20px"><div style="font-size:52px">✅</div><h3 style="font-size:17px;font-weight:900;color:var(--green)">تمت الموافقة على عودتك!</h3><p style="font-size:12px;color:var(--muted)">مرحباً بعودتك للفعالية</p></div>';}
-        else if(st==='rejected'){mReqRef.off();mReqRef=null;mb.innerHTML='<div style="text-align:center;padding:20px"><div style="font-size:52px">❌</div><h3 style="font-size:17px;font-weight:900;color:var(--red)">تم رفض طلب العودة</h3><p style="font-size:12px;color:var(--muted)">تواصل مع المشرف مباشرة.</p></div>';}
-      });
-    }).catch(function(e){mb.innerHTML='<p style="color:var(--red)">⚠️ '+e.message+'</p>';});
+  var mb=document.getElementById('manage-body');
+  db.ref('records').orderByChild('evtId').equalTo(evtId).once('value').then(function(snap){
+    var myRecs=[];
+    snap.forEach(function(c){var r=c.val();r.id=c.key;if(r.num===num)myRecs.push(r);});
+    myRecs.sort(function(a,b){return (a.dt||'').localeCompare(b.dt||'');});
+    var last=myRecs[myRecs.length-1];
+    if(!last||last.mode!=='exit'){
+      mb.innerHTML='<div style="text-align:center;padding:20px"><div style="font-size:40px">⚠️</div><h3 style="font-size:16px;font-weight:900;color:var(--gold);margin-top:10px">أنت داخل الفعالية بالفعل</h3><p style="font-size:12px;color:var(--muted);margin-top:8px">لا يمكن طلب عودة<br>إلا بعد تسجيل الخروج أولاً</p></div>';
+      return;
+    }
+    mb.innerHTML='<div class="waiting"><div class="waiting-ic">⏳</div><h3 style="font-size:16px;font-weight:900;color:var(--gold);margin-bottom:8px">في انتظار موافقة المشرف</h3><p style="font-size:12px;color:var(--muted)">تم إرسال طلب عودتك<br>يرجى الانتظار...</p></div>';
+    fetch('https://api.ipify.org?format=json').then(function(r){return r.json();}).catch(function(){return{ip:'غير متاح'};}).then(function(ipData){
+      db.ref('exit_requests').push({num:num,evtId:evtId,evtName:evtName,status:'pending',type:'return',date:today(),time:nowTime(),dt:nowDT(),ip:ipData.ip||'غير متاح'}).then(function(ref){
+        if(mReqRef)mReqRef.off();
+        mReqRef=db.ref('exit_requests/'+ref.key+'/status');
+        mReqRef.on('value',function(snap){
+          var st=snap.val();
+          if(st==='approved'){
+            mReqRef.off();mReqRef=null;
+            var updates={};
+            updates['records/'+db.ref('records').push().key]={num:num,evtId:evtId,evtName:evtName,mode:M_RETURN,date:today(),time:nowTime(),dt:nowDT(),ip:'رابط البريد',fp:'email-link'};
+            db.ref().update(updates);
+            mb.innerHTML='<div style="text-align:center;padding:20px"><div style="font-size:52px">✅</div><h3 style="font-size:17px;font-weight:900;color:var(--green)">تمت الموافقة على عودتك!</h3><p style="font-size:12px;color:var(--muted)">مرحباً بعودتك للفعالية</p></div>';
+          } else if(st==='rejected'){
+            mReqRef.off();mReqRef=null;
+            mb.innerHTML='<div style="text-align:center;padding:20px"><div style="font-size:52px">❌</div><h3 style="font-size:17px;font-weight:900;color:var(--red)">تم رفض طلب العودة</h3><p style="font-size:12px;color:var(--muted)">تواصل مع المشرف مباشرة.</p></div>';
+          }
+        });
+      }).catch(function(e){mb.innerHTML='<p style="color:var(--red)">⚠️ '+e.message+'</p>';});
+    });
+  }).catch(function(){});
+}
+
+
+function showVerifyScreen(roundId, evtId, evtName){
+  document.querySelector('.top').style.display='none';
+  document.body.style.background='#f0f4f8';
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('on'); });
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'max-width:400px;margin:30px auto;padding:20px';
+  var hdr = '<div style="background:linear-gradient(135deg,#1e40af,#1a56db);border-radius:14px;padding:24px;text-align:center;color:#fff;margin-bottom:16px">';
+  hdr += '<div style="font-size:40px;margin-bottom:8px">🔄</div>';
+  hdr += '<h2 style="font-size:18px;font-weight:900;margin-bottom:4px">جولة التحقق من الحضور</h2>';
+  hdr += '<p style="font-size:12px;opacity:.6">' + evtName + '</p></div>';
+  var body = '<div id="verify-body" style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px">';
+  body += '<div class="fl"><label style="text-align:center;display:block;font-size:13px;margin-bottom:8px">الرقم الأكاديمي</label>';
+  body += '<input id="verify-num" class="inp inp-c inp-big" type="text" inputmode="numeric" maxlength="12" placeholder="أدخل رقمك" oninput="this.value=this.value.replace(/\D/g,\'\')"></div>';
+  body += '<button class="btn bg" id="verify-btn">✅ تأكيد وجودي</button></div>';
+  wrap.innerHTML = hdr + body;
+  document.body.appendChild(wrap);
+  document.getElementById('verify-btn').onclick = function(){ submitVerify(roundId, evtId, evtName); };
+  db.ref('verification_rounds/' + roundId + '/status').once('value').then(function(s){
+    if(s.val() !== 'active'){
+      document.getElementById('verify-body').innerHTML = '<div style="text-align:center;padding:20px"><div style="font-size:40px">⏰</div><p style="color:var(--red);font-weight:800;margin-top:10px">انتهت مدة جولة التحقق</p></div>';
+    }
   });
 }
 
-var filt='all',allRecs=[],allEvts=[];
+function submitVerify(roundId, evtId, evtName){
+  var numEl = document.getElementById('verify-num');
+  var num = numEl ? numEl.value.trim() : '';
+  if(!num || num.length < 4){ if(numEl) numEl.style.borderColor='var(--red)'; return; }
+  var btn = document.getElementById('verify-btn');
+  if(btn){ btn.disabled=true; btn.textContent='⏳ جاري التحقق...'; }
+  db.ref('verification_rounds/' + roundId + '/status').once('value').then(function(s){
+    if(s.val() !== 'active'){
+      document.getElementById('verify-body').innerHTML = '<div style="text-align:center;padding:20px"><div style="font-size:40px">⏰</div><p style="color:var(--red);font-weight:800;margin-top:10px">انتهت مدة جولة التحقق</p></div>';
+      return;
+    }
+    db.ref('records').orderByChild('evtId').equalTo(evtId).once('value').then(function(snap){
+      var found = false;
+      snap.forEach(function(c){ if(c.val().num===num && c.val().mode==='entry') found=true; });
+      if(!found){
+        if(btn){ btn.disabled=false; btn.textContent='✅ تأكيد وجودي'; }
+        if(numEl) numEl.style.borderColor='var(--red)';
+        var errDiv = document.getElementById('verify-err');
+        if(!errDiv){ errDiv=document.createElement('div'); errDiv.id='verify-err'; errDiv.style.cssText='color:var(--red);font-size:12px;font-weight:700;text-align:center;margin-top:8px'; document.getElementById('verify-body').appendChild(errDiv); }
+        errDiv.textContent = '❌ هذا الرقم غير مسجل في الفعالية';
+        return;
+      }
+      db.ref('verification_rounds/' + roundId + '/responses/' + num).set(nowDT()).then(function(){
+        document.getElementById('verify-body').innerHTML =
+          '<div style="text-align:center;padding:20px">' +
+          '<div style="font-size:52px;margin-bottom:12px">✅</div>' +
+          '<h3 style="font-size:17px;font-weight:900;color:var(--green);margin-bottom:8px">تم تأكيد حضورك!</h3>' +
+          '<p style="font-size:12px;color:var(--muted)">الرقم: <strong>' + num + '</strong></p>' +
+          '</div>';
+      }).catch(function(e){ errMsg(e.message); });
+    });
+  }).catch(function(e){ errMsg(e.message); });
+}
+// ══ RECORDS ══
+var filt='all', allRecs=[], allEvts=[];
+
 function loadRecs(){
   document.getElementById('tbody').innerHTML='<tr><td colspan="6" style="text-align:center;padding:20px"><div class="spinner"></div></td></tr>';
   var timer=setTimeout(function(){document.getElementById('tbody').innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--red);padding:20px">⚠️ تعذّر التحميل</td></tr>';},8000);
@@ -590,32 +758,44 @@ function loadRecs(){
 }
 
 function renderRecs(){
-  var td=today();var filtered=filt==='all'?allRecs:allRecs.filter(function(r){return r.evtId===filt;});
+  var td=today();
+  var filtered=filt==='all'?allRecs:allRecs.filter(function(r){return r.evtId===filt;});
   document.getElementById('r-tot').textContent=allRecs.filter(function(r){return r.mode===M_ENTRY;}).length;
   document.getElementById('r-out').textContent=allRecs.filter(function(r){return r.mode===M_EXIT;}).length;
   document.getElementById('r-ret').textContent=allRecs.filter(function(r){return r.mode===M_RETURN;}).length;
   document.getElementById('r-tod').textContent=allRecs.filter(function(r){return r.date===td;}).length;
   var bar=document.getElementById('fbar');
-  bar.innerHTML='<button class="'+(filt==='all'?'on':'')+'" onclick="setF(\'all\')">الكل ('+allRecs.length+')</button>'+allEvts.map(function(e){var c=allRecs.filter(function(r){return r.evtId===e.id;}).length;return '<button class="'+(filt===e.id?'on':'')+'" onclick="setF(\''+e.id+'\')">'+e.name+' ('+c+')</button>';}).join('');
-  document.getElementById('tbl-lbl').textContent='📋 '+(filt==='all'?'جميع السجلات':(function(){var e=allEvts.filter(function(e){return e.id===filt;})[0];return e?e.name:'';})());
+  bar.innerHTML='<button class="'+(filt==='all'?'on':'')+'" onclick="setF('all')">الكل ('+allRecs.length+')</button>'+
+    allEvts.map(function(e){var c=allRecs.filter(function(r){return r.evtId===e.id;}).length;return '<button class="'+(filt===e.id?'on':'')+'" onclick="setF(''+e.id+'')">'+e.name+' ('+c+')</button>';}).join('');
+  document.getElementById('tbl-lbl').textContent='📋 '+(filt==='all'?'جميع السجلات':(function(){var ev=allEvts.filter(function(e){return e.id===filt;})[0];return ev?ev.name:'';})());
   var tb=document.getElementById('tbody');
   if(!filtered.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)">لا توجد سجلات</td></tr>';return;}
   var mi={entry:{l:'دخول',c:'bg2',i:'🟢'},exit:{l:'خروج',c:'br2',i:'🔴'},return:{l:'عودة',c:'bp2',i:'🟣'}};
-  tb.innerHTML=[].concat(filtered).reverse().map(function(r,i){var m=mi[r.mode]||mi.entry;return '<tr><td style="color:var(--muted);font-size:10px">'+(filtered.length-i)+'</td><td><strong style="font-size:12px;letter-spacing:1px">'+r.num+'</strong></td><td><span class="bdg bb">'+r.evtName+'</span></td><td><span class="bdg '+m.c+'">'+m.i+' '+m.l+'</span></td><td style="font-size:10px;color:var(--muted)">'+r.date+' '+r.time+'</td><td style="font-size:10px;color:var(--muted);direction:ltr">'+(r.ip||'—')+'</td></tr>';}).join('');
+  tb.innerHTML=[].concat(filtered).reverse().map(function(r,i){
+    var m=mi[r.mode]||mi.entry;
+    return '<tr><td style="color:var(--muted);font-size:10px">'+(filtered.length-i)+'</td><td><strong style="font-size:12px;letter-spacing:1px">'+r.num+'</strong></td><td><span class="bdg bb">'+r.evtName+'</span></td><td><span class="bdg '+m.c+'">'+m.i+' '+m.l+'</span></td><td style="font-size:10px;color:var(--muted)">'+r.date+' '+r.time+'</td><td style="font-size:10px;color:var(--muted);direction:ltr">'+(r.ip||'—')+'</td></tr>';
+  }).join('');
 }
 function setF(id){filt=id;renderRecs();}
 
+// ══ SUPERVISORS ══
 var generatedLink='';
 function genSupLink(){
-  var name=document.getElementById('sup-name').value.trim();var role=document.getElementById('sup-role').value;
+  var name=document.getElementById('sup-name').value.trim();
+  var role=document.getElementById('sup-role').value;
   if(!name){alert('يرجى إدخال اسم المشرف');return;}
   var token=Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);
   db.ref('supervisors/'+token).set({name:name,role:role,createdAt:nowDT(),active:true,token:token}).then(function(){
-    var base=location.href.split('?')[0];generatedLink=base+'?sup='+token;
+    var base=location.href.split('?')[0];
+    generatedLink=base+'?sup='+token;
     document.getElementById('sup-link-txt').textContent=generatedLink;
     document.getElementById('sup-result').style.display='block';
     document.getElementById('sup-name').value='';
-    document.getElementById('wa-btn').onclick=function(){var rn={approver:'موافقة طلبات العودة/الخروج',viewer:'عرض السجلات',full:'صلاحية كاملة'};var txt='مرحباً، تم منحك صلاحية الوصول لنظام تسجيل الحضور.\nالصلاحية: '+(rn[role]||role)+'\nالرابط: '+generatedLink;window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');};
+    var rn={approver:'موافقة طلبات العودة/الخروج',viewer:'عرض السجلات',full:'صلاحية كاملة'};
+    document.getElementById('wa-btn').onclick=function(){
+      var txt='مرحباً، تم منحك صلاحية الوصول لنظام تسجيل الحضور.\nالصلاحية: '+(rn[role]||role)+'\nالرابط: '+generatedLink;
+      window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
+    };
     loadSups();
   }).catch(function(e){errMsg(e.message);});
 }
@@ -624,47 +804,109 @@ function loadSups(){
   var w=document.getElementById('sups-list');if(!w)return;
   w.innerHTML='<div class="loading"><div class="spinner"></div> جاري التحميل...</div>';
   db.ref('supervisors').once('value').then(function(snap){
-    var sups=[];snap.forEach(function(c){var s=c.val();s.token=c.key;sups.push(s);});
+    var sups=[];snap.forEach(function(c){var s=c.val();s.token=c.key;if(s.active!==false)sups.push(s);});
     if(!sups.length){w.innerHTML='<p style="text-align:center;color:var(--muted);font-size:12px;padding:16px">لا يوجد مشرفون بعد</p>';return;}
     var rn={approver:'موافقة طلبات',viewer:'عرض فقط',full:'صلاحية كاملة'};
-    w.innerHTML=sups.map(function(s){return '<div class="sup-card"><div style="flex:1"><div style="font-size:14px;font-weight:800">'+s.name+'</div><div style="font-size:11px;color:var(--muted)">'+(rn[s.role]||s.role)+' · '+s.createdAt+'</div></div><div style="display:flex;gap:8px;align-items:center"><span class="bdg '+(s.active?'bg2':'br2')+'">'+(s.active?'✅ نشط':'⛔ ملغى')+'</span>'+(s.active?'<button class="bxs xr" onclick="revokeS(\''+s.token+'\')">إلغاء</button>':'')+'</div></div>';}).join('');
+    w.innerHTML=sups.map(function(s){
+      return '<div class="sup-card"><div style="flex:1"><div style="font-size:14px;font-weight:800">'+s.name+'</div><div style="font-size:11px;color:var(--muted)">'+(rn[s.role]||s.role)+' · '+s.createdAt+'</div></div>'+
+        '<div style="display:flex;gap:8px;align-items:center"><span class="bdg bg2">✅ نشط</span>'+
+        '<button class="bxs xr" onclick="revokeS(''+s.token+'')">إلغاء</button></div></div>';
+    }).join('');
   }).catch(function(){w.innerHTML='<p style="color:var(--red);text-align:center;padding:16px;font-size:12px">⚠️ تعذّر التحميل</p>';});
 }
-function revokeS(token){db.ref('supervisors/'+token+'/active').set(false).then(loadSups).catch(function(e){errMsg(e.message);});}
+
+function revokeS(token){
+  db.ref('supervisors/'+token+'/active').set(false).then(loadSups).catch(function(e){errMsg(e.message);});
+}
 
 function loginAsSupervisor(token,data){
-  if(data.role==='approver'){document.getElementById('tab-records').style.display='none';document.getElementById('tab-sups').style.display='none';document.getElementById('create-btn').closest('.card').style.display='none';}
-  else if(data.role==='viewer'){document.getElementById('tab-sups').style.display='none';loadEvts();}
-  else{loadEvts();setTimeout(initMap,300);}
+  if(data.role==='approver'){
+    document.getElementById('tab-records').style.display='none';
+    document.getElementById('tab-sups').style.display='none';
+    var cc=document.getElementById('create-btn');if(cc)cc.closest('.card').style.display='none';
+  } else if(data.role==='viewer'){
+    document.getElementById('tab-sups').style.display='none';
+    loadEvts();
+  } else {loadEvts();setTimeout(initMap,300);}
   loadPending();
 }
 
+// ══ EXPORT ══
 function buildSheet(wb,recs,name){
   var mL={entry:'دخول',exit:'خروج',return:'عودة'};
   var sorted=[].concat(recs).sort(function(a,b){return (a.dt||'').localeCompare(b.dt||'');});
   var data=sorted.map(function(r,i){return{'الترتيب':i===0?'🥇 الأول':i===1?'🥈 الثاني':i===2?'🥉 الثالث':(i+1)+'','الرقم الأكاديمي':r.num,'اسم الفعالية':r.evtName,'نوع التسجيل':mL[r.mode]||r.mode||'دخول','التاريخ':r.date,'الوقت':r.time,'التاريخ والوقت':r.dt||'','البريد الإلكتروني':r.email||'','عنوان IP':r.ip||'','بصمة الجهاز':r.fp||''};});
   var h=['الترتيب','الرقم الأكاديمي','اسم الفعالية','نوع التسجيل','التاريخ','الوقت','التاريخ والوقت','البريد الإلكتروني','عنوان IP','بصمة الجهاز'];
-  var ws=XLSX.utils.json_to_sheet(data,{header:h});ws['!cols']=[{wch:12},{wch:18},{wch:26},{wch:12},{wch:12},{wch:8},{wch:26},{wch:22},{wch:18},{wch:20}];
-  XLSX.utils.book_append_sheet(wb,ws,name.slice(0,28));
+  var ws=XLSX.utils.json_to_sheet(data,{header:h});
+  ws['!cols']=[{wch:12},{wch:18},{wch:26},{wch:12},{wch:12},{wch:8},{wch:26},{wch:22},{wch:18},{wch:20}];
+  XLSX.utils.book_append_sheet(wb,ws,name.slice(0,26));
 }
+
+function addVrSheet(wb,evtId,evtName,cb){
+  db.ref('records').orderByChild('evtId').equalTo(evtId).once('value').then(function(rsnap){
+    var entered={};rsnap.forEach(function(c){var r=c.val();if(r.mode==='entry')entered[r.num]=true;});
+    var allNums=Object.keys(entered);if(!allNums.length){cb();return;}
+    db.ref('verification_rounds').once('value').then(function(vsnap){
+      var rounds=[];
+      vsnap.forEach(function(c){var r=c.val();r.id=c.key;if(r.evtId===evtId&&r.status==='ended')rounds.push(r);});
+      if(!rounds.length){cb();return;}
+      rounds.sort(function(a,b){return (a.startedAt||'').localeCompare(b.startedAt||'');});
+      var h=['الرقم الأكاديمي'];
+      rounds.forEach(function(r,i){h.push('جولة '+(i+1)+' ('+(r.startedAt||'').slice(0,16)+')');});
+      h.push('إجمالي الحضور');
+      var data=allNums.map(function(num){
+        var row={'الرقم الأكاديمي':num};var tot=0;
+        rounds.forEach(function(r,i){var p=!!(r.responses||{})[num];row['جولة '+(i+1)+' ('+(r.startedAt||'').slice(0,16)+')']=p?'✅ حاضر':'❌ غائب';if(p)tot++;});
+        row['إجمالي الحضور']=tot+'/'+rounds.length;return row;
+      });
+      var ws=XLSX.utils.json_to_sheet(data,{header:h});
+      var cols=[{wch:18}];rounds.forEach(function(){cols.push({wch:24});});cols.push({wch:16});
+      ws['!cols']=cols;
+      XLSX.utils.book_append_sheet(wb,ws,(evtName.slice(0,18)+' - جولات').slice(0,28));
+      cb();
+    }).catch(function(){cb();});
+  }).catch(function(){cb();});
+}
+
 function doExcel(){
   if(!allRecs.length){alert('افتح تبويب السجلات أولاً');return;}
-  var f=filt==='all'?allRecs:allRecs.filter(function(r){return r.evtId===filt;});if(!f.length){alert('لا توجد بيانات');return;}
+  var f=filt==='all'?allRecs:allRecs.filter(function(r){return r.evtId===filt;});
+  if(!f.length){alert('لا توجد بيانات');return;}
   var wb=XLSX.utils.book_new();
-  if(filt==='all'){var g={};f.forEach(function(r){if(!g[r.evtId])g[r.evtId]=[];g[r.evtId].push(r);});Object.keys(g).forEach(function(id){var e=allEvts.filter(function(e){return e.id===id;})[0];buildSheet(wb,g[id],e?e.name:id);});}
-  else{var e=allEvts.filter(function(e){return e.id===filt;})[0];buildSheet(wb,f,e?e.name:'فعالية');}
-  XLSX.writeFile(wb,'كشف_الحضور_'+today()+'.xlsx');
+  if(filt==='all'){
+    var g={};f.forEach(function(r){if(!g[r.evtId])g[r.evtId]=[];g[r.evtId].push(r);});
+    Object.keys(g).forEach(function(id){var ev=allEvts.filter(function(e){return e.id===id;})[0];buildSheet(wb,g[id],ev?ev.name:id);});
+    XLSX.writeFile(wb,'كشف_الحضور_'+today()+'.xlsx');
+  } else {
+    var ev=allEvts.filter(function(e){return e.id===filt;})[0];
+    buildSheet(wb,f,ev?ev.name:'فعالية');
+    addVrSheet(wb,filt,ev?ev.name:'فعالية',function(){
+      XLSX.writeFile(wb,'كشف_الحضور_'+today()+'.xlsx');
+    });
+  }
 }
-function xEvt(id,name){db.ref('records').orderByChild('evtId').equalTo(id).once('value').then(function(snap){var r=[];snap.forEach(function(c){r.push(c.val());});if(!r.length){alert('لا توجد سجلات');return;}var wb=XLSX.utils.book_new();buildSheet(wb,r,name);XLSX.writeFile(wb,'كشف_'+name.slice(0,18)+'_'+today()+'.xlsx');}).catch(function(e){errMsg(e.message);});}
+
+function xEvt(id,name){
+  db.ref('records').orderByChild('evtId').equalTo(id).once('value').then(function(snap){
+    var r=[];snap.forEach(function(c){r.push(c.val());});
+    if(!r.length){alert('لا توجد سجلات');return;}
+    var wb=XLSX.utils.book_new();buildSheet(wb,r,name);
+    addVrSheet(wb,id,name,function(){XLSX.writeFile(wb,'كشف_'+name.slice(0,18)+'_'+today()+'.xlsx');});
+  }).catch(function(e){errMsg(e.message);});
+}
+
 function doCSV(){
   if(!allRecs.length){alert('افتح تبويب السجلات أولاً');return;}
   var f=filt==='all'?allRecs:allRecs.filter(function(r){return r.evtId===filt;});
   var mL={entry:'دخول',exit:'خروج',return:'عودة'};
-  var rows=[['الترتيب','الرقم الأكاديمي','اسم الفعالية','نوع التسجيل','التاريخ','الوقت','التاريخ والوقت','البريد الإلكتروني','عنوان IP','بصمة الجهاز']];
-  [].concat(f).sort(function(a,b){return (a.dt||'').localeCompare(b.dt||'');}).forEach(function(r,i){rows.push([i===0?'الأول':i===1?'الثاني':i===2?'الثالث':(i+1)+'',r.num,'"'+r.evtName+'"',mL[r.mode]||'دخول',r.date,r.time,'"'+(r.dt||'')+'"',r.email||'',r.ip||'',r.fp||'']);});
+  var rows=[['الترتيب','الرقم الأكاديمي','اسم الفعالية','نوع التسجيل','التاريخ','الوقت','التاريخ والوقت','البريد الإلكتروني','عنوان IP']];
+  [].concat(f).sort(function(a,b){return (a.dt||'').localeCompare(b.dt||'');}).forEach(function(r,i){
+    rows.push([i===0?'الأول':i===1?'الثاني':i===2?'الثالث':(i+1)+'',r.num,'"'+r.evtName+'"',mL[r.mode]||'دخول',r.date,r.time,'"'+(r.dt||'')+'"',r.email||'',r.ip||'']);
+  });
   var blob=new Blob(['\uFEFF'+rows.map(function(r){return r.join(',');}).join('\n')],{type:'text/csv;charset=utf-8'});
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='كشف_'+today()+'.csv';a.click();
 }
+
 function doClear(){
   var f=filt==='all'?allRecs:allRecs.filter(function(r){return r.evtId===filt;});
   f.forEach(function(r){db.ref('records/'+r.id).remove();});
@@ -672,17 +914,143 @@ function doClear(){
   hideM('m-clr');setTimeout(loadRecs,600);
 }
 
+// ══ VERIFICATION ROUNDS ══
+var vrTimer=null, vrRef=null, allEvtsList=[];
+
+function renderVrSection(evts){
+  allEvtsList=evts||[];
+  var sec=document.getElementById('vr-section');
+  if(!sec||!evts||!evts.length){if(sec)sec.innerHTML='';return;}
+  showStartRound(evts);
+  try{
+    db.ref('verification_rounds').once('value').then(function(snap){
+      var active=null;
+      snap.forEach(function(c){var r=c.val();r.id=c.key;if(r.status==='active')active=r;});
+      if(active)showActiveRound(active);
+    }).catch(function(){});
+  }catch(e){}
+}
+
+function showStartRound(evts){
+  var sec=document.getElementById('vr-section');if(!sec)return;
+  var opts=evts.map(function(e){return '<option value="'+e.id+'">'+e.name+'</option>';}).join('');
+  var html='<div class="vr-card"><h3>🔄 جولة التحقق من الحضور</h3><div class="vr-row">';
+  html+='<select class="vr-sel" id="vr-evt">'+opts+'</select>';
+  html+='<select class="vr-sel" id="vr-dur" style="flex:0;min-width:90px">';
+  html+='<option value="2">2 دقيقة</option><option value="3" selected>3 دقائق</option>';
+  html+='<option value="5">5 دقائق</option><option value="10">10 دقائق</option></select>';
+  html+='<button class="vr-btn" onclick="startVerifyRound()">▶ بدء</button>';
+  html+='</div></div>';
+  sec.innerHTML=html;
+}
+
+function showActiveRound(active){
+  var sec=document.getElementById('vr-section');if(!sec)return;
+  var base=location.href.split('?')[0];
+  var qrUrl=base+'?action=verify&rid='+active.id+'&eid='+encodeURIComponent(active.evtId)+'&evt='+encodeURIComponent(active.evtName);
+  var qrSrc='https://api.qrserver.com/v1/create-qr-code/?size=160x160&color=ffffff&bgcolor=1a56db&data='+encodeURIComponent(qrUrl);
+  var div=document.createElement('div');div.className='vr-active';
+  div.innerHTML=
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+
+      '<span style="font-size:14px;font-weight:900">🔄 جولة تحقق نشطة</span>'+
+      '<button id="vr-end-btn" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:5px 10px;border-radius:8px;font-family:Cairo,sans-serif;font-size:11px;font-weight:700;cursor:pointer">إنهاء</button>'+
+    '</div>'+
+    '<div style="text-align:center;margin-bottom:10px">'+
+      '<img src="'+qrSrc+'" style="border-radius:10px;border:3px solid rgba(255,255,255,.3)">'+
+      '<div style="font-size:11px;margin-top:6px;opacity:.7">اعرض هذا الباركود للطلاب</div>'+
+    '</div>'+
+    '<div class="vr-timer" id="vr-countdown">--:--</div>'+
+    '<div class="vr-count" id="vr-resp-count">0 استجابة</div>';
+  var liveDiv=document.createElement('div');liveDiv.id='vr-live-list';
+  sec.innerHTML='';sec.appendChild(div);sec.appendChild(liveDiv);
+  var rid=active.id;
+  document.getElementById('vr-end-btn').onclick=function(){endVerifyRound(rid);};
+  if(vrRef)vrRef.off();
+  vrRef=db.ref('verification_rounds/'+rid+'/responses');
+  vrRef.on('value',function(snap){
+    var c=0,names=[];snap.forEach(function(x){c++;names.push(x.key);});
+    var el=document.getElementById('vr-resp-count');if(el)el.textContent=c+' استجابة';
+    var ll=document.getElementById('vr-live-list');
+    if(ll&&names.length){
+      var h2='<div style="background:rgba(5,150,105,.1);border-radius:9px;padding:10px;margin-top:8px">';
+      names.forEach(function(n){h2+='<div style="font-size:12px;color:var(--green);font-weight:700;padding:3px 0">✅ '+n+'</div>';});
+      h2+='</div>';ll.innerHTML=h2;
+    }
+  });
+}
+
+function startVerifyRound(){
+  var evtEl=document.getElementById('vr-evt');
+  var durEl=document.getElementById('vr-dur');
+  if(!evtEl||!durEl)return;
+  var evtId=evtEl.value;
+  var evtName=evtEl.options[evtEl.selectedIndex].text;
+  var dur=parseInt(durEl.value);
+  db.ref('verification_rounds').push({evtId:evtId,evtName:evtName,duration:dur,status:'active',startedAt:nowDT()}).then(function(ref){
+    var roundId=ref.key;
+    showActiveRound({id:roundId,evtId:evtId,evtName:evtName,duration:dur});
+    var secs=dur*60;
+    if(vrTimer)clearInterval(vrTimer);
+    vrTimer=setInterval(function(){
+      secs--;
+      var mm=Math.floor(secs/60),ss=secs%60;
+      var el=document.getElementById('vr-countdown');
+      if(el)el.textContent=(mm<10?'0':'')+mm+':'+(ss<10?'0':'')+ss;
+      if(secs<=0){clearInterval(vrTimer);vrTimer=null;endVerifyRound(roundId);}
+    },1000);
+  }).catch(function(e){errMsg(e.message);});
+}
+
+function endVerifyRound(roundId){
+  if(vrTimer){clearInterval(vrTimer);vrTimer=null;}
+  if(vrRef){vrRef.off();vrRef=null;}
+  db.ref('verification_rounds/'+roundId).once('value').then(function(snap){
+    var round=snap.val();if(!round)return;
+    db.ref('verification_rounds/'+roundId+'/status').set('ended');
+    db.ref('records').orderByChild('evtId').equalTo(round.evtId).once('value').then(function(rsnap){
+      var entered={};rsnap.forEach(function(c){var r=c.val();if(r.mode==='entry')entered[r.num]=true;});
+      var responses=round.responses||{};
+      var present=[],absent=[];
+      Object.keys(entered).forEach(function(num){if(responses[num])present.push(num);else absent.push(num);});
+      showVerifyResults(present,absent,round.evtName);
+    });
+  }).catch(function(e){errMsg(e.message);});
+}
+
+function showVerifyResults(present,absent,evtName){
+  var sec=document.getElementById('vr-section');if(!sec)return;
+  var html='<div class="vr-result"><h4>📊 نتائج جولة التحقق — '+evtName+'</h4>';
+  html+='<div style="display:flex;gap:12px;margin-bottom:14px">';
+  html+='<div style="flex:1;background:var(--grn);border-radius:10px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:900;color:var(--green)">'+present.length+'</div><div style="font-size:11px;color:var(--green);font-weight:700">✅ مؤكد الحضور</div></div>';
+  html+='<div style="flex:1;background:var(--redd);border-radius:10px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:900;color:var(--red)">'+absent.length+'</div><div style="font-size:11px;color:var(--red);font-weight:700">❌ لم يستجب</div></div>';
+  html+='</div>';
+  if(absent.length){
+    html+='<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:800;color:var(--red);margin-bottom:6px">الأرقام التي لم تستجب:</div>';
+    absent.forEach(function(n){html+='<div style="font-size:13px;font-weight:700;padding:6px 10px;background:var(--redd);border-radius:7px;margin-bottom:4px;letter-spacing:1px">'+n+'</div>';});
+    html+='</div>';
+  }
+  html+='<button class="btn bp" onclick="renderVrSection(allEvtsList)" style="margin-top:4px">🔄 جولة جديدة</button></div>';
+  sec.innerHTML=html;
+}
+
+
 (function(){
   var p=new URLSearchParams(location.search);
-  if(p.get('action')==='manage'){
+  if(p.get('action')==='verify'){
     document.querySelector('.top').style.display='none';
+    document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on');});
+    showVerifyScreen(p.get('rid')||'',p.get('eid')||'',p.get('evt')||'فعالية');
+  } else if(p.get('action')==='manage'){
+    document.querySelector('.top').style.display='none';
+    document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on');});
+    document.body.style.background='#f0f4f8';
     showManageScreen(p.get('eid')||'',p.get('n')||'',p.get('evt')||'فعالية');
   } else if(p.get('m')==='s'){
-    aCfg={id:p.get('id'),name:p.get('n')||'فعالية',lat:parseFloat(p.get('la')),lng:parseFloat(p.get('lo')),radius:parseInt(p.get('r'))||300,mode:p.get('mode')||M_ENTRY};
+    aCfg={id:p.get('id'),name:p.get('n')||'فعالية',lat:parseFloat(p.get('la')),lng:parseFloat(p.get('lo')),radius:parseInt(p.get('r'))||300,mode:p.get('mode')||M_ENTRY,geoReq:p.get('gr')!=='0'};
+    document.querySelector('.top').style.display='none';
     document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on');});
-    document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
     document.getElementById('vw-student').classList.add('on');
-    document.getElementById('tab-student').classList.add('on');
+    document.body.style.paddingTop='0';
     startGeo();
   } else if(p.get('sup')){
     var token=p.get('sup');
@@ -692,6 +1060,7 @@ function doClear(){
     setTimeout(initMap,300);
   }
 })();
+
 </script>
 </body>
 </html>
