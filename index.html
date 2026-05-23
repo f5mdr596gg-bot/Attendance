@@ -691,80 +691,17 @@ function buildSheet(wb,recs,name){
   var data=sorted.map(function(r,i){return{'الترتيب':i===0?'🥇 الأول':i===1?'🥈 الثاني':i===2?'🥉 الثالث':(i+1)+'','الرقم الأكاديمي':r.num,'اسم الفعالية':r.evtName,'نوع التسجيل':mL[r.mode]||r.mode||'دخول','التاريخ':r.date,'الوقت':r.time,'التاريخ والوقت':r.dt||'','البريد الإلكتروني':r.email||'','عنوان IP':r.ip||'','بصمة الجهاز':r.fp||''};});
   var h=['الترتيب','الرقم الأكاديمي','اسم الفعالية','نوع التسجيل','التاريخ','الوقت','التاريخ والوقت','البريد الإلكتروني','عنوان IP','بصمة الجهاز'];
   var ws=XLSX.utils.json_to_sheet(data,{header:h});ws['!cols']=[{wch:12},{wch:18},{wch:26},{wch:12},{wch:12},{wch:8},{wch:26},{wch:22},{wch:18},{wch:20}];
-  XLSX.utils.book_append_sheet(wb,ws,name.slice(0,26));
-}
-
-function addVrSheet(wb, evtId, evtName, cb){
-  // Get all entered students for this event
-  db.ref('records').orderByChild('evtId').equalTo(evtId).once('value').then(function(rsnap){
-    var entered={};
-    rsnap.forEach(function(c){var r=c.val();if(r.mode==='entry')entered[r.num]=true;});
-    var allNums=Object.keys(entered);
-    if(!allNums.length){cb();return;}
-    // Get all verification rounds for this event
-    db.ref('verification_rounds').once('value').then(function(vsnap){
-      var rounds=[];
-      vsnap.forEach(function(c){var r=c.val();r.id=c.key;if(r.evtId===evtId&&r.status==='ended')rounds.push(r);});
-      if(!rounds.length){cb();return;}
-      // Sort rounds by time
-      rounds.sort(function(a,b){return (a.startedAt||'').localeCompare(b.startedAt||'');});
-      // Build headers
-      var h=['الرقم الأكاديمي'];
-      rounds.forEach(function(r,i){h.push('جولة '+(i+1)+' ('+( r.startedAt||'').slice(0,16)+')');});
-      h.push('إجمالي الحضور');
-      // Build rows
-      var data=allNums.map(function(num){
-        var row={'الرقم الأكاديمي':num};
-        var totalPresent=0;
-        rounds.forEach(function(r,i){
-          var responses=r.responses||{};
-          var present=!!responses[num];
-          row['جولة '+(i+1)+' ('+( r.startedAt||'').slice(0,16)+')']= present?'✅ حاضر':'❌ غائب';
-          if(present)totalPresent++;
-        });
-        row['إجمالي الحضور']=totalPresent+'/'+rounds.length;
-        return row;
-      });
-      var ws=XLSX.utils.json_to_sheet(data,{header:h});
-      var cols=[{wch:18}];
-      rounds.forEach(function(){cols.push({wch:24});});
-      cols.push({wch:16});
-      ws['!cols']=cols;
-      XLSX.utils.book_append_sheet(wb,ws,(evtName.slice(0,20)+' - جولات').slice(0,28));
-      cb();
-    }).catch(function(){cb();});
-  }).catch(function(){cb();});
+  XLSX.utils.book_append_sheet(wb,ws,name.slice(0,28));
 }
 function doExcel(){
   if(!allRecs.length){alert('افتح تبويب السجلات أولاً');return;}
-  var f=filt==='all'?allRecs:allRecs.filter(function(r){return r.evtId===filt;});
-  if(!f.length){alert('لا توجد بيانات');return;}
+  var f=filt==='all'?allRecs:allRecs.filter(function(r){return r.evtId===filt;});if(!f.length){alert('لا توجد بيانات');return;}
   var wb=XLSX.utils.book_new();
-  if(filt==='all'){
-    var g={};
-    f.forEach(function(r){if(!g[r.evtId])g[r.evtId]=[];g[r.evtId].push(r);});
-    Object.keys(g).forEach(function(id){var e=allEvts.filter(function(e){return e.id===id;})[0];buildSheet(wb,g[id],e?e.name:id);});
-    XLSX.writeFile(wb,'كشف_الحضور_'+today()+'.xlsx');
-  } else {
-    var e=allEvts.filter(function(e){return e.id===filt;})[0];
-    buildSheet(wb,f,e?e.name:'فعالية');
-    addVrSheet(wb,filt,e?e.name:'فعالية',function(){
-      XLSX.writeFile(wb,'كشف_الحضور_'+today()+'.xlsx');
-    });
-  }
+  if(filt==='all'){var g={};f.forEach(function(r){if(!g[r.evtId])g[r.evtId]=[];g[r.evtId].push(r);});Object.keys(g).forEach(function(id){var e=allEvts.filter(function(e){return e.id===id;})[0];buildSheet(wb,g[id],e?e.name:id);});}
+  else{var e=allEvts.filter(function(e){return e.id===filt;})[0];buildSheet(wb,f,e?e.name:'فعالية');}
+  XLSX.writeFile(wb,'كشف_الحضور_'+today()+'.xlsx');
 }
-function xEvt(id,name){
-  db.ref('records').orderByChild('evtId').equalTo(id).once('value').then(function(snap){
-    var r=[];snap.forEach(function(c){r.push(c.val());});
-    if(!r.length){alert('لا توجد سجلات');return;}
-    var wb=XLSX.utils.book_new();
-    buildSheet(wb,r,name);
-    addVrSheet(wb,id,name,function(){
-      XLSX.writeFile(wb,'كشف_'+name.slice(0,18)+'_'+today()+'.xlsx');
-    });
-  }).catch(function(e){errMsg(e.message);});
-}
-
+function xEvt(id,name){db.ref('records').orderByChild('evtId').equalTo(id).once('value').then(function(snap){var r=[];snap.forEach(function(c){r.push(c.val());});if(!r.length){alert('لا توجد سجلات');return;}var wb=XLSX.utils.book_new();buildSheet(wb,r,name);XLSX.writeFile(wb,'كشف_'+name.slice(0,18)+'_'+today()+'.xlsx');}).catch(function(e){errMsg(e.message);});}
 function doCSV(){
   if(!allRecs.length){alert('افتح تبويب السجلات أولاً');return;}
   var f=filt==='all'?allRecs:allRecs.filter(function(r){return r.evtId===filt;});
