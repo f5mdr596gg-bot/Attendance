@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>نظام الحضور الذكي</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Tajawal',sans-serif;background:#f0f2f5;min-height:100vh;direction:rtl;color:#111}
+.header{background:#1a2942;color:#fff;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.htop{display:flex;align-items:center;gap:10px;padding:12px 16px}
+.logo{background:#e74c3c;border-radius:10px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.htitle{font-weight:800;font-size:16px}.hsub{font-size:11px;opacity:.65}
+.tabs{display:flex;border-top:1px solid rgba(255,255,255,.1)}
+.tab{flex:1;padding:9px 2px;background:none;border:none;border-bottom:3px solid transparent;color:rgba(255,255,255,.55);font-family:'Tajawal',sans-serif;font-size:12px;font-weight:400;cursor:pointer}
+.tab.on{color:#fff;border-bottom-color:#3b82f6;font-weight:700}
+.wrap{max-width:520px;margin:0 auto;padding:14px 12px 50px}
+.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.ctitle{font-weight:700;font-size:15px;margin-bottom:12px;color:#1a2942}
+label{display:block;font-size:12px;font-weight:600;color:#555;margin-bottom:4px}
+input,select,textarea{width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:10px 12px;font-size:14px;font-family:'Tajawal',sans-serif;outline:none;direction:rtl;background:#fafafa;color:#111;margin-bottom:10px}
+input:focus,select:focus,textarea:focus{border-color:#3b82f6;background:#fff}
+textarea{resize:none}
+.row{display:flex;gap:8px}
+.row>div{flex:1}
+.btn{border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;font-family:'Tajawal',sans-serif;cursor:pointer;transition:opacity .15s}
+.btn:hover{opacity:.88}
+.bb{background:#2563eb;color:#fff}
+.bg{background:#16a34a;color:#fff}
+.br{background:#dc2626;color:#fff}
+.bgr{background:#6b7280;color:#fff}
+.bn{background:#1a2942;color:#fff}
+.bfull{width:100%;padding:14px;font-size:15px;border-radius:12px}
+.bcreate{width:100%;background:#1a2942;color:#fff;border:none;border-radius:12px;padding:16px;font-size:16px;font-weight:700;font-family:'Tajawal',sans-serif;cursor:pointer;margin-bottom:14px}
+.badg{display:inline-block;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600}
+.bg2{background:#d1fae5;color:#065f46}.br2{background:#fee2e2;color:#991b1b}
+.bb2{background:#dbeafe;color:#1e40af}.bgr2{background:#f3f4f6;color:#374151}
+.bp2{background:#ede9fe;color:#5b21b6}
+.msg{border-radius:8px;padding:10px 14px;margin-bottom:12px;font-weight:600;font-size:13px}
+.ms{background:#d1fae5;color:#065f46}.me{background:#fee2e2;color:#991b1b}.mw{background:#fef3c7;color:#92400e}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.scard{background:#fff;border-radius:12px;padding:16px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.si{font-size:26px}.sv{font-size:30px;font-weight:800}.sl{font-size:11px;color:#666}
+.rrow{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-radius:7px;margin-bottom:5px}
+.ract{background:#d1fae5}.rend{background:#f3f4f6}
+.evitem{padding:10px 12px;background:#f8f9fa;border-radius:8px;margin-bottom:8px}
+.evact{padding:10px 12px;background:#f0f7ff;border-radius:8px;margin-bottom:6px;cursor:pointer;border:1.5px solid #bfdbfe}
+.stuitem{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#f8f9fa;border-radius:7px;margin-bottom:6px}
+.empty{text-align:center;color:#999;padding:28px}
+.rdiv{display:flex;gap:8px}
+.rdiv .btn{flex:1;font-size:12px}
+.radio-g{background:#f8f9fa;border-radius:8px;padding:10px 12px;margin-bottom:12px}
+.radio-row{display:flex;gap:20px;margin-top:8px}
+.radio-opt{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px}
+.radio-c{width:18px;height:18px;border-radius:50%;border:2px solid #ccc;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.radio-c.sel{border-color:#16a34a;background:#16a34a}
+.rdot{width:8px;height:8px;border-radius:50%;background:#fff}
+.locdisplay{background:#f8f9fa;border-radius:8px;padding:9px 12px;margin-top:10px;font-size:13px;display:flex;gap:8px;align-items:center}
+.qrcreated{border:2px solid #16a34a;text-align:center}
+.qrwrap{display:flex;justify-content:center;margin-bottom:10px}
+.qrinner{padding:12px;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1);display:inline-block}
+canvas{display:block;border-radius:4px}
+.qrtxt{font-size:26px;font-weight:800;letter-spacing:6px;color:#1a2942;margin-bottom:4px}
+.mini2{display:flex;gap:8px;margin-bottom:10px}
+.mini2 .scard{margin-bottom:0}
+@media(max-width:400px){.wrap{padding:10px 8px 50px}.card{padding:12px}}
+</style>
+</head>
+<body>
+<div id="R"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+const S={
+  tab:'sup',
+  events:[],records:[],rounds:[],
+  newEv:null,
+  msg:null,msgT:null,
+  fName:'',fDate:new Date().toISOString().slice(0,10),fTime:'08:00',
+  fDesc:'',fLocReq:true,fRadius:300,fLoc:null,
+  sCode:'',sStu:'',
+  rFilter:'all',
+};
+
+const STUS=[
+  {id:'S001',name:'أحمد محمد العمري',g:'الأول'},
+  {id:'S002',name:'سارة عبدالله الزهراني',g:'الأول'},
+  {id:'S003',name:'محمد علي القحطاني',g:'الثاني'},
+  {id:'S004',name:'نورة سعد الغامدي',g:'الثاني'},
+  {id:'S005',name:'عمر خالد الشهري',g:'الثالث'},
+  {id:'S006',name:'فاطمة يوسف الدوسري',g:'الثالث'},
+  {id:'S007',name:'يوسف إبراهيم المطيري',g:'الأول'},
+  {id:'S008',name:'ريم عبدالرحمن البقمي',g:'الثاني'},
+  {id:'S009',name:'خالد سلطان الحربي',g:'الثالث'},
+  {id:'S010',name:'منال إبراهيم الرشيدي',g:'الأول'},
+];
+
+// ═══════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════
+function uid(){return Math.random().toString(36).slice(2,10).toUpperCase();}
+function h32(str){let h=0x811c9dc5;for(let i=0;i<str.length;i++)h=Math.imul(h^str.charCodeAt(i),0x1000193)>>>0;return h;}
+function fmtD(iso){return new Date(iso).toLocaleString('ar-SA');}
+function fmtT(iso){return new Date(iso).toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'});}
+
+function flash(type,text){
+  if(S.msgT)clearTimeout(S.msgT);
+  S.msg={type,text};
+  S.msgT=setTimeout(()=>{S.msg=null;render();},3500);
+  render();
+}
+
+// ═══════════════════════════════════════════════════
+// QR CANVAS
+// ═══════════════════════════════════════════════════
+function drawQR(id,val){
+  const cv=document.getElementById(id);if(!cv)return;
+  const ctx=cv.getContext('2d'),N=21,cell=cv.width/N;
+  const h1=h32(val),h2=h32(val+'~');
+  function finder(r,c,or,oc){const i=r-or,j=c-oc;if(i<0||i>6||j<0||j>6)return null;if(i===0||i===6||j===0||j===6)return true;if(i>=2&&i<=4&&j>=2&&j<=4)return true;return false;}
+  function dark(r,c){
+    for(const[or,oc]of[[0,0],[0,N-7],[N-7,0]]){const f=finder(r,c,or,oc);if(f!==null)return f;}
+    if((r===7&&c<9)||(r<9&&c===7)||(r===7&&c>N-9)||(c===N-8&&r<8))return false;
+    if(r===N-8&&c<8)return false;
+    if(r===6)return c%2===0;if(c===6)return r%2===0;
+    const idx=r*N+c;return((idx<32?h1:h2)>>(idx%32)&1)===1;
+  }
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.fillStyle='#000';
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(dark(r,c))ctx.fillRect(c*cell,r*cell,cell,cell);
+}
+
+// ═══════════════════════════════════════════════════
+// MAP
+// ═══════════════════════════════════════════════════
+const DL=24.7136,DG=46.6753;
+function locXY(lat,lng){return{x:50+(lng-DG)/0.12*50,y:50-(lat-DL)/0.08*50};}
+
+function buildMap(){
+  const loc=S.fLoc;
+  const {x,y}=loc?locXY(loc.lat,loc.lng):{x:50,y:50};
+  const pin=loc?`
+    <circle cx="${x}" cy="${y}" r="2.5" fill="#e74c3c" stroke="white" stroke-width=".7"/>
+    <line x1="${x}" y1="${y+2.5}" x2="${x}" y2="${y+8}" stroke="#e74c3c" stroke-width="1.2"/>
+    <circle cx="${x}" cy="${y+8.5}" r=".8" fill="#e74c3c" opacity=".4"/>
+  `:`<text x="50" y="54" text-anchor="middle" fill="#aaa" font-size="5" font-family="Tajawal,sans-serif">اضغط لتحديد الموقع</text>`;
+  return `
+  <svg id="MAPSVG" viewBox="0 0 100 100" style="width:100%;height:190px;cursor:crosshair;border-radius:8px;background:#e8ede4;border:1px solid #ccc;display:block">
+    ${[20,40,60,80].map(v=>`<line x1="${v}" y1="0" x2="${v}" y2="100" stroke="#c8d4c0" stroke-width=".4"/><line x1="0" y1="${v}" x2="100" y2="${v}" stroke="#c8d4c0" stroke-width=".4"/>`).join('')}
+    <path d="M0 50 Q50 48 100 50" stroke="#fff" stroke-width="2.5" fill="none" opacity=".8"/>
+    <path d="M50 0 Q48 50 50 100" stroke="#fff" stroke-width="2.5" fill="none" opacity=".8"/>
+    <path d="M0 35 Q60 38 100 37" stroke="#fff" stroke-width="1.5" fill="none" opacity=".5"/>
+    <path d="M20 0 Q22 40 25 100" stroke="#fff" stroke-width="1.5" fill="none" opacity=".5"/>
+    <rect x="15" y="15" width="8" height="6" fill="#d4dcd0" rx="1"/>
+    <rect x="35" y="22" width="10" height="5" fill="#d4dcd0" rx="1"/>
+    <rect x="65" y="18" width="8" height="7" fill="#d4dcd0" rx="1"/>
+    <rect x="72" y="40" width="9" height="6" fill="#d4dcd0" rx="1"/>
+    <rect x="15" y="62" width="8" height="8" fill="#d4dcd0" rx="1"/>
+    <rect x="38" y="68" width="11" height="6" fill="#d4dcd0" rx="1"/>
+    <rect x="62" y="60" width="9" height="9" fill="#d4dcd0" rx="1"/>
+    ${pin}
+  </svg>
+  <div class="row" style="margin-top:8px">
+    <div><label>خط العرض</label><input type="number" step=".000001" value="${loc?loc.lat:''}" placeholder="${DL}" oninput="updCoord('lat',this.value)" style="margin-bottom:0;font-size:12px;padding:6px 8px"></div>
+    <div><label>خط الطول</label><input type="number" step=".000001" value="${loc?loc.lng:''}" placeholder="${DG}" oninput="updCoord('lng',this.value)" style="margin-bottom:0;font-size:12px;padding:6px 8px"></div>
+  </div>`;
+}
+
+function updCoord(k,v){
+  const n=parseFloat(v);if(isNaN(n))return;
+  const loc=S.fLoc||{lat:DL,lng:DG};
+  S.fLoc={...loc,[k]:n};
+  // just update pin without full re-render
+  const mapEl=document.getElementById('MAPSVG');
+  if(mapEl)render();
+}
+
+// ═══════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════
+function setTab(t){S.tab=t;render();}
+
+function createEvent(){
+  if(!S.fName.trim())return flash('e','يرجى إدخال اسم الفعالية');
+  if(S.fLocReq&&!S.fLoc)return flash('e','يرجى تحديد الموقع على الخريطة أو استخدام موقعك الحالي');
+  const id=uid();
+  const ev={id,code:id,name:S.fName,date:S.fDate,time:S.fTime,desc:S.fDesc,
+    locReq:S.fLocReq,radius:S.fRadius,loc:S.fLoc,status:'active',roundCount:1,
+    createdAt:new Date().toISOString()};
+  S.events.unshift(ev);
+  S.rounds.push({id:'R'+Date.now(),eid:id,rn:1,at:new Date().toISOString(),active:true});
+  S.newEv=ev;
+  S.fName='';S.fDate=new Date().toISOString().slice(0,10);S.fTime='08:00';
+  S.fDesc='';S.fLoc=null;S.fRadius=300;
+  render();
+}
+
+function closeQR(){S.newEv=null;render();}
+
+function addRound(eid){
+  const ev=S.events.find(e=>e.id===eid);if(!ev)return;
+  const next=ev.roundCount+1;
+  ev.roundCount=next;
+  S.rounds.forEach(r=>{if(r.eid===eid)r.active=false;});
+  S.rounds.push({id:'R'+Date.now(),eid,rn:next,at:new Date().toISOString(),active:true});
+  render();
+}
+
+function endEvent(eid){
+  const ev=S.events.find(e=>e.id===eid);if(ev)ev.status='ended';
+  S.rounds.forEach(r=>{if(r.eid===eid)r.active=false;});
+  render();
+}
+
+function useCode(code){S.sCode=code;render();}
+
+function markAttend(){
+  const code=S.sCode.trim().toUpperCase();
+  const ev=S.events.find(e=>e.code===code);
+  if(!ev)return flash('e','رمز الفعالية غير صحيح ❌');
+  if(ev.status!=='active')return flash('e','هذه الفعالية منتهية');
+  if(!S.sStu)return flash('e','يرجى اختيار الطالب');
+  const round=S.rounds.find(r=>r.eid===ev.id&&r.active);
+  const rn=round?round.rn:1;
+  if(S.records.find(r=>r.eid===ev.id&&r.sid===S.sStu&&r.rn===rn))
+    return flash('w',`تم تسجيل هذا الطالب في الجولة ${rn} مسبقاً`);
+  const st=STUS.find(s=>s.id===S.sStu);
+  S.records.unshift({id:'REC'+Date.now(),eid:ev.id,evName:ev.name,
+    sid:S.sStu,sName:st?st.name:S.sStu,rn,at:new Date().toISOString()});
+  flash('s',`✅ تم تسجيل حضور ${st?st.name:S.sStu} — الجولة ${rn}`);
+  S.sCode='';S.sStu='';
+}
+
+function getGPS(){
+  if(!navigator.geolocation)return flash('e','المتصفح لا يدعم GPS');
+  navigator.geolocation.getCurrentPosition(
+    p=>{S.fLoc={lat:+p.coords.latitude.toFixed(6),lng:+p.coords.longitude.toFixed(6)};render();},
+    ()=>flash('e','تعذّر الوصول إلى موقعك. حدد الموقع يدوياً.')
+  );
+}
+
+function exportXL(){
+  if(!window.XLSX)return alert('مكتبة Excel لم تُحمَّل');
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(S.records.map(r=>({'الفعالية':r.evName,'معرف الطالب':r.sid,'اسم الطالب':r.sName,'جولة التحقق':r.rn,'وقت التسجيل':fmtD(r.at)}))),  'سجلات الحضور');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(S.rounds.map(r=>{const ev=S.events.find(e=>e.id===r.eid);const cnt=S.records.filter(rc=>rc.eid===r.eid&&rc.rn===r.rn).length;return{'الفعالية':ev?ev.name:r.eid,'رقم الجولة':r.rn,'وقت البدء':fmtD(r.at),'الحالة':r.active?'نشطة':'منتهية','عدد الحضور':cnt};})),'جولات التحقق');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(S.events.map(e=>({'رمز الفعالية':e.code,'الاسم':e.name,'التاريخ':e.date,'الوقت':e.time,'التحقق من الموقع':e.locReq?'إلزامي':'اختياري','النطاق(م)':e.radius,'عدد الجولات':e.roundCount,'إجمالي الحضور':S.records.filter(r=>r.eid===e.id).length,'الحالة':e.status==='active'?'نشطة':'منتهية'}))),'الفعاليات');
+  XLSX.writeFile(wb,'نظام_الحضور_الذكي.xlsx');
+}
+
+// ═══════════════════════════════════════════════════
+// BUILD HTML
+// ═══════════════════════════════════════════════════
+function buildHeader(){
+  return`<div class="header">
+  <div class="htop">
+    <div class="logo">🎯</div>
+    <div><div class="htitle">نظام الحضور الذكي</div><div class="hsub">تسجيل الفعاليات</div></div>
+  </div>
+  <div class="tabs">
+    ${[['sup','⚙️','المشرف'],['stu','📱','الطالب'],['rec','📊','السجلات'],['mgr','👥','المدير']].map(([k,i,l])=>`<button class="tab${S.tab===k?' on':''}" onclick="setTab('${k}')">${i} ${l}</button>`).join('')}
+  </div></div>`;
+}
+
+function msgHTML(){
+  if(!S.msg)return'';
+  const c={s:'ms',e:'me',w:'mw'}[S.msg.type];
+  return`<div class="msg ${c}">${S.msg.text}</div>`;
+}
+
+// ── SUPERVISOR ──
+function buildSup(){
+  const active=S.events.filter(e=>e.status==='active');
+  const ended=S.events.filter(e=>e.status==='ended');
+
+  const qrCard=S.newEv?`
+  <div class="card qrcreated">
+    <div style="font-weight:700;font-size:15px;color:#16a34a;margin-bottom:12px">✅ تم إنشاء الفعالية بنجاح!</div>
+    <div class="qrwrap"><div class="qrinner"><canvas id="QRCV" width="180" height="180"></canvas></div></div>
+    <div class="qrtxt">${S.newEv.code}</div>
+    <div style="font-size:14px;color:#555">${S.newEv.name}</div>
+    <div style="font-size:12px;color:#888;margin-top:4px">${S.newEv.date} — ${S.newEv.time}</div>
+    <button class="btn bgr bfull" onclick="closeQR()" style="margin-top:14px">إغلاق</button>
+  </div>`:'';
+
+  const locCard=`
+  <div class="card">
+    <div class="ctitle">📍 الموقع الجغرافي</div>
+    <div class="radio-g">
+      <div style="font-size:13px;font-weight:600">التحقق من الموقع:</div>
+      <div class="radio-row">
+        <div class="radio-opt" onclick="S.fLocReq=true;render()">
+          <div class="radio-c${S.fLocReq?' sel':''}"><div class="rdot"></div></div>
+          <span>إلزامي</span>
+        </div>
+        <div class="radio-opt" onclick="S.fLocReq=false;render()">
+          <div class="radio-c${!S.fLocReq?' sel':''}"><div class="rdot"></div></div>
+          <span>اختياري</span>
+        </div>
+      </div>
+    </div>
+    <button class="btn bg" style="width:100%;margin-bottom:10px" onclick="getGPS()">📡 استخدام موقعي الحالي</button>
+    ${buildMap()}
+    <div class="locdisplay" style="color:${S.fLoc?'#1a2942':'#999'}">
+      <span>📍</span>
+      <span>${S.fLoc?`خط العرض: ${S.fLoc.lat} | خط الطول: ${S.fLoc.lng}`:'اضغط على الخريطة لتحديد الموقع'}</span>
+    </div>
+    <div style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:#777;margin-bottom:4px">
+        <span>50 م</span><span style="font-weight:700;color:#1a2942">النطاق: ${S.fRadius} م</span><span>2000 م</span>
+      </div>
+      <input type="range" min="50" max="2000" step="50" value="${S.fRadius}" oninput="S.fRadius=+this.value;this.previousElementSibling.children[1].textContent='النطاق: '+this.value+' م'" style="margin-bottom:0;border:none;background:none;padding:0;accent-color:#2563eb">
+    </div>
+  </div>`;
+
+  const activeCards=active.length===0
+    ?`<div class="card empty">لا توجد فعاليات نشطة حالياً</div>`
+    :active.map(ev=>{
+      const evR=S.rounds.filter(r=>r.eid===ev.id);
+      const aR=evR.find(r=>r.active);
+      const evRec=S.records.filter(r=>r.eid===ev.id);
+      return`<div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+          <div>
+            <div style="font-weight:700;font-size:15px">${ev.name}</div>
+            <div style="font-size:12px;color:#666">${ev.date} — ${ev.time}</div>
+            <div style="font-size:12px;color:#2563eb;font-weight:600;margin-top:3px">رمز: <strong>${ev.code}</strong> | الجولة الحالية: ${aR?aR.rn:1}</div>
+          </div>
+          <span class="badg bg2">نشطة</span>
+        </div>
+        <div class="mini2">
+          <div class="scard" style="margin-bottom:0"><div class="sv" style="font-size:22px;color:#2563eb">${evRec.length}</div><div class="sl">إجمالي الحضور</div></div>
+          <div class="scard" style="margin-bottom:0"><div class="sv" style="font-size:22px;color:#7c3aed">${evR.length}</div><div class="sl">الجولات</div></div>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:#666;margin:10px 0 6px">جولات التحقق من الحضور:</div>
+        ${evR.map(r=>`
+          <div class="rrow ${r.active?'ract':'rend'}">
+            <span style="font-size:13px;font-weight:600">الجولة ${r.rn}</span>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span style="font-size:11px;color:#888">${fmtT(r.at)}</span>
+              <span class="badg ${r.active?'bg2':'bgr2'}">${r.active?'نشطة':'منتهية'}</span>
+              <span style="font-size:11px;color:#2563eb;font-weight:700">${S.records.filter(rc=>rc.eid===ev.id&&rc.rn===r.rn).length} حاضر</span>
+            </div>
+          </div>`).join('')}
+        <div class="rdiv" style="margin-top:10px">
+          <button class="btn bb" onclick="addRound('${ev.id}')">➕ جولة تحقق جديدة</button>
+          <button class="btn br" onclick="endEvent('${ev.id}')">⏹ إنهاء الفعالية</button>
+        </div>
+      </div>`;
+    }).join('');
+
+  const endedCards=ended.map(ev=>`
+    <div class="card" style="opacity:.7">
+      <div style="display:flex;justify-content:space-between">
+        <div><div style="font-weight:600">${ev.name}</div><div style="font-size:12px;color:#888">${ev.date}</div></div>
+        <span class="badg bgr2">منتهية</span>
+      </div>
+    </div>`).join('');
+
+  return`
+  ${qrCard}
+  <div class="card">
+    <div class="ctitle">إنشاء فعالية جديدة</div>
+    <label>اسم الفعالية *</label>
+    <input value="${S.fName}" oninput="S.fName=this.value" placeholder="أدخل اسم الفعالية...">
+    <div class="row">
+      <div><label>التاريخ *</label><input type="date" value="${S.fDate}" oninput="S.fDate=this.value"></div>
+      <div><label>الوقت *</label><input type="time" value="${S.fTime}" oninput="S.fTime=this.value"></div>
+    </div>
+    <label>الوصف</label>
+    <textarea oninput="S.fDesc=this.value" placeholder="وصف اختياري..." rows="2">${S.fDesc}</textarea>
+  </div>
+  ${locCard}
+  <button class="bcreate" onclick="createEvent()">📱 إنشاء الفعالية وباركوداتها</button>
+  <div class="ctitle" style="margin-bottom:8px">الفعاليات النشطة</div>
+  ${activeCards}
+  ${ended.length>0?`<div class="ctitle" style="margin-bottom:8px;margin-top:4px">الفعاليات المنتهية</div>${endedCards}`:''}`;
+}
+
+// ── STUDENT ──
+function buildStu(){
+  const active=S.events.filter(e=>e.status==='active');
+  return`
+  <div class="card">
+    <div class="ctitle">📱 تسجيل الحضور</div>
+    <label>رمز الفعالية *</label>
+    <input value="${S.sCode}" oninput="S.sCode=this.value.toUpperCase()" placeholder="XXXXXXXX" style="text-align:center;font-size:22px;font-weight:800;letter-spacing:5px">
+    <label>الطالب *</label>
+    <select onchange="S.sStu=this.value">
+      <option value="">— اختر اسمك —</option>
+      ${STUS.map(st=>`<option value="${st.id}"${S.sStu===st.id?' selected':''}>${st.name} (${st.id})</option>`).join('')}
+    </select>
+    <button class="btn bg bfull" onclick="markAttend()">✅ تسجيل الحضور</button>
+  </div>
+  ${active.length>0?`<div class="card">
+    <div class="ctitle">الفعاليات المتاحة حالياً</div>
+    ${active.map(ev=>`<div class="evact" onclick="useCode('${ev.code}');render()">
+      <div style="font-weight:600">${ev.name}</div>
+      <div style="font-size:12px;color:#2563eb;font-weight:700">${ev.code}</div>
+      <div style="font-size:11px;color:#888">${ev.date} — ${ev.time}</div>
+    </div>`).join('')}
+  </div>`:''}`;
+}
+
+// ── RECORDS ──
+function buildRec(){
+  const filtered=S.rFilter==='all'?S.records:S.records.filter(r=>r.eid===S.rFilter);
+  return`
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="ctitle" style="margin:0">📊 سجلات الحضور</div>
+      <button class="btn bb" onclick="exportXL()">📥 Excel</button>
+    </div>
+    <label>تصفية حسب الفعالية</label>
+    <select onchange="S.rFilter=this.value;render()">
+      <option value="all"${S.rFilter==='all'?' selected':''}>جميع الفعاليات (${S.records.length})</option>
+      ${S.events.map(e=>`<option value="${e.id}"${S.rFilter===e.id?' selected':''}>${e.name} (${S.records.filter(r=>r.eid===e.id).length})</option>`).join('')}
+    </select>
+  </div>
+  ${filtered.length===0?`<div class="card empty">لا توجد سجلات حضور</div>`
+    :filtered.map(r=>`<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:600;font-size:14px">${r.sName}</div>
+        <span class="badg bb2">جولة ${r.rn}</span>
+      </div>
+      <div style="font-size:12px;color:#555;margin-top:2px">${r.evName}</div>
+      <div style="font-size:11px;color:#999;margin-top:2px">${fmtD(r.at)}</div>
+    </div>`).join('')}`;
+}
+
+// ── MANAGER ──
+function buildMgr(){
+  const active=S.events.filter(e=>e.status==='active');
+  return`
+  <div class="sgrid">
+    ${[['📅','إجمالي الفعاليات',S.events.length,'#2563eb'],['✅','الفعاليات النشطة',active.length,'#16a34a'],['👥','إجمالي الحضور',S.records.length,'#d97706'],['🔄','جولات التحقق',S.rounds.length,'#7c3aed']].map(([i,l,v,c])=>`
+    <div class="scard"><div class="si">${i}</div><div class="sv" style="color:${c}">${v}</div><div class="sl">${l}</div></div>`).join('')}
+  </div>
+
+  <div class="card">
+    <div class="ctitle">جميع الفعاليات</div>
+    ${S.events.length===0?`<div class="empty">لا توجد فعاليات</div>`:S.events.map(ev=>{
+      const cnt=S.records.filter(r=>r.eid===ev.id).length;
+      const rnc=S.rounds.filter(r=>r.eid===ev.id).length;
+      return`<div class="evitem">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:600">${ev.name}</div>
+          <span class="badg ${ev.status==='active'?'bg2':'bgr2'}">${ev.status==='active'?'نشطة':'منتهية'}</span>
+        </div>
+        <div style="font-size:12px;color:#666">${ev.date} — ${ev.time}</div>
+        <div style="display:flex;gap:14px;margin-top:5px;font-size:12px">
+          <span style="color:#2563eb">👥 ${cnt} حاضر</span>
+          <span style="color:#7c3aed">🔄 ${rnc} جولة</span>
+          <span style="color:#666">رمز: ${ev.code}</span>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>
+
+  <div class="card">
+    <div class="ctitle">🔄 جولات التحقق من الحضور</div>
+    ${S.rounds.length===0?`<div class="empty">لا توجد جولات تحقق</div>`:S.rounds.map(r=>{
+      const ev=S.events.find(e=>e.id===r.eid);
+      const cnt=S.records.filter(rc=>rc.eid===r.eid&&rc.rn===r.rn).length;
+      return`<div style="padding:10px 12px;background:${r.active?'#d1fae5':'#f3f4f6'};border-radius:8px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:600">الجولة ${r.rn} — ${ev?ev.name:''}</div>
+          <span class="badg ${r.active?'bg2':'bgr2'}">${r.active?'نشطة':'منتهية'}</span>
+        </div>
+        <div style="font-size:12px;color:#666">${fmtD(r.at)}</div>
+        <div style="font-size:13px;color:#2563eb;font-weight:700;margin-top:4px">👥 ${cnt} حاضر في هذه الجولة</div>
+      </div>`;
+    }).join('')}
+  </div>
+
+  <div class="card">
+    <div class="ctitle">👨‍🎓 قائمة الطلاب</div>
+    ${STUS.map(st=>`<div class="stuitem">
+      <div>
+        <div style="font-weight:600;font-size:13px">${st.name}</div>
+        <div style="font-size:11px;color:#888">${st.id} | الصف ${st.g}</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-weight:700;color:#2563eb;font-size:18px">${S.records.filter(r=>r.sid===st.id).length}</div>
+        <div style="font-size:10px;color:#888">حضور</div>
+      </div>
+    </div>`).join('')}
+  </div>
+
+  <button class="btn bn bfull" onclick="exportXL()" style="border-radius:12px">📥 تصدير تقرير Excel الكامل (3 أوراق)</button>`;
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════
+function render(){
+  const tabs={sup:buildSup,stu:buildStu,rec:buildRec,mgr:buildMgr};
+  document.getElementById('R').innerHTML=
+    buildHeader()+
+    `<div class="wrap">${msgHTML()}${tabs[S.tab]()}</div>`;
+  afterRender();
+}
+
+function afterRender(){
+  // Draw QR
+  if(S.newEv) requestAnimationFrame(()=>drawQR('QRCV',S.newEv.code));
+  // Map click
+  const mapEl=document.getElementById('MAPSVG');
+  if(mapEl) mapEl.addEventListener('click',function(e){
+    const rect=this.getBoundingClientRect();
+    const px=(e.clientX-rect.left)/rect.width;
+    const py=(e.clientY-rect.top)/rect.height;
+    S.fLoc={lat:parseFloat((DL+(0.5-py)*0.08).toFixed(6)),lng:parseFloat((DG+(px-0.5)*0.12).toFixed(6))};
+    render();
+  });
+}
+
+// Start
+render();
+</script>
+</body>
+</html>
